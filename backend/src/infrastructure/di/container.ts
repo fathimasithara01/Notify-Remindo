@@ -1,0 +1,98 @@
+import 'reflect-metadata';
+import { container } from 'tsyringe';
+import { TOKENS } from './tokens';
+
+import { UserRepository } from '../database/repositories/user.repository';
+import { RoleRepository } from '../database/repositories/role.repository';
+import { PermissionRepository } from '../database/repositories/permission.repository';
+import { OrganizationRepository } from '../database/repositories/organization.repository';
+import { SubscriptionPlanRepository } from '../database/repositories/subscription-plan.repository';
+import { FeatureRepository } from '../database/repositories/feature.repository';
+import { NotificationRepository } from '../database/repositories/notification.repository';
+import { AuditLogRepository } from '../database/repositories/audit-log.repository';
+
+import { BcryptHashService } from '../services/bcrypt-hash.service';
+import { JwtTokenService } from '../services/jwt-token.service';
+import { WhatsAppNotifierService } from '../services/whatsapp-notifier.service';
+import { EmailNotifierService } from '../services/email-notifier.service';
+
+import { LoginAdminUseCase } from '../../application/auth/use-cases/login-admin.use-case';
+import { RefreshTokenUseCase } from '../../application/auth/use-cases/refresh-token.use-case';
+import { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-current-user.use-case';
+import { CreateRoleUseCase } from '../../application/role/use-cases/create-role.use-case';
+import { AssignPermissionsUseCase } from '../../application/role/use-cases/assign-permissions.use-case';
+import { EditRoleUseCase } from '../../application/role/use-cases/edit-role.use-case';
+import { CreateOrganizationUseCase } from '../../application/organization/use-cases/create-organization.use-case';
+import { UpgradePlanUseCase } from '../../application/organization/use-cases/upgrade-plan.use-case';
+import { BlockCustomerUseCase } from '../../application/organization/use-cases/block-customer.use-case';
+import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
+import { CreatePlanUseCase } from '../../application/subscription/use-cases/create-plan.use-case';
+import { EditPlanUseCase } from '../../application/subscription/use-cases/edit-plan.use-case';
+import { CreateFeatureUseCase } from '../../application/subscription/use-cases/create-feature.use-case';
+import { ScheduleNotificationUseCase } from '../../application/notification/use-cases/schedule-notification.use-case';
+import { SendReminderUseCase } from '../../application/notification/use-cases/send-reminder.use-case';
+import { GetBusinessReportUseCase } from '../../application/dashboard/use-cases/get-business-report.use-case';
+
+import { AuthController } from '../../presentation/controllers/auth.controller';
+import { RoleController } from '../../presentation/controllers/role.controller';
+import { PermissionController } from '../../presentation/controllers/permission.controller';
+import { OrganizationController } from '../../presentation/controllers/organization.controller';
+import { SubscriptionController } from '../../presentation/controllers/subscription.controller';
+import { NotificationController } from '../../presentation/controllers/notification.controller';
+import { DashboardController } from '../../presentation/controllers/dashboard.controller';
+
+export function registerDependencies(): void {
+  container.registerSingleton(TOKENS.UserRepository, UserRepository);
+  container.registerSingleton(TOKENS.RoleRepository, RoleRepository);
+  container.registerSingleton(TOKENS.PermissionRepository, PermissionRepository);
+  container.registerSingleton(TOKENS.OrganizationRepository, OrganizationRepository);
+  container.registerSingleton(TOKENS.SubscriptionPlanRepository, SubscriptionPlanRepository);
+  container.registerSingleton(TOKENS.FeatureRepository, FeatureRepository);
+  container.registerSingleton(TOKENS.NotificationRepository, NotificationRepository);
+  container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
+
+  container.registerSingleton(TOKENS.HashService, BcryptHashService);
+  container.registerSingleton(TOKENS.TokenService, JwtTokenService);
+  container.registerSingleton(TOKENS.WhatsAppNotifierService, WhatsAppNotifierService);
+  container.registerSingleton(TOKENS.EmailNotifierService, EmailNotifierService);
+
+  container.register(TOKENS.NotifierMap, {
+    useFactory: (c) => ({
+      whatsapp: c.resolve(TOKENS.WhatsAppNotifierService),
+      email: c.resolve(TOKENS.EmailNotifierService),
+    }),
+  });
+
+  
+  container.register(TOKENS.LoginAdminUseCase, { useClass: LoginAdminUseCase });
+  container.register(TOKENS.RefreshTokenUseCase, { useClass: RefreshTokenUseCase });
+  container.register(TOKENS.GetCurrentUserUseCase, { useClass: GetCurrentUserUseCase });
+  container.register(TOKENS.CreateRoleUseCase, { useClass: CreateRoleUseCase });
+  container.register(TOKENS.AssignPermissionsUseCase, { useClass: AssignPermissionsUseCase });
+  container.register(TOKENS.EditRoleUseCase, { useClass: EditRoleUseCase });
+  container.register(TOKENS.CreateOrganizationUseCase, { useClass: CreateOrganizationUseCase });
+  container.register(TOKENS.UpgradePlanUseCase, { useClass: UpgradePlanUseCase });
+  container.register(TOKENS.BlockCustomerUseCase, { useClass: BlockCustomerUseCase });
+  container.register(TOKENS.AssignSalesmanUseCase, { useClass: AssignSalesmanUseCase });
+  container.register(TOKENS.CreatePlanUseCase, { useClass: CreatePlanUseCase });
+  container.register(TOKENS.EditPlanUseCase, { useClass: EditPlanUseCase });
+  container.register(TOKENS.CreateFeatureUseCase, { useClass: CreateFeatureUseCase });
+  container.register(TOKENS.ScheduleNotificationUseCase, { useClass: ScheduleNotificationUseCase });
+  container.register(TOKENS.SendReminderUseCase, { useClass: SendReminderUseCase });
+  container.register(TOKENS.GetBusinessReportUseCase, { useClass: GetBusinessReportUseCase });
+
+  container.registerSingleton(TOKENS.AuthController, AuthController);
+  container.registerSingleton(TOKENS.RoleController, RoleController);
+  container.registerSingleton(TOKENS.PermissionController, PermissionController);
+  container.registerSingleton(TOKENS.OrganizationController, OrganizationController);
+  container.registerSingleton(TOKENS.SubscriptionController, SubscriptionController);
+  container.registerSingleton(TOKENS.NotificationController, NotificationController);
+  container.registerSingleton(TOKENS.DashboardController, DashboardController);
+}
+
+export { container };
+
+
+// This does NOT create a object. It only stores a mapping.
+// Object alla value pass cheyyunnath. new operator aanu arguments constructor-lekku pass cheyyunnath. 
+// Constructor aa values receive cheyth this use cheyth object-il initialize cheyyunnu.
