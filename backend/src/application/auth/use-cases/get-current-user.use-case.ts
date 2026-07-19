@@ -16,13 +16,11 @@ export class GetCurrentUserUseCase {
   constructor(
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository
-  ) {}
+  ) { }
 
   async execute(userId: string): Promise<CurrentUserResult> {
     const user = await this.userRepo.findById(userId);
-    if (!user) {
-      throw new UnauthorizedError('User no longer exists');
-    }
+    if (!user) throw new UnauthorizedError('User no longer exists');
 
     const role = await this.roleRepo.findById(user.roleId);
 

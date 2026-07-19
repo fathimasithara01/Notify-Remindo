@@ -1,9 +1,6 @@
 import { SubscriptionPlan, NewSubscriptionPlan } from '../entities/subscription-plan.entity';
 import { PlanFeature, NewPlanFeature, PlanFeatureWithDefinition } from '../entities/plan-feature.entity';
-import {
-  OrganizationSubscription,
-  NewOrganizationSubscription,
-} from '../entities/organization-subscription.entity';
+import { OrganizationSubscription, NewOrganizationSubscription } from '../entities/organization-subscription.entity';
 
 export interface ISubscriptionPlanRepository {
   create(data: NewSubscriptionPlan): Promise<SubscriptionPlan>;
@@ -18,5 +15,5 @@ export interface ISubscriptionPlanRepository {
 
   createSubscriptionRecord(data: NewOrganizationSubscription): Promise<OrganizationSubscription>;
   listSubscriptionHistory(organizationId: string): Promise<OrganizationSubscription[]>;
-  closeSubscriptionRecord( id: string,newStatus: 'upgraded' | 'expired' | 'cancelled'): Promise<void>;
+  closeSubscriptionRecord(id: string, newStatus: 'upgraded' | 'expired' | 'cancelled'): Promise<void>;
 }

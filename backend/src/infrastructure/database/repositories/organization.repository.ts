@@ -7,6 +7,7 @@ import { ContactPersonModel, ContactPersonDocument } from '../models/contact-per
 
 @injectable()
 export class OrganizationRepository implements IOrganizationRepository {
+
   async create(data: NewOrganization): Promise<Organization> {
     const doc = await OrganizationModel.create(data);
     return this.toDomain(doc);
@@ -30,12 +31,9 @@ export class OrganizationRepository implements IOrganizationRepository {
     return result !== null;
   }
 
-  async list(filter?: {
-    status?: 'active' | 'blocked';
-    salesmanId?: string;
-    planId?: string;
-  }): Promise<Organization[]> {
+  async list(filter?: { status?: 'active' | 'blocked'; salesmanId?: string; planId?: string }): Promise<Organization[]> {
     const query: Record<string, unknown> = { deletedAt: null };
+
     if (filter?.status) query.status = filter.status;
     if (filter?.salesmanId) query.salesmanId = filter.salesmanId;
     if (filter?.planId) query.currentPlanId = filter.planId;
@@ -68,10 +66,7 @@ export class OrganizationRepository implements IOrganizationRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
-  async addContactPerson(
-    organizationId: string,
-    data: NewContactPerson
-  ): Promise<ContactPerson> {
+  async addContactPerson(organizationId: string, data: NewContactPerson): Promise<ContactPerson> {
     const doc = await ContactPersonModel.create({ ...data, organizationId });
     return this.contactToDomain(doc);
   }

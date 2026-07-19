@@ -16,7 +16,7 @@ export class GetBusinessReportUseCase {
   constructor(
     @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
     @inject(TOKENS.SubscriptionPlanRepository) private planRepo: ISubscriptionPlanRepository
-  ) {}
+  ) { }
 
   async execute(): Promise<BusinessReport> {
     const [allOrgs, activeOrgs, blockedOrgs, activePlans] = await Promise.all([

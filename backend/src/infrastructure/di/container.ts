@@ -63,7 +63,6 @@ export function registerDependencies(): void {
     }),
   });
 
-  
   container.register(TOKENS.LoginAdminUseCase, { useClass: LoginAdminUseCase });
   container.register(TOKENS.RefreshTokenUseCase, { useClass: RefreshTokenUseCase });
   container.register(TOKENS.GetCurrentUserUseCase, { useClass: GetCurrentUserUseCase });
@@ -94,5 +93,5 @@ export { container };
 
 
 // This does NOT create a object. It only stores a mapping.
-// Object alla value pass cheyyunnath. new operator aanu arguments constructor-lekku pass cheyyunnath. 
+// Object alla value pass cheyyunnath. new operator aanu arguments constructor-lekku pass cheyyunnath.
 // Constructor aa values receive cheyth this use cheyth object-il initialize cheyyunnu.
