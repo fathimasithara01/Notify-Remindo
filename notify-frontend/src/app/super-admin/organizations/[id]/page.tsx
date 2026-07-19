@@ -91,7 +91,7 @@ export default function OrganizationDetailPage({
                         Current plan: <span className="font-medium">{currentPlan?.name ?? '—'}</span>
                     </p>
                     <div className="flex items-center gap-2">
-                        <Select onValueChange={(value: string) => upgradeMutation.mutate(value as string)}>
+                        <Select onValueChange={(value) => upgradeMutation.mutate(value)}>
                             <SelectTrigger className="w-64">
                                 <SelectValue placeholder="Change plan…" />
                             </SelectTrigger>

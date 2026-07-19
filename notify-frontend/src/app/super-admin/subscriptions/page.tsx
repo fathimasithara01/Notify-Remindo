@@ -1,171 +1,88 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useRouter } from 'next/navigation';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { organizationApi } from '@/lib/api/organizations';
 import { subscriptionApi } from '@/lib/api/subscriptions';
 import { ApiClientError } from '@/lib/api/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { CreatePlanDialog } from '@/components/subscriptions/create-plan-dialog';
+import { Loader2, Trash2 } from 'lucide-react';
 
-const createOrgSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    contactEmail: z.string().email('Enter a valid email address'),
-    contactPhone: z.string().min(1, 'Contact phone is required'),
-    address: z.string().optional(),
-    planId: z.string().min(1, 'Select a plan'),
-});
-
-type CreateOrgFormValues = z.infer<typeof createOrgSchema>;
-
-export default function NewOrganizationPage() {
-    const router = useRouter();
+export default function SubscriptionsPage() {
     const queryClient = useQueryClient();
 
-    const { data: plans, isLoading: plansLoading } = useQuery({
-        queryKey: ['subscriptions', 'plans', 'active'],
-        queryFn: () => subscriptionApi.listPlans('active'),
+    const { data: plans, isLoading } = useQuery({
+        queryKey: ['subscriptions', 'plans'],
+        queryFn: () => subscriptionApi.listPlans(),
     });
 
-    const form = useForm<CreateOrgFormValues>({
-        resolver: zodResolver(createOrgSchema),
-        defaultValues: { name: '', contactEmail: '', contactPhone: '', address: '', planId: '' },
-    });
-
-    const createMutation = useMutation({
-        mutationFn: organizationApi.create,
-        onSuccess: (org) => {
-            queryClient.invalidateQueries({ queryKey: ['organizations'] });
-            toast.success('Organization created');
-            router.push(`/super-admin/organizations/${org.id}`);
+    const deleteMutation = useMutation({
+        mutationFn: subscriptionApi.deletePlan,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['subscriptions', 'plans'] });
+            toast.success('Plan deleted');
         },
         onError: (error: ApiClientError) => toast.error(error.message),
     });
 
-    const onSubmit = (values: CreateOrgFormValues) => {
-        createMutation.mutate(values);
-    };
-
     return (
-        <div className="mx-auto max-w-xl space-y-6">
-            <div>
-                <h1 className="text-2xl font-semibold">New Organization</h1>
-                <p className="text-sm text-muted-foreground">Onboard a new subscribing organization.</p>
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold">Subscription Plans</h1>
+                    <p className="text-sm text-muted-foreground">
+                        Manage the plans organizations can subscribe to.
+                    </p>
+                </div>
+                <CreatePlanDialog />
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base">Organization Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Organization Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Acme Trading LLC" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="contactEmail"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Contact Email</FormLabel>
-                                        <FormControl>
-                                            <Input type="email" placeholder="contact@acme.com" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="contactPhone"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Contact Phone</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="+971 50 123 4567" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="address"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Address (optional)</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Business address" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="planId"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Subscription Plan</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue
-                                                        placeholder={plansLoading ? 'Loading plans…' : 'Select a plan'}
-                                                    />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {plans?.map((plan) => (
-                                                    <SelectItem key={plan.id} value={plan.id}>
-                                                        {plan.name} — {plan.userLimit} users / {plan.durationDays} days
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <div className="flex justify-end gap-2 pt-2">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => router.push('/super-admin/organizations')}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button type="submit" disabled={createMutation.isPending}>
-                                    {createMutation.isPending ? 'Creating…' : 'Create Organization'}
-                                </Button>
-                            </div>
-                        </form>
-                    </Form>
-                </CardContent>
-            </Card>
+            {isLoading ? (
+                <div className="flex h-40 items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {plans?.map((plan) => (
+                        <Card key={plan.id}>
+                            <CardHeader className="flex flex-row items-start justify-between space-y-0">
+                                <div>
+                                    <CardTitle className="text-base">{plan.name}</CardTitle>
+                                    {plan.description && (
+                                        <p className="mt-1 text-xs text-muted-foreground">{plan.description}</p>
+                                    )}
+                                </div>
+                                <Badge variant={plan.status === 'active' ? 'default' : 'secondary'}>
+                                    {plan.status}
+                                </Badge>
+                            </CardHeader>
+                            <CardContent className="space-y-2">
+                                <div className="text-2xl font-bold">
+                                    {plan.price}{' '}
+                                    <span className="text-sm font-normal text-muted-foreground">
+                                        / {plan.durationDays} days
+                                    </span>
+                                </div>
+                                <p className="text-sm text-muted-foreground">Up to {plan.userLimit} users</p>
+                                <div className="flex justify-end pt-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-destructive hover:text-destructive"
+                                        onClick={() => deleteMutation.mutate(plan.id)}
+                                        disabled={deleteMutation.isPending}
+                                    >
+                                        <Trash2 className="mr-1 h-3.5 w-3.5" />
+                                        Delete
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
