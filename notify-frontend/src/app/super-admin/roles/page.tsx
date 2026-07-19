@@ -9,10 +9,12 @@ import { CreateRoleDialog } from '@/components/roles/create-role-dialog';
 import { Loader2 } from 'lucide-react';
 
 export default function RolesPage() {
-  const { data: roles, isLoading } = useQuery({
+  const { data: rolesResponse, isLoading } = useQuery({
     queryKey: ['roles'],
-    queryFn: roleApi.list,
+    queryFn: () => roleApi.list(),
   });
+
+  const roles = rolesResponse?.items ?? [];
 
   return (
     <div className="space-y-6">
@@ -42,14 +44,14 @@ export default function RolesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {roles?.length === 0 && (
+              {roles.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
                     No roles yet.
                   </TableCell>
                 </TableRow>
               )}
-              {roles?.map((role) => (
+              {roles.map((role) => (
                 <TableRow key={role.id}>
                   <TableCell className="font-medium">
                     <Link href={`/super-admin/roles/${role.id}`} className="hover:underline">

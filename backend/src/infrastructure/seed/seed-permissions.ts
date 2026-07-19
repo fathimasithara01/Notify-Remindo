@@ -5,6 +5,7 @@ const PERMISSIONS: Array<{ name: string; module: string; description: string }> 
   { name: 'role.create', module: 'role', description: 'Create new roles' },
   { name: 'role.view', module: 'role', description: 'View roles' },
   { name: 'role.edit', module: 'role', description: 'Edit roles and assign permissions' },
+  { name: 'role.delete', module: 'role', description: 'Delete non-system roles' },
 
   { name: 'permission.create', module: 'permission', description: 'Create permissions' },
   { name: 'permission.view', module: 'permission', description: 'View permissions' },
@@ -14,6 +15,7 @@ const PERMISSIONS: Array<{ name: string; module: string; description: string }> 
   { name: 'organization.create', module: 'organization', description: 'Onboard new organizations' },
   { name: 'organization.view', module: 'organization', description: 'View organizations' },
   { name: 'organization.edit', module: 'organization', description: 'Edit organization details' },
+  { name: 'organization.delete', module: 'organization', description: 'Delete (soft-delete) an organization' },
   { name: 'organization.block', module: 'organization', description: 'Block/unblock organizations' },
   {
     name: 'organization.upgrade_plan',

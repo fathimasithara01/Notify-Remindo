@@ -6,6 +6,7 @@ import { ScheduleNotificationUseCase } from '../../application/notification/use-
 import { SendReminderUseCase } from '../../application/notification/use-cases/send-reminder.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError } from '../../domain/errors/domain.error';
+import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
 
 @injectable()
 export class NotificationController {
@@ -22,15 +23,23 @@ export class NotificationController {
 
   list = async (req: Request, res: Response): Promise<void> => {
     const { organizationId, status, mode } = req.query;
+    const pagination = parsePagination(req.query as Record<string, unknown>);
+
     const notifications = await this.notificationRepo.list({
       organizationId: organizationId as string | undefined,
       status: status as 'pending' | 'sent' | 'failed' | undefined,
       mode: mode as 'whatsapp' | 'email' | 'in_app' | undefined,
     });
-    ApiResponse.success(res, notifications);
+
+    const start = (pagination.page - 1) * pagination.limit;
+    const pageItems = notifications.slice(start, start + pagination.limit);
+
+    ApiResponse.success(res, {
+      items: pageItems,
+      meta: paginationMeta(notifications.length, pagination),
+    });
   };
 
-  /** Manually trigger a specific pending notification — mainly for testing/debugging. */
   sendNow = async (req: Request, res: Response): Promise<void> => {
     await this.sendReminderUseCase.execute(req.params.id as string);
     ApiResponse.success(res, null, 200, 'Notification sent');

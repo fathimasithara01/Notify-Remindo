@@ -13,10 +13,12 @@ import { Loader2, Trash2 } from 'lucide-react';
 export default function SubscriptionsPage() {
     const queryClient = useQueryClient();
 
-    const { data: plans, isLoading } = useQuery({
+    const { data: plansResponse, isLoading } = useQuery({
         queryKey: ['subscriptions', 'plans'],
         queryFn: () => subscriptionApi.listPlans(),
     });
+
+    const plans = plansResponse?.items ?? [];  
 
     const deleteMutation = useMutation({
         mutationFn: subscriptionApi.deletePlan,
@@ -45,7 +47,7 @@ export default function SubscriptionsPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {plans?.map((plan) => (
+                    {plans.map((plan) => (
                         <Card key={plan.id}>
                             <CardHeader className="flex flex-row items-start justify-between space-y-0">
                                 <div>

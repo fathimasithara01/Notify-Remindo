@@ -6,7 +6,7 @@ import { IOrganizationRepository } from '../../domain/repositories/organization.
 import { INotifierService } from '../../domain/services/notifier.service.interface';
 import { SendReminderUseCase } from '../../application/notification/use-cases/send-reminder.use-case';
 
-type NotifierMap = Record<'whatsapp' | 'email' | 'in_app', INotifierService>;
+type NotifierMap = Record<'whatsapp' | 'email', INotifierService>;
 
 async function runDueNotifications(): Promise<void> {
   const notificationRepo = container.resolve<INotificationRepository>(TOKENS.NotificationRepository);

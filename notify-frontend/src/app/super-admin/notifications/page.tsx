@@ -22,11 +22,13 @@ export default function NotificationsPage() {
     const [statusFilter, setStatusFilter] = useState<NotificationStatus | 'all'>('all');
     const queryClient = useQueryClient();
 
-    const { data: notifications, isLoading } = useQuery({
+    const { data: notificationsResponse, isLoading } = useQuery({
         queryKey: ['notifications', statusFilter],
         queryFn: () =>
             notificationApi.list(statusFilter === 'all' ? undefined : { status: statusFilter }),
     });
+
+    const notifications = notificationsResponse?.items ?? []; 
 
     const sendNowMutation = useMutation({
         mutationFn: notificationApi.sendNow,
@@ -55,7 +57,10 @@ export default function NotificationsPage() {
                         Scheduled reminders across all organizations.
                     </p>
                 </div>
-                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+                <Select
+                    value={statusFilter}
+                    onValueChange={(v: NotificationStatus | 'all') => setStatusFilter(v)}
+                >
                     <SelectTrigger className="w-40">
                         <SelectValue />
                     </SelectTrigger>
@@ -85,14 +90,14 @@ export default function NotificationsPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {notifications?.length === 0 && (
+                            {notifications.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                                         No notifications found.
                                     </TableCell>
                                 </TableRow>
                             )}
-                            {notifications?.map((n) => (
+                            {notifications.map((n) => (
                                 <TableRow key={n.id}>
                                     <TableCell className="font-mono text-sm">{n.referenceType}</TableCell>
                                     <TableCell className="capitalize">{n.mode.replace('_', ' ')}</TableCell>

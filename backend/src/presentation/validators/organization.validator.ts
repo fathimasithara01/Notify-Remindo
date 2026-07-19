@@ -10,6 +10,14 @@ export const createOrganizationSchema = z.object({
   salesmanId: z.string().optional(),
 });
 
+export const editOrganizationSchema = z.object({
+  name: z.string().min(1).optional(),
+  businessDetails: z.record(z.string(), z.unknown()).optional(),
+  contactEmail: z.string().email().optional(),
+  contactPhone: z.string().min(1).optional(),
+  address: z.string().optional(),
+});
+
 export const upgradePlanSchema = z.object({
   newPlanId: z.string().min(1, 'newPlanId is required'),
 });

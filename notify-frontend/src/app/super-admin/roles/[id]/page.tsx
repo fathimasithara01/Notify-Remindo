@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { roleApi } from '@/lib/api/roles';
 import { permissionApi } from '@/lib/api/permissions';
 import { ApiClientError } from '@/lib/api/client';
+import { Permission } from '@/lib/types/permission';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,14 +23,15 @@ export default function RoleDetailPage({ params }: { params: Promise<{ id: strin
         queryFn: () => roleApi.getOne(id),
     });
 
-    const { data: permissions, isLoading: permissionsLoading } = useQuery({
+    const { data: permissionsResponse, isLoading: permissionsLoading } = useQuery({
         queryKey: ['permissions'],
         queryFn: () => permissionApi.list(),
     });
 
+    const permissions = permissionsResponse?.items ?? [];  
 
     useEffect(() => {
-        if (role && permissions) {
+        if (role && permissions.length > 0) {
             const ids = permissions
                 .filter((p) => role.permissions.includes(p.name))
                 .map((p) => p.id);
@@ -67,7 +69,7 @@ export default function RoleDetailPage({ params }: { params: Promise<{ id: strin
         return <p className="text-muted-foreground">Role not found.</p>;
     }
 
-    const grouped = (permissions ?? []).reduce<Record<string, typeof permissions>>((acc, p) => {
+    const grouped = permissions.reduce<Record<string, Permission[]>>((acc, p) => {
         (acc[p.module] ??= []).push(p);
         return acc;
     }, {});

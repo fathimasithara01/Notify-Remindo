@@ -33,7 +33,17 @@ export interface CreateOrganizationPayload {
   salesmanId?: string;
 }
 
+export interface EditOrganizationPayload {
+  name?: string;
+  businessDetails?: Record<string, unknown>;
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+}
+
 export interface OrganizationListFilter {
   status?: OrganizationStatus;
   planId?: string;
+  page?: number;
+  limit?: number;
 }

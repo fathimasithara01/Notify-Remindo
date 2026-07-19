@@ -4,6 +4,7 @@ import { TOKENS } from '../../infrastructure/di/tokens';
 import { IPermissionRepository } from '../../domain/repositories/permission.repository.interface';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { ConflictError, NotFoundError } from '../../domain/errors/domain.error';
+import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
 
 @injectable()
 export class PermissionController {
@@ -23,8 +24,17 @@ export class PermissionController {
 
   list = async (req: Request, res: Response): Promise<void> => {
     const { module } = req.query;
+    const pagination = parsePagination(req.query as Record<string, unknown>);
+
     const permissions = await this.permissionRepo.list({ module: module as string | undefined });
-    ApiResponse.success(res, permissions);
+
+    const start = (pagination.page - 1) * pagination.limit;
+    const pageItems = permissions.slice(start, start + pagination.limit);
+
+    ApiResponse.success(res, {
+      items: pageItems,
+      meta: paginationMeta(permissions.length, pagination),
+    });
   };
 
   getOne = async (req: Request, res: Response): Promise<void> => {

@@ -7,10 +7,12 @@ import { CreatePermissionDialog } from '@/components/permissions/create-permissi
 import { Loader2 } from 'lucide-react';
 
 export default function PermissionsPage() {
-  const { data: permissions, isLoading } = useQuery({
+  const { data: permissionsResponse, isLoading } = useQuery({
     queryKey: ['permissions'],
     queryFn: () => permissionApi.list(),
   });
+
+  const permissions = permissionsResponse?.items ?? [];
 
   const grouped = (permissions ?? []).reduce<Record<string, typeof permissions>>((acc, p) => {
     (acc[p.module] ??= []).push(p);

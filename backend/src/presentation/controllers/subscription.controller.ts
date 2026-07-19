@@ -7,7 +7,8 @@ import { CreatePlanUseCase } from '../../application/subscription/use-cases/crea
 import { EditPlanUseCase } from '../../application/subscription/use-cases/edit-plan.use-case';
 import { CreateFeatureUseCase } from '../../application/subscription/use-cases/create-feature.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
-import { NotFoundError } from '../../domain/errors/domain.error';
+import { NotFoundError, UnauthorizedError } from '../../domain/errors/domain.error';
+import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
 
 @injectable()
 export class SubscriptionController {
@@ -19,7 +20,6 @@ export class SubscriptionController {
     @inject(TOKENS.CreateFeatureUseCase) private createFeatureUseCase: CreateFeatureUseCase
   ) { }
 
-
   createPlan = async (req: Request, res: Response): Promise<void> => {
     const plan = await this.createPlanUseCase.execute(req.body);
     ApiResponse.created(res, plan);
@@ -27,8 +27,17 @@ export class SubscriptionController {
 
   listPlans = async (req: Request, res: Response): Promise<void> => {
     const { status } = req.query;
+    const pagination = parsePagination(req.query as Record<string, unknown>);
+
     const plans = await this.planRepo.list({ status: status as 'active' | 'inactive' | undefined });
-    ApiResponse.success(res, plans);
+
+    const start = (pagination.page - 1) * pagination.limit;
+    const pageItems = plans.slice(start, start + pagination.limit);
+
+    ApiResponse.success(res, {
+      items: pageItems,
+      meta: paginationMeta(plans.length, pagination),
+    });
   };
 
   getPlan = async (req: Request, res: Response): Promise<void> => {
@@ -40,7 +49,13 @@ export class SubscriptionController {
   };
 
   updatePlan = async (req: Request, res: Response): Promise<void> => {
-    const plan = await this.editPlanUseCase.execute(req.params.id as string, req.body);
+    if (!req.user) throw new UnauthorizedError();
+
+    const plan = await this.editPlanUseCase.execute({
+      planId: req.params.id as string,
+      adminId: req.user.userId,
+      data: req.body,
+    });
     ApiResponse.success(res, plan, 200, 'Plan updated');
   };
 
@@ -65,7 +80,6 @@ export class SubscriptionController {
     ApiResponse.success(res, null, 200, 'Plan feature removed');
   };
 
-
   createFeature = async (req: Request, res: Response): Promise<void> => {
     const feature = await this.createFeatureUseCase.execute(req.body);
     ApiResponse.created(res, feature);
@@ -73,9 +87,18 @@ export class SubscriptionController {
 
   listFeatures = async (req: Request, res: Response): Promise<void> => {
     const { status } = req.query;
+    const pagination = parsePagination(req.query as Record<string, unknown>);
+
     const features = await this.featureRepo.list({
       status: status as 'active' | 'inactive' | undefined,
     });
-    ApiResponse.success(res, features);
+
+    const start = (pagination.page - 1) * pagination.limit;
+    const pageItems = features.slice(start, start + pagination.limit);
+
+    ApiResponse.success(res, {
+      items: pageItems,
+      meta: paginationMeta(features.length, pagination),
+    });
   };
 }

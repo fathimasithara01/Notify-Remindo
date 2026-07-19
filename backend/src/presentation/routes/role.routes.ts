@@ -13,10 +13,11 @@ const controller = container.resolve<RoleController>(TOKENS.RoleController);
 
 router.use(requireAuth);
 
-router.post('/',authorize('role.create'),validateRequest(createRoleSchema),asyncHandler(controller.create));
+router.post('/', authorize('role.create'), validateRequest(createRoleSchema), asyncHandler(controller.create));
 router.get('/', authorize('role.view'), asyncHandler(controller.list));
 router.get('/:id', authorize('role.view'), asyncHandler(controller.getOne));
-router.patch('/:id',authorize('role.edit'),validateRequest(editRoleSchema),asyncHandler(controller.update));
-router.post('/:id/permissions',authorize('role.edit'),validateRequest(assignPermissionsSchema),asyncHandler(controller.assignPermissions));
+router.patch('/:id', authorize('role.edit'), validateRequest(editRoleSchema), asyncHandler(controller.update));
+router.post('/:id/permissions', authorize('role.edit'), validateRequest(assignPermissionsSchema), asyncHandler(controller.assignPermissions));
+router.delete('/:id', authorize('role.delete'), asyncHandler(controller.delete));
 
 export default router;

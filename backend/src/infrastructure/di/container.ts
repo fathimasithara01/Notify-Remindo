@@ -22,7 +22,10 @@ import { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-curr
 import { CreateRoleUseCase } from '../../application/role/use-cases/create-role.use-case';
 import { AssignPermissionsUseCase } from '../../application/role/use-cases/assign-permissions.use-case';
 import { EditRoleUseCase } from '../../application/role/use-cases/edit-role.use-case';
+import { DeleteRoleUseCase } from '../../application/role/use-cases/delete-role.use-case';
 import { CreateOrganizationUseCase } from '../../application/organization/use-cases/create-organization.use-case';
+import { EditOrganizationUseCase } from '../../application/organization/use-cases/edit-organization.use-case';
+import { DeleteOrganizationUseCase } from '../../application/organization/use-cases/delete-organization.use-case';
 import { UpgradePlanUseCase } from '../../application/organization/use-cases/upgrade-plan.use-case';
 import { BlockCustomerUseCase } from '../../application/organization/use-cases/block-customer.use-case';
 import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
@@ -69,7 +72,10 @@ export function registerDependencies(): void {
   container.register(TOKENS.CreateRoleUseCase, { useClass: CreateRoleUseCase });
   container.register(TOKENS.AssignPermissionsUseCase, { useClass: AssignPermissionsUseCase });
   container.register(TOKENS.EditRoleUseCase, { useClass: EditRoleUseCase });
+  container.register(TOKENS.DeleteRoleUseCase, { useClass: DeleteRoleUseCase });
   container.register(TOKENS.CreateOrganizationUseCase, { useClass: CreateOrganizationUseCase });
+  container.register(TOKENS.EditOrganizationUseCase, { useClass: EditOrganizationUseCase });
+  container.register(TOKENS.DeleteOrganizationUseCase, { useClass: DeleteOrganizationUseCase });
   container.register(TOKENS.UpgradePlanUseCase, { useClass: UpgradePlanUseCase });
   container.register(TOKENS.BlockCustomerUseCase, { useClass: BlockCustomerUseCase });
   container.register(TOKENS.AssignSalesmanUseCase, { useClass: AssignSalesmanUseCase });
@@ -90,8 +96,3 @@ export function registerDependencies(): void {
 }
 
 export { container };
-
-
-// This does NOT create a object. It only stores a mapping.
-// Object alla value pass cheyyunnath. new operator aanu arguments constructor-lekku pass cheyyunnath.
-// Constructor aa values receive cheyth this use cheyth object-il initialize cheyyunnu.

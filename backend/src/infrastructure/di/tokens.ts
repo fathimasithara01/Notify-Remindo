@@ -12,6 +12,7 @@ export const TOKENS = {
   TokenService: Symbol('TokenService'),
   WhatsAppNotifierService: Symbol('WhatsAppNotifierService'),
   EmailNotifierService: Symbol('EmailNotifierService'),
+  InAppNotifierService: Symbol('InAppNotifierService'),
   NotifierMap: Symbol('NotifierMap'),
 
   LoginAdminUseCase: Symbol('LoginAdminUseCase'),
@@ -20,7 +21,10 @@ export const TOKENS = {
   CreateRoleUseCase: Symbol('CreateRoleUseCase'),
   AssignPermissionsUseCase: Symbol('AssignPermissionsUseCase'),
   EditRoleUseCase: Symbol('EditRoleUseCase'),
+  DeleteRoleUseCase: Symbol('DeleteRoleUseCase'),
   CreateOrganizationUseCase: Symbol('CreateOrganizationUseCase'),
+  EditOrganizationUseCase: Symbol('EditOrganizationUseCase'),
+  DeleteOrganizationUseCase: Symbol('DeleteOrganizationUseCase'),
   UpgradePlanUseCase: Symbol('UpgradePlanUseCase'),
   BlockCustomerUseCase: Symbol('BlockCustomerUseCase'),
   AssignSalesmanUseCase: Symbol('AssignSalesmanUseCase'),
