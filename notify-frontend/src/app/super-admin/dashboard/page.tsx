@@ -70,6 +70,29 @@ export default function DashboardPage() {
                 })}
             </div>
 
+            <Card>
+                <CardHeader>
+                    <CardTitle>Organizations by Plan</CardTitle>
+                </CardHeader>
+
+                <CardContent>
+                    <div className="space-y-4">
+                        {report?.organizationsByPlan.map((plan) => (
+                            <div
+                                key={plan.planId}
+                                className="flex items-center justify-between border-b pb-2 last:border-0"
+                            >
+                                <span className="text-sm">{plan.planName}</span>
+
+                                <span className="font-semibold">
+                                    {plan.count}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+
         </div>
     );
 }

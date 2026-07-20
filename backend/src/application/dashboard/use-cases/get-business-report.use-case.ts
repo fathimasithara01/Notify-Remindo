@@ -3,12 +3,18 @@ import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IOrganizationRepository } from '../../../domain/repositories/organization.repository.interface';
 import { ISubscriptionPlanRepository } from '../../../domain/repositories/subscription-plan.repository.interface';
 
+export interface PlanOrganizationCount {
+  planId: string;
+  planName: string;
+  count: number;
+}
+
 export interface BusinessReport {
   totalOrganizations: number;
   activeOrganizations: number;
   blockedOrganizations: number;
   totalActivePlans: number;
-  organizationsByPlan: Record<string, number>;
+  organizationsByPlan: PlanOrganizationCount[];
 }
 
 @injectable()
@@ -26,10 +32,13 @@ export class GetBusinessReportUseCase {
       this.planRepo.list({ status: 'active' }),
     ]);
 
-    const organizationsByPlan: Record<string, number> = {};
-    for (const org of allOrgs) {
-      organizationsByPlan[org.currentPlanId] = (organizationsByPlan[org.currentPlanId] ?? 0) + 1;
-    }
+    const organizationsByPlan = activePlans.map((plan) => ({
+      planId: plan.id,
+      planName: plan.name,
+      count: allOrgs.filter(
+        (org) => org.currentPlanId === plan.id
+      ).length,
+    }));
 
     return {
       totalOrganizations: allOrgs.length,
