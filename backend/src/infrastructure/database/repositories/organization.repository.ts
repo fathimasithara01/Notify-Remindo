@@ -35,6 +35,9 @@ export class OrganizationRepository implements IOrganizationRepository {
     const query: Record<string, unknown> = { deletedAt: null };
 
     if (filter?.status) query.status = filter.status;
+    // if (filter && filter.status) { //optional chaining equivalent to ?.
+    //   query.status = filter.status;
+    // }
     if (filter?.salesmanId) query.salesmanId = filter.salesmanId;
     if (filter?.planId) query.currentPlanId = filter.planId;
 

@@ -5,13 +5,13 @@ import { AuditLogModel, AuditLogDocument } from '../models/audit-log.model';
 
 @injectable()
 export class AuditLogRepository implements IAuditLogRepository {
-  
-    async create(data: NewAuditLog): Promise<AuditLog> {
+
+  async create(data: NewAuditLog): Promise<AuditLog> {
     const doc = await AuditLogModel.create(data);
     return this.toDomain(doc);
   }
 
-  async list(filter?: { adminId?: string; targetType?: AuditLog['targetType']; targetId?: string;}): Promise<AuditLog[]> {
+  async list(filter?: { adminId?: string; targetType?: AuditLog['targetType']; targetId?: string; }): Promise<AuditLog[]> {
     const query: Record<string, unknown> = {};
     if (filter?.adminId) query.adminId = filter.adminId;
     if (filter?.targetType) query.targetType = filter.targetType;
