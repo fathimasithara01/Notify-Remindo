@@ -15,7 +15,7 @@ export default function OrganizationDetailPage({ params, }: { params: Promise<{ 
     const { id } = use(params);
     const queryClient = useQueryClient();
 
-    const { data: organizationResponse, isLoading } = useQuery({
+    const { data: organization, isLoading } = useQuery({
         queryKey: ['organizations', id],
         queryFn: () => organizationApi.getOne(id),
     });
@@ -34,9 +34,7 @@ export default function OrganizationDetailPage({ params, }: { params: Promise<{ 
         onError: (error: ApiClientError) => toast.error(error.message),
     });
 
-    const organizations = organizationResponse?.items ?? [];
     const plans = plansResponse?.items ?? [];
-
 
     if (isLoading) {
         return (
@@ -46,20 +44,20 @@ export default function OrganizationDetailPage({ params, }: { params: Promise<{ 
         );
     }
 
-    if (!organizations) {
+    if (!organization) {
         return <p className="text-muted-foreground">Organization not found.</p>;
     }
 
-    const currentPlan = plans?.find((p) => p.id === organizations.currentPlanId);
+    const currentPlan = plans.find((p) => p.id === organization.currentPlanId);
 
     return (
         <div className="max-w-3xl space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold">{organizations.name}</h1>
-                    <p className="text-sm text-muted-foreground">{organizations.contactEmail}</p>
+                    <h1 className="text-2xl font-semibold">{organization.name}</h1>
+                    <p className="text-sm text-muted-foreground">{organization.contactEmail}</p>
                 </div>
-                <Badge variant={organizations.status === 'active' ? 'default' : 'destructive'}>{organizations.status}</Badge>
+                <Badge variant={organization.status === 'active' ? 'default' : 'destructive'}>{organization.status}</Badge>
             </div>
 
             <Card>
@@ -69,15 +67,15 @@ export default function OrganizationDetailPage({ params, }: { params: Promise<{ 
                 <CardContent className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <p className="text-muted-foreground">Contact Phone</p>
-                        <p className="font-medium">{organizations.contactPhone}</p>
+                        <p className="font-medium">{organization.contactPhone}</p>
                     </div>
                     <div>
                         <p className="text-muted-foreground">Address</p>
-                        <p className="font-medium">{organizations.address || '—'}</p>
+                        <p className="font-medium">{organization.address || '—'}</p>
                     </div>
                     <div>
                         <p className="text-muted-foreground">Created</p>
-                        <p className="font-medium">{new Date(organizations.createdAt).toLocaleDateString()}</p>
+                        <p className="font-medium">{new Date(organization.createdAt).toLocaleDateString()}</p>
                     </div>
                 </CardContent>
             </Card>
@@ -97,7 +95,7 @@ export default function OrganizationDetailPage({ params, }: { params: Promise<{ 
                             </SelectTrigger>
                             <SelectContent>
                                 {plans
-                                    ?.filter((p) => p.id !== organizations.currentPlanId)
+                                    .filter((p) => p.id !== organization.currentPlanId)
                                     .map((plan) => (
                                         <SelectItem key={plan.id} value={plan.id}>
                                             {plan.name} — {plan.userLimit} users
@@ -117,11 +115,11 @@ export default function OrganizationDetailPage({ params, }: { params: Promise<{ 
                     <CardTitle className="text-base">Contact Persons</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {organizations.contactPersons.length === 0 ? (
+                    {organization.contactPersons.length === 0 ? (
                         <p className="text-sm text-muted-foreground">No contact persons added yet.</p>
                     ) : (
                         <ul className="space-y-3">
-                            {organizations.contactPersons.map((contact) => (
+                            {organization.contactPersons.map((contact) => (
                                 <li key={contact.id} className="text-sm">
                                     <p className="font-medium">{contact.name}</p>
                                     <p className="text-muted-foreground">

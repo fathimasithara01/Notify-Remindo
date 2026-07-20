@@ -29,10 +29,12 @@ export default function NewOrganizationPage() {
     const router = useRouter();
     const queryClient = useQueryClient();
 
-    const { data: plans, isLoading: plansLoading } = useQuery({
+    const { data: plansResponse, isLoading: plansLoading } = useQuery({
         queryKey: ['subscriptions', 'plans', 'active'],
         queryFn: () => subscriptionApi.listPlans('active'),
     });
+
+    const plans = plansResponse?.items ?? [];
 
     const form = useForm<CreateOrgFormValues>({
         resolver: zodResolver(createOrgSchema),

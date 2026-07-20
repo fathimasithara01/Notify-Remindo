@@ -11,7 +11,7 @@ import { ApiClientError } from '@/lib/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Plus } from 'lucide-react';
 
 const createPlanSchema = z.object({
@@ -22,13 +22,14 @@ const createPlanSchema = z.object({
     description: z.string().optional(),
 });
 
-type CreatePlanFormValues = z.infer<typeof createPlanSchema>;
+type CreatePlanFormInput = z.input<typeof createPlanSchema>;
+type CreatePlanFormValues = z.output<typeof createPlanSchema>;
 
 export function CreatePlanDialog() {
     const [open, setOpen] = useState(false);
     const queryClient = useQueryClient();
 
-    const form = useForm<CreatePlanFormValues>({
+    const form = useForm<CreatePlanFormInput, any, CreatePlanFormValues>({
         resolver: zodResolver(createPlanSchema),
         defaultValues: { name: '', userLimit: 5, durationDays: 30, price: 0, description: '' },
     });
@@ -83,7 +84,7 @@ export function CreatePlanDialog() {
                                     <FormItem>
                                         <FormLabel>User Limit</FormLabel>
                                         <FormControl>
-                                            <Input type="number" {...field} />
+                                            <Input type="number" {...field} value={field.value as number} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -97,7 +98,7 @@ export function CreatePlanDialog() {
                                     <FormItem>
                                         <FormLabel>Duration (days)</FormLabel>
                                         <FormControl>
-                                            <Input type="number" {...field} />
+                                            <Input type="number" {...field} value={field.value as number} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -112,7 +113,7 @@ export function CreatePlanDialog() {
                                 <FormItem>
                                     <FormLabel>Price</FormLabel>
                                     <FormControl>
-                                        <Input type="number" step="0.01" {...field} />
+                                        <Input type="number" step="0.01" {...field} value={field.value as number}/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
