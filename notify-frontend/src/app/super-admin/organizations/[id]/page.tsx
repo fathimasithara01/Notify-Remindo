@@ -11,20 +11,16 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 
-export default function OrganizationDetailPage({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
+export default function OrganizationDetailPage({ params, }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const queryClient = useQueryClient();
 
-    const { data: org, isLoading } = useQuery({
+    const { data: organizationResponse, isLoading } = useQuery({
         queryKey: ['organizations', id],
         queryFn: () => organizationApi.getOne(id),
     });
 
-    const { data: plans } = useQuery({
+    const { data: plansResponse } = useQuery({
         queryKey: ['subscriptions', 'plans', 'active'],
         queryFn: () => subscriptionApi.listPlans('active'),
     });
@@ -38,6 +34,10 @@ export default function OrganizationDetailPage({
         onError: (error: ApiClientError) => toast.error(error.message),
     });
 
+    const organizations = organizationResponse?.items ?? [];
+    const plans = plansResponse?.items ?? [];
+
+
     if (isLoading) {
         return (
             <div className="flex h-64 items-center justify-center">
@@ -46,20 +46,20 @@ export default function OrganizationDetailPage({
         );
     }
 
-    if (!org) {
+    if (!organizations) {
         return <p className="text-muted-foreground">Organization not found.</p>;
     }
 
-    const currentPlan = plans?.find((p) => p.id === org.currentPlanId);
+    const currentPlan = plans?.find((p) => p.id === organizations.currentPlanId);
 
     return (
         <div className="max-w-3xl space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold">{org.name}</h1>
-                    <p className="text-sm text-muted-foreground">{org.contactEmail}</p>
+                    <h1 className="text-2xl font-semibold">{organizations.name}</h1>
+                    <p className="text-sm text-muted-foreground">{organizations.contactEmail}</p>
                 </div>
-                <Badge variant={org.status === 'active' ? 'default' : 'destructive'}>{org.status}</Badge>
+                <Badge variant={organizations.status === 'active' ? 'default' : 'destructive'}>{organizations.status}</Badge>
             </div>
 
             <Card>
@@ -69,15 +69,15 @@ export default function OrganizationDetailPage({
                 <CardContent className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <p className="text-muted-foreground">Contact Phone</p>
-                        <p className="font-medium">{org.contactPhone}</p>
+                        <p className="font-medium">{organizations.contactPhone}</p>
                     </div>
                     <div>
                         <p className="text-muted-foreground">Address</p>
-                        <p className="font-medium">{org.address || '—'}</p>
+                        <p className="font-medium">{organizations.address || '—'}</p>
                     </div>
                     <div>
                         <p className="text-muted-foreground">Created</p>
-                        <p className="font-medium">{new Date(org.createdAt).toLocaleDateString()}</p>
+                        <p className="font-medium">{new Date(organizations.createdAt).toLocaleDateString()}</p>
                     </div>
                 </CardContent>
             </Card>
@@ -97,7 +97,7 @@ export default function OrganizationDetailPage({
                             </SelectTrigger>
                             <SelectContent>
                                 {plans
-                                    ?.filter((p) => p.id !== org.currentPlanId)
+                                    ?.filter((p) => p.id !== organizations.currentPlanId)
                                     .map((plan) => (
                                         <SelectItem key={plan.id} value={plan.id}>
                                             {plan.name} — {plan.userLimit} users
@@ -117,11 +117,11 @@ export default function OrganizationDetailPage({
                     <CardTitle className="text-base">Contact Persons</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {org.contactPersons.length === 0 ? (
+                    {organizations.contactPersons.length === 0 ? (
                         <p className="text-sm text-muted-foreground">No contact persons added yet.</p>
                     ) : (
                         <ul className="space-y-3">
-                            {org.contactPersons.map((contact) => (
+                            {organizations.contactPersons.map((contact) => (
                                 <li key={contact.id} className="text-sm">
                                     <p className="font-medium">{contact.name}</p>
                                     <p className="text-muted-foreground">
