@@ -5,7 +5,7 @@ const LOGIN_PATH = '/login';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('token')?.value;
+  const token = request.cookies.get('accessToken')?.value;
 
   const isProtected = pathname.startsWith(PROTECTED_PREFIX);
   const isLoginPage = pathname.startsWith(LOGIN_PATH);
