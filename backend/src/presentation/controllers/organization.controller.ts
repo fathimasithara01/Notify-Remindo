@@ -119,4 +119,5 @@ export class OrganizationController {
     const contacts = await this.orgRepo.listContactPersons(req.params.id as string);
     ApiResponse.success(res, contacts);
   };
+
 }

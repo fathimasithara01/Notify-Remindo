@@ -29,3 +29,10 @@ router.post('/:id/contacts', authorize('organization.edit'), validateRequest(add
 router.get('/:id/contacts', authorize('organization.view'), asyncHandler(controller.listContactPersons));
 
 export default router;
+
+
+
+// POST   /api/organizations/:id/contact-persons             → Add a contact person
+// GET    /api/organizations/:id/contact-persons              → List contacts for an org (optional, detail-il already join aavum)
+// PATCH  /api/organizations/:id/contact-persons/:cpId         → Edit a contact person
+// DELETE /api/organizations/:id/contact-persons/:cpId         → Delete a contact person
