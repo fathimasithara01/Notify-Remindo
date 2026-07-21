@@ -1,4 +1,3 @@
-
 import { apiClient } from './client';
 import { Permission, CreatePermissionPayload } from '../types/permission';
 import { PaginatedResponse } from '../types/pagination';

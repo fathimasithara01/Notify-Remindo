@@ -1,4 +1,3 @@
-
 import { apiClient } from './client';
 import { Notification, NotificationListFilter } from '../types/notification';
 import { PaginatedResponse } from '../types/pagination';
