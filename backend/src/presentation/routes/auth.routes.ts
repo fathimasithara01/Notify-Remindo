@@ -16,10 +16,6 @@ router.post('/refresh-token', requireAuth, asyncHandler(controller.refreshToken)
 router.get('/me', requireAuth, asyncHandler(controller.me));
 
 router.get('/verify-invite-token/:token', asyncHandler(controller.verifyInviteToken));
-router.post(
-  '/accept-invite',
-  validateRequest(acceptInviteSchema),
-  asyncHandler(controller.acceptInvite)
-);
+router.post('/accept-invite',validateRequest(acceptInviteSchema),asyncHandler(controller.acceptInvite));
 
 export default router;
