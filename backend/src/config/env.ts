@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
-import type { StringValue } from 'ms';
+import { SignOptions } from 'jsonwebtoken';
+
 
 dotenv.config();
 
@@ -17,8 +18,12 @@ export const env = {
 
   MONGODB_URI: required('MONGODB_URI'),
 
+  FRONTEND_URL: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+
   JWT_SECRET: required('JWT_SECRET'),
-  JWT_EXPIRES_IN: (process.env.JWT_EXPIRES_IN ?? '1d') as StringValue,
+  // JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? '1d',
+    JWT_EXPIRES_IN: (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'],
+
 
   COOKIE_SECRET: required('COOKIE_SECRET'),
 
@@ -26,13 +31,8 @@ export const env = {
   SUPER_ADMIN_EMAIL: required('SUPER_ADMIN_EMAIL'),
   SUPER_ADMIN_PASSWORD: required('SUPER_ADMIN_PASSWORD'),
 
-  // WHATSAPP_API_URL: process.env.WHATSAPP_API_URL ?? '',
-  // WHATSAPP_API_KEY: process.env.WHATSAPP_API_KEY ?? '',
-
-  TWILIO_ACCOUNT_SID: required("TWILIO_ACCOUNT_SID"),
-  TWILIO_AUTH_TOKEN: required("TWILIO_AUTH_TOKEN"),
-  TWILIO_WHATSAPP_FROM: required("TWILIO_WHATSAPP_FROM"),
-  TWILIO_CONTENT_SID: required("TWILIO_CONTENT_SID"),
+  WHATSAPP_API_URL: process.env.WHATSAPP_API_URL ?? '',
+  WHATSAPP_API_KEY: process.env.WHATSAPP_API_KEY ?? '',
 
   SMTP_HOST: process.env.SMTP_HOST ?? '',
   SMTP_PORT: process.env.SMTP_PORT ?? '587',

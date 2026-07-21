@@ -22,8 +22,16 @@ export class LoginAdminUseCase {
       throw new UnauthorizedError('Invalid email or password');
     }
 
+    if (user.status === 'invited') {
+      throw new UnauthorizedError('Please accept your invite and set a password before logging in');
+    }
+
     if (user.status === 'inactive') {
       throw new UnauthorizedError('This account has been deactivated');
+    }
+
+    if (!user.passwordHash) {
+      throw new UnauthorizedError('Invalid email or password');
     }
 
     const passwordMatches = await this.hashService.compare(data.password, user.passwordHash);
@@ -40,6 +48,7 @@ export class LoginAdminUseCase {
       userId: user.id,
       roleId: role.id,
       roleSlug: role.slug,
+      organizationId: user.organizationId,
     });
 
     return {

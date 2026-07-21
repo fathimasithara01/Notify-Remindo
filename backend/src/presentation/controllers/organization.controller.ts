@@ -8,6 +8,7 @@ import { DeleteOrganizationUseCase } from '../../application/organization/use-ca
 import { UpgradePlanUseCase } from '../../application/organization/use-cases/upgrade-plan.use-case';
 import { BlockCustomerUseCase } from '../../application/organization/use-cases/block-customer.use-case';
 import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
+import { ResendInviteUseCase } from '../../application/organization/use-cases/resend-invite.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError, NotFoundError } from '../../domain/errors/domain.error';
 import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
@@ -21,8 +22,9 @@ export class OrganizationController {
     @inject(TOKENS.DeleteOrganizationUseCase) private deleteOrgUseCase: DeleteOrganizationUseCase,
     @inject(TOKENS.UpgradePlanUseCase) private upgradePlanUseCase: UpgradePlanUseCase,
     @inject(TOKENS.BlockCustomerUseCase) private blockCustomerUseCase: BlockCustomerUseCase,
-    @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase
-  ) { }
+    @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase,
+    @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: ResendInviteUseCase
+  ) {}
 
   create = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.createOrgUseCase.execute(req.body);
@@ -120,4 +122,8 @@ export class OrganizationController {
     ApiResponse.success(res, contacts);
   };
 
+  resendInvite = async (req: Request, res: Response): Promise<void> => {
+    await this.resendInviteUseCase.execute(req.params.id as string);
+    ApiResponse.success(res, null, 200, 'Invite resent');
+  };
 }

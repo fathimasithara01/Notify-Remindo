@@ -36,6 +36,20 @@ export async function seedSuperAdmin(): Promise<void> {
     await RolePermissionModel.bulkWrite(ops);
   }
 
+  await RoleModel.findOneAndUpdate(
+    { slug: 'orgadmin' },
+    {
+      $setOnInsert: {
+        name: 'Org Admin',
+        slug: 'orgadmin',
+        description: 'Administrator for a subscribing organization',
+        isSystem: true,
+        status: 'active',
+      },
+    },
+    { upsert: true }
+  );
+
   const existing = await UserModel.findOne({ email: env.SUPER_ADMIN_EMAIL });
   if (existing) {
     console.log('Super Admin user already exists — skipping user creation');

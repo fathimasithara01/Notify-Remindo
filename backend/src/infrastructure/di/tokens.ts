@@ -1,4 +1,5 @@
 export const TOKENS = {
+  // Repositories (interfaces)
   UserRepository: Symbol('UserRepository'),
   RoleRepository: Symbol('RoleRepository'),
   PermissionRepository: Symbol('PermissionRepository'),
@@ -8,6 +9,7 @@ export const TOKENS = {
   NotificationRepository: Symbol('NotificationRepository'),
   AuditLogRepository: Symbol('AuditLogRepository'),
 
+  // Services (interfaces)
   HashService: Symbol('HashService'),
   TokenService: Symbol('TokenService'),
   WhatsAppNotifierService: Symbol('WhatsAppNotifierService'),
@@ -15,9 +17,13 @@ export const TOKENS = {
   InAppNotifierService: Symbol('InAppNotifierService'),
   NotifierMap: Symbol('NotifierMap'),
 
+  // Use-cases (concrete classes, registered for discoverability/consistency)
   LoginAdminUseCase: Symbol('LoginAdminUseCase'),
   RefreshTokenUseCase: Symbol('RefreshTokenUseCase'),
   GetCurrentUserUseCase: Symbol('GetCurrentUserUseCase'),
+  VerifyInviteTokenUseCase: Symbol('VerifyInviteTokenUseCase'),
+  AcceptInviteUseCase: Symbol('AcceptInviteUseCase'),
+  ResendInviteUseCase: Symbol('ResendInviteUseCase'),
   CreateRoleUseCase: Symbol('CreateRoleUseCase'),
   AssignPermissionsUseCase: Symbol('AssignPermissionsUseCase'),
   EditRoleUseCase: Symbol('EditRoleUseCase'),
@@ -35,6 +41,7 @@ export const TOKENS = {
   SendReminderUseCase: Symbol('SendReminderUseCase'),
   GetBusinessReportUseCase: Symbol('GetBusinessReportUseCase'),
 
+  // Controllers
   AuthController: Symbol('AuthController'),
   RoleController: Symbol('RoleController'),
   PermissionController: Symbol('PermissionController'),

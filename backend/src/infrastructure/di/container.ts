@@ -19,6 +19,9 @@ import { EmailNotifierService } from '../services/email-notifier.service';
 import { LoginAdminUseCase } from '../../application/auth/use-cases/login-admin.use-case';
 import { RefreshTokenUseCase } from '../../application/auth/use-cases/refresh-token.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-current-user.use-case';
+import { VerifyInviteTokenUseCase } from '../../application/auth/use-cases/verify-invite-token.use-case';
+import { AcceptInviteUseCase } from '../../application/auth/use-cases/accept-invite.use-case';
+import { ResendInviteUseCase } from '../../application/organization/use-cases/resend-invite.use-case';
 import { CreateRoleUseCase } from '../../application/role/use-cases/create-role.use-case';
 import { AssignPermissionsUseCase } from '../../application/role/use-cases/assign-permissions.use-case';
 import { EditRoleUseCase } from '../../application/role/use-cases/edit-role.use-case';
@@ -45,6 +48,7 @@ import { NotificationController } from '../../presentation/controllers/notificat
 import { DashboardController } from '../../presentation/controllers/dashboard.controller';
 
 export function registerDependencies(): void {
+  // Repositories
   container.registerSingleton(TOKENS.UserRepository, UserRepository);
   container.registerSingleton(TOKENS.RoleRepository, RoleRepository);
   container.registerSingleton(TOKENS.PermissionRepository, PermissionRepository);
@@ -54,6 +58,7 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.NotificationRepository, NotificationRepository);
   container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
 
+  // Services
   container.registerSingleton(TOKENS.HashService, BcryptHashService);
   container.registerSingleton(TOKENS.TokenService, JwtTokenService);
   container.registerSingleton(TOKENS.WhatsAppNotifierService, WhatsAppNotifierService);
@@ -69,6 +74,9 @@ export function registerDependencies(): void {
   container.register(TOKENS.LoginAdminUseCase, { useClass: LoginAdminUseCase });
   container.register(TOKENS.RefreshTokenUseCase, { useClass: RefreshTokenUseCase });
   container.register(TOKENS.GetCurrentUserUseCase, { useClass: GetCurrentUserUseCase });
+  container.register(TOKENS.VerifyInviteTokenUseCase, { useClass: VerifyInviteTokenUseCase });
+  container.register(TOKENS.AcceptInviteUseCase, { useClass: AcceptInviteUseCase });
+  container.register(TOKENS.ResendInviteUseCase, { useClass: ResendInviteUseCase });
   container.register(TOKENS.CreateRoleUseCase, { useClass: CreateRoleUseCase });
   container.register(TOKENS.AssignPermissionsUseCase, { useClass: AssignPermissionsUseCase });
   container.register(TOKENS.EditRoleUseCase, { useClass: EditRoleUseCase });
@@ -86,6 +94,7 @@ export function registerDependencies(): void {
   container.register(TOKENS.SendReminderUseCase, { useClass: SendReminderUseCase });
   container.register(TOKENS.GetBusinessReportUseCase, { useClass: GetBusinessReportUseCase });
 
+  // Controllers
   container.registerSingleton(TOKENS.AuthController, AuthController);
   container.registerSingleton(TOKENS.RoleController, RoleController);
   container.registerSingleton(TOKENS.PermissionController, PermissionController);
