@@ -10,11 +10,20 @@ import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError } from '../../domain/errors/domain.error';
 import { env } from '../../config/env';
 
-const COOKIE_OPTIONS: CookieOptions = {
+const baseCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
   sameSite: 'strict',
-  maxAge: 24 * 60 * 60 * 1000,
+};
+
+const ACCESS_TOKEN_COOKIE: CookieOptions = {
+  ...baseCookieOptions,
+  maxAge: 15 * 60 * 1000,
+};
+
+const REFRESH_TOKEN_COOKIE: CookieOptions = {
+  ...baseCookieOptions,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
 @injectable()
@@ -27,22 +36,30 @@ export class AuthController {
     @inject(TOKENS.AcceptInviteUseCase) private acceptInviteUseCase: AcceptInviteUseCase
   ) { }
 
+  private setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
+    res.cookie('accessToken', accessToken, ACCESS_TOKEN_COOKIE);
+    res.cookie('refreshToken', refreshToken, REFRESH_TOKEN_COOKIE);
+  }
+
   login = async (req: Request, res: Response): Promise<void> => {
     const result = await this.loginUseCase.execute(req.body);
-    res.cookie('token', result.token, COOKIE_OPTIONS);
+    this.setAuthCookies(res, result.accessToken, result.refreshToken);
+    
     ApiResponse.success(res, { user: result.user });
   };
 
   logout = async (_req: Request, res: Response): Promise<void> => {
-    res.clearCookie('token', COOKIE_OPTIONS);
+    res.clearCookie('accessToken', baseCookieOptions);
+    res.clearCookie('refreshToken', baseCookieOptions);
     ApiResponse.success(res, null, 200, 'Logged out');
   };
 
   refreshToken = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) throw new UnauthorizedError('No refresh token provided');
 
-    const result = await this.refreshTokenUseCase.execute(req.user.userId);
-    res.cookie('token', result.token, COOKIE_OPTIONS);
+    const result = await this.refreshTokenUseCase.execute(refreshToken);
+    this.setAuthCookies(res, result.accessToken, result.refreshToken);
     ApiResponse.success(res, null, 200, 'Token refreshed');
   };
 
@@ -54,15 +71,13 @@ export class AuthController {
   };
 
   verifyInviteToken = async (req: Request, res: Response): Promise<void> => {
-    const token = req.params.token as string;
-
-    const result = await this.verifyInviteTokenUseCase.execute(token);
+    const result = await this.verifyInviteTokenUseCase.execute(req.params.token as string);
     ApiResponse.success(res, result);
   };
 
   acceptInvite = async (req: Request, res: Response): Promise<void> => {
     const result = await this.acceptInviteUseCase.execute(req.body);
-    res.cookie('token', result.token, COOKIE_OPTIONS);
+    this.setAuthCookies(res, result.accessToken, result.refreshToken);
     ApiResponse.success(res, { user: result.user }, 200, 'Account activated');
   };
 }

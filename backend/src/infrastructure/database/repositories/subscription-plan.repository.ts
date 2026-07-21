@@ -1,12 +1,25 @@
 import { injectable } from 'tsyringe';
 import { ISubscriptionPlanRepository } from '../../../domain/repositories/subscription-plan.repository.interface';
-import { SubscriptionPlan, NewSubscriptionPlan, } from '../../../domain/entities/subscription-plan.entity';
-import { PlanFeature, NewPlanFeature, PlanFeatureWithDefinition, } from '../../../domain/entities/plan-feature.entity';
-import { OrganizationSubscription, NewOrganizationSubscription, } from '../../../domain/entities/organization-subscription.entity';
+import {
+  SubscriptionPlan,
+  NewSubscriptionPlan,
+} from '../../../domain/entities/subscription-plan.entity';
+import {
+  PlanFeature,
+  NewPlanFeature,
+  PlanFeatureWithDefinition,
+} from '../../../domain/entities/plan-feature.entity';
+import {
+  OrganizationSubscription,
+  NewOrganizationSubscription,
+} from '../../../domain/entities/organization-subscription.entity';
 import { SubscriptionPlanModel, SubscriptionPlanDocument } from '../models/subscription-plan.model';
 import { PlanFeatureModel, PlanFeatureDocument } from '../models/plan-feature.model';
 import { FeatureModel } from '../models/feature.model';
-import { OrganizationSubscriptionModel, OrganizationSubscriptionDocument, } from '../models/organization-subscription.model';
+import {
+  OrganizationSubscriptionModel,
+  OrganizationSubscriptionDocument,
+} from '../models/organization-subscription.model';
 
 @injectable()
 export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
@@ -26,6 +39,9 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   }
 
   async delete(id: string): Promise<boolean> {
+    // Soft delete — existing Organizations may still reference this plan via
+    // currentPlanId / OrganizationSubscription history. Mark inactive + deleted
+    // instead of removing, so those references stay resolvable.
     const result = await SubscriptionPlanModel.findOneAndUpdate(
       { _id: id, deletedAt: null },
       { deletedAt: new Date(), status: 'inactive' }
@@ -33,9 +49,15 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
     return result !== null;
   }
 
-  async list(filter?: { status?: 'active' | 'inactive' }): Promise<SubscriptionPlan[]> {
+  async list(filter?: {
+    status?: 'active' | 'inactive';
+    search?: string;
+  }): Promise<SubscriptionPlan[]> {
     const query: Record<string, unknown> = { deletedAt: null };
     if (filter?.status) query.status = filter.status;
+    if (filter?.search) {
+      query.name = new RegExp(filter.search.trim(), 'i');
+    }
 
     const docs = await SubscriptionPlanModel.find(query);
     return docs.map((doc) => this.toDomain(doc));
@@ -72,7 +94,9 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
     });
   }
 
-  async createSubscriptionRecord(data: NewOrganizationSubscription): Promise<OrganizationSubscription> {
+  async createSubscriptionRecord(
+    data: NewOrganizationSubscription
+  ): Promise<OrganizationSubscription> {
     const doc = await OrganizationSubscriptionModel.create(data);
     return this.subscriptionToDomain(doc);
   }

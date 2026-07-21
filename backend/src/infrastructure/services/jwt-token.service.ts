@@ -1,15 +1,26 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
-import { ITokenService, TokenPayload } from '../../domain/services/token.service.interface';
+import { injectable } from 'tsyringe';
+import jwt from 'jsonwebtoken';
+import {
+  ITokenService,
+  TokenPayload,
+} from '../../domain/services/token.service.interface';
 import { env } from '../../config/env';
 
+@injectable()
 export class JwtTokenService implements ITokenService {
-    sign(payload: TokenPayload): string {
-        // const options: SignOptions = { expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'] };
-        // return jwt.sign(payload, env.JWT_SECRET, options);
-        return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN });
-    }
+  signAccessToken(payload: TokenPayload): string {
+    return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN });
+  }
 
-    verify(token: string): TokenPayload {
-        return jwt.verify(token, env.JWT_SECRET) as TokenPayload;
-    }
+  signRefreshToken(payload: TokenPayload): string {
+    return jwt.sign(payload, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN });
+  }
+
+  verifyAccessToken(token: string): TokenPayload {
+    return jwt.verify(token, env.JWT_SECRET) as TokenPayload;
+  }
+
+  verifyRefreshToken(token: string): TokenPayload {
+    return jwt.verify(token, env.JWT_REFRESH_SECRET) as TokenPayload;
+  }
 }

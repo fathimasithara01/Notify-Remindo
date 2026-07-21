@@ -34,6 +34,12 @@ export const createFeatureSchema = z.object({
   dataType: z.enum(['boolean', 'number', 'string']),
 });
 
+export const editFeatureSchema = z.object({
+  label: z.string().min(1).optional(),
+  dataType: z.enum(['boolean', 'number', 'string']).optional(),
+  status: z.enum(['active', 'inactive']).optional(),
+});
+
 export const setPlanFeatureSchema = z.object({
   featureId: z.string().min(1, 'featureId is required'),
   featureValue: z.union([z.string(), z.boolean(), z.number()]),

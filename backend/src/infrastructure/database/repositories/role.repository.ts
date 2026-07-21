@@ -30,7 +30,7 @@ export class RoleRepository implements IRoleRepository {
   async delete(id: string): Promise<boolean> {
     const role = await RoleModel.findOne({ _id: id, deletedAt: null });
     if (!role || role.isSystem) return false;
-  
+
     await RolePermissionModel.deleteMany({ roleId: id });
     const result = await RoleModel.findOneAndUpdate(
       { _id: id, deletedAt: null },
@@ -39,9 +39,13 @@ export class RoleRepository implements IRoleRepository {
     return result !== null;
   }
 
-  async list(filter?: { status?: 'active' | 'inactive' }): Promise<Role[]> {
+  async list(filter?: { status?: 'active' | 'inactive'; search?: string }): Promise<Role[]> {
     const query: Record<string, unknown> = { deletedAt: null };
     if (filter?.status) query.status = filter.status;
+    if (filter?.search) {
+      const regex = new RegExp(filter.search.trim(), 'i');
+      query.$or = [{ name: regex }, { slug: regex }];
+    }
 
     const docs = await RoleModel.find(query);
     return docs.map((doc) => this.toDomain(doc));

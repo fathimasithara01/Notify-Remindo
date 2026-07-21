@@ -20,16 +20,20 @@ export class SubscriptionController {
     @inject(TOKENS.CreateFeatureUseCase) private createFeatureUseCase: CreateFeatureUseCase
   ) { }
 
+
   createPlan = async (req: Request, res: Response): Promise<void> => {
     const plan = await this.createPlanUseCase.execute(req.body);
     ApiResponse.created(res, plan);
   };
 
   listPlans = async (req: Request, res: Response): Promise<void> => {
-    const { status } = req.query;
+    const { status, search } = req.query;
     const pagination = parsePagination(req.query as Record<string, unknown>);
 
-    const plans = await this.planRepo.list({ status: status as 'active' | 'inactive' | undefined });
+    const plans = await this.planRepo.list({
+      status: status as 'active' | 'inactive' | undefined,
+      search: search as string | undefined,
+    });
 
     const start = (pagination.page - 1) * pagination.limit;
     const pageItems = plans.slice(start, start + pagination.limit);
@@ -80,6 +84,7 @@ export class SubscriptionController {
     ApiResponse.success(res, null, 200, 'Plan feature removed');
   };
 
+
   createFeature = async (req: Request, res: Response): Promise<void> => {
     const feature = await this.createFeatureUseCase.execute(req.body);
     ApiResponse.created(res, feature);
@@ -100,5 +105,17 @@ export class SubscriptionController {
       items: pageItems,
       meta: paginationMeta(features.length, pagination),
     });
+  };
+
+  updateFeature = async (req: Request, res: Response): Promise<void> => {
+    const feature = await this.featureRepo.update(req.params.id as string, req.body);
+    if (!feature) throw new NotFoundError('Feature not found');
+    ApiResponse.success(res, feature, 200, 'Feature updated');
+  };
+
+  deleteFeature = async (req: Request, res: Response): Promise<void> => {
+    const deleted = await this.featureRepo.delete(req.params.id as string);
+    if (!deleted) throw new NotFoundError('Feature not found');
+    ApiResponse.success(res, null, 200, 'Feature deleted');
   };
 }

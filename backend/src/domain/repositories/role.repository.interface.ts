@@ -6,7 +6,7 @@ export interface IRoleRepository {
   findBySlug(slug: string): Promise<Role | null>;
   update(id: string, data: Partial<NewRole>): Promise<Role | null>;
   delete(id: string): Promise<boolean>;
-  list(filter?: { status?: 'active' | 'inactive' }): Promise<Role[]>;
+  list(filter?: { status?: 'active' | 'inactive'; search?: string }): Promise<Role[]>;
 
   findWithPermissions(id: string): Promise<RoleWithPermissions | null>;
 }

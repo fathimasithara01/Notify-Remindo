@@ -14,7 +14,7 @@ export class LoginAdminUseCase {
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
     @inject(TOKENS.HashService) private hashService: IHashService,
     @inject(TOKENS.TokenService) private tokenService: ITokenService
-  ) { }
+  ) {}
 
   async execute(data: LoginDto): Promise<LoginResult> {
     const user = await this.userRepo.findByEmail(data.email);
@@ -44,15 +44,16 @@ export class LoginAdminUseCase {
       throw new UnauthorizedError('Your role is not active. Contact an administrator.');
     }
 
-    const token = this.tokenService.sign({
+    const payload = {
       userId: user.id,
       roleId: role.id,
       roleSlug: role.slug,
       organizationId: user.organizationId,
-    });
+    };
 
     return {
-      token,
+      accessToken: this.tokenService.signAccessToken(payload),
+      refreshToken: this.tokenService.signRefreshToken(payload),
       user: {
         id: user.id,
         name: user.name,

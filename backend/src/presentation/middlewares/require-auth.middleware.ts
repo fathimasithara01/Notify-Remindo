@@ -5,7 +5,7 @@ import { ITokenService } from '../../domain/services/token.service.interface';
 import { UnauthorizedError } from '../../domain/errors/domain.error';
 
 export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
-  const token = req.cookies?.token;
+  const token = req.cookies?.accessToken;
 
   if (!token) {
     return next(new UnauthorizedError('Authentication required'));
@@ -13,7 +13,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
 
   try {
     const tokenService = container.resolve<ITokenService>(TOKENS.TokenService);
-    req.user = tokenService.verify(token);
+    req.user = tokenService.verifyAccessToken(token);
     next();
   } catch {
     next(new UnauthorizedError('Invalid or expired session'));

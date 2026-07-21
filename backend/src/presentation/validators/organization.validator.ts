@@ -36,3 +36,10 @@ export const addContactPersonSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email().optional(),
 });
+
+export const editContactPersonSchema = z.object({
+  name: z.string().min(1).optional(),
+  designation: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().email().optional(),
+});

@@ -21,9 +21,10 @@ export const env = {
   FRONTEND_URL: process.env.FRONTEND_URL ?? 'http://localhost:3000',
 
   JWT_SECRET: required('JWT_SECRET'),
-  // JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? '1d',
-    JWT_EXPIRES_IN: (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'],
+  JWT_EXPIRES_IN: (process.env.JWT_EXPIRES_IN || '15m') as SignOptions['expiresIn'],
 
+  JWT_REFRESH_SECRET: required('JWT_REFRESH_SECRET'),      
+  JWT_REFRESH_EXPIRES_IN: (process.env.JWT_REFRESH_EXPIRES_IN || '7d') as SignOptions['expiresIn'], 
 
   COOKIE_SECRET: required('COOKIE_SECRET'),
 

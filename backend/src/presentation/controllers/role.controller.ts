@@ -18,7 +18,7 @@ export class RoleController {
     @inject(TOKENS.EditRoleUseCase) private editRoleUseCase: EditRoleUseCase,
     @inject(TOKENS.DeleteRoleUseCase) private deleteRoleUseCase: DeleteRoleUseCase,
     @inject(TOKENS.AssignPermissionsUseCase) private assignPermissionsUseCase: AssignPermissionsUseCase
-  ) {}
+  ) { }
 
   create = async (req: Request, res: Response): Promise<void> => {
     const role = await this.createRoleUseCase.execute(req.body);
@@ -26,8 +26,9 @@ export class RoleController {
   };
 
   list = async (req: Request, res: Response): Promise<void> => {
+    const { search } = req.query;
     const pagination = parsePagination(req.query as Record<string, unknown>);
-    const roles = await this.roleRepo.list();
+    const roles = await this.roleRepo.list({ search: search as string | undefined });
 
     const start = (pagination.page - 1) * pagination.limit;
     const pageItems = roles.slice(start, start + pagination.limit);

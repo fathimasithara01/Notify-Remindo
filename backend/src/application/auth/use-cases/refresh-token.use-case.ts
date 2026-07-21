@@ -6,7 +6,8 @@ import { ITokenService } from '../../../domain/services/token.service.interface'
 import { UnauthorizedError } from '../../../domain/errors/domain.error';
 
 export interface RefreshTokenResult {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 @injectable()
@@ -15,11 +16,18 @@ export class RefreshTokenUseCase {
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
     @inject(TOKENS.TokenService) private tokenService: ITokenService
-  ) { }
+  ) {}
 
-  async execute(userId: string): Promise<RefreshTokenResult> {
-    const user = await this.userRepo.findById(userId);
-    if (!user || user.status === 'inactive') {
+  async execute(refreshToken: string): Promise<RefreshTokenResult> {
+    let payload;
+    try {
+      payload = this.tokenService.verifyRefreshToken(refreshToken);
+    } catch {
+      throw new UnauthorizedError('Invalid or expired refresh token');
+    }
+
+    const user = await this.userRepo.findById(payload.userId);
+    if (!user || user.status !== 'active') {
       throw new UnauthorizedError('User is not active');
     }
 
@@ -28,12 +36,16 @@ export class RefreshTokenUseCase {
       throw new UnauthorizedError('Role is not active');
     }
 
-    const token = this.tokenService.sign({
+    const newPayload = {
       userId: user.id,
       roleId: role.id,
       roleSlug: role.slug,
-    });
+      organizationId: user.organizationId,
+    };
 
-    return { token };
+    return {
+      accessToken: this.tokenService.signAccessToken(newPayload),
+      refreshToken: this.tokenService.signRefreshToken(newPayload),
+    };
   }
 }

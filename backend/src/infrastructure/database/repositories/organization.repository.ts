@@ -7,7 +7,6 @@ import { ContactPersonModel, ContactPersonDocument } from '../models/contact-per
 
 @injectable()
 export class OrganizationRepository implements IOrganizationRepository {
-
   async create(data: NewOrganization): Promise<Organization> {
     const doc = await OrganizationModel.create(data);
     return this.toDomain(doc);
@@ -31,15 +30,20 @@ export class OrganizationRepository implements IOrganizationRepository {
     return result !== null;
   }
 
-  async list(filter?: { status?: 'active' | 'blocked'; salesmanId?: string; planId?: string }): Promise<Organization[]> {
+  async list(filter?: {
+    status?: 'active' | 'blocked';
+    salesmanId?: string;
+    planId?: string;
+    search?: string;
+  }): Promise<Organization[]> {
     const query: Record<string, unknown> = { deletedAt: null };
-
     if (filter?.status) query.status = filter.status;
-    // if (filter && filter.status) { //optional chaining equivalent to ?.
-    //   query.status = filter.status;
-    // }
     if (filter?.salesmanId) query.salesmanId = filter.salesmanId;
     if (filter?.planId) query.currentPlanId = filter.planId;
+    if (filter?.search) {
+      const regex = new RegExp(filter.search.trim(), 'i');
+      query.$or = [{ name: regex }, { contactEmail: regex }, { contactPhone: regex }];
+    }
 
     const docs = await OrganizationModel.find(query);
     return docs.map((doc) => this.toDomain(doc));
@@ -69,7 +73,10 @@ export class OrganizationRepository implements IOrganizationRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
-  async addContactPerson(organizationId: string, data: NewContactPerson): Promise<ContactPerson> {
+  async addContactPerson(
+    organizationId: string,
+    data: NewContactPerson
+  ): Promise<ContactPerson> {
     const doc = await ContactPersonModel.create({ ...data, organizationId });
     return this.contactToDomain(doc);
   }
@@ -77,6 +84,19 @@ export class OrganizationRepository implements IOrganizationRepository {
   async listContactPersons(organizationId: string): Promise<ContactPerson[]> {
     const docs = await ContactPersonModel.find({ organizationId });
     return docs.map((doc) => this.contactToDomain(doc));
+  }
+
+  async getContactPerson(contactPersonId: string): Promise<ContactPerson | null> {
+    const doc = await ContactPersonModel.findById(contactPersonId);
+    return doc ? this.contactToDomain(doc) : null;
+  }
+
+  async updateContactPerson(
+    contactPersonId: string,
+    data: Partial<NewContactPerson>
+  ): Promise<ContactPerson | null> {
+    const doc = await ContactPersonModel.findByIdAndUpdate(contactPersonId, data, { new: true });
+    return doc ? this.contactToDomain(doc) : null;
   }
 
   async removeContactPerson(contactPersonId: string): Promise<boolean> {

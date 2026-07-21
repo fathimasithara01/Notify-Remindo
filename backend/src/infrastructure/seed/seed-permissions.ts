@@ -17,13 +17,16 @@ const PERMISSIONS: Array<{ name: string; module: string; description: string }> 
   { name: 'organization.edit', module: 'organization', description: 'Edit organization details' },
   { name: 'organization.delete', module: 'organization', description: 'Delete (soft-delete) an organization' },
   { name: 'organization.block', module: 'organization', description: 'Block/unblock organizations' },
-  { name: 'organization.upgrade_plan', module: 'organization', description: 'Upgrade an organization\'s subscription plan' },
-  { name: 'organization.assign_salesman', module: 'organization', description: 'Assign a salesman to an organization' },
-
-  { name: 'contact_person.create', module: 'contact_person', description: 'Add contact persons to an organization' },
-  { name: 'contact_person.view', module: 'contact_person', description: 'View contact persons' },
-  { name: 'contact_person.edit', module: 'contact_person', description: 'Edit contact persons' },
-  { name: 'contact_person.delete', module: 'contact_person', description: 'Delete contact persons' },
+  {
+    name: 'organization.upgrade_plan',
+    module: 'organization',
+    description: 'Upgrade an organization\'s subscription plan',
+  },
+  {
+    name: 'organization.assign_salesman',
+    module: 'organization',
+    description: 'Assign a salesman to an organization',
+  },
 
   { name: 'plan.create', module: 'plan', description: 'Create subscription plans' },
   { name: 'plan.view', module: 'plan', description: 'View subscription plans' },
@@ -32,6 +35,8 @@ const PERMISSIONS: Array<{ name: string; module: string; description: string }> 
 
   { name: 'feature.create', module: 'feature', description: 'Create feature definitions' },
   { name: 'feature.view', module: 'feature', description: 'View feature definitions' },
+  { name: 'feature.edit', module: 'feature', description: 'Edit feature definitions' },
+  { name: 'feature.delete', module: 'feature', description: 'Delete feature definitions' },
 
   { name: 'notification.create', module: 'notification', description: 'Schedule notifications' },
   { name: 'notification.view', module: 'notification', description: 'View notifications' },

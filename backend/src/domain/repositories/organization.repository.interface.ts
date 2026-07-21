@@ -10,6 +10,7 @@ export interface IOrganizationRepository {
     status?: 'active' | 'blocked';
     salesmanId?: string;
     planId?: string;
+    search?: string;
   }): Promise<Organization[]>;
 
   block(id: string): Promise<Organization | null>;
@@ -19,5 +20,10 @@ export interface IOrganizationRepository {
 
   addContactPerson(organizationId: string, data: NewContactPerson): Promise<ContactPerson>;
   listContactPersons(organizationId: string): Promise<ContactPerson[]>;
+  getContactPerson(contactPersonId: string): Promise<ContactPerson | null>;
+  updateContactPerson(
+    contactPersonId: string,
+    data: Partial<NewContactPerson>
+  ): Promise<ContactPerson | null>;
   removeContactPerson(contactPersonId: string): Promise<boolean>;
 }

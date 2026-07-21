@@ -46,15 +46,16 @@ export class AcceptInviteUseCase {
 
     const role = await this.roleRepo.findById(updated.roleId);
 
-    const token = this.tokenService.sign({
+    const payload = {
       userId: updated.id,
       roleId: updated.roleId,
       roleSlug: role?.slug ?? '',
       organizationId: updated.organizationId,
-    });
+    };
 
     return {
-      token,
+      accessToken: this.tokenService.signAccessToken(payload),
+      refreshToken: this.tokenService.signRefreshToken(payload),
       user: {
         id: updated.id,
         name: updated.name,

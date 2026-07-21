@@ -24,7 +24,7 @@ export class OrganizationController {
     @inject(TOKENS.BlockCustomerUseCase) private blockCustomerUseCase: BlockCustomerUseCase,
     @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase,
     @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: ResendInviteUseCase
-  ) {}
+  ) { }
 
   create = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.createOrgUseCase.execute(req.body);
@@ -32,13 +32,14 @@ export class OrganizationController {
   };
 
   list = async (req: Request, res: Response): Promise<void> => {
-    const { status, salesmanId, planId } = req.query;
+    const { status, salesmanId, planId, search } = req.query;
     const pagination = parsePagination(req.query as Record<string, unknown>);
 
     const organizations = await this.orgRepo.list({
       status: status as 'active' | 'blocked' | undefined,
       salesmanId: salesmanId as string | undefined,
       planId: planId as string | undefined,
+      search: search as string | undefined,
     });
 
     const start = (pagination.page - 1) * pagination.limit;
@@ -83,7 +84,7 @@ export class OrganizationController {
     if (!req.user) throw new UnauthorizedError();
 
     const organization = await this.blockCustomerUseCase.execute({
-      organizationId: req.params.id as string,
+      organizationId: req.params.id  as string,
       adminId: req.user.userId,
       reason: req.body.reason,
     });
@@ -98,7 +99,7 @@ export class OrganizationController {
 
   upgradePlan = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.upgradePlanUseCase.execute({
-      organizationId: req.params.id as string,
+      organizationId: req.params.id  as string,
       newPlanId: req.body.newPlanId,
     });
     ApiResponse.success(res, organization, 200, 'Plan upgraded');
@@ -106,7 +107,7 @@ export class OrganizationController {
 
   assignSalesman = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.assignSalesmanUseCase.execute({
-      organizationId: req.params.id as string,
+      organizationId: req.params.id  as string,
       salesmanId: req.body.salesmanId,
     });
     ApiResponse.success(res, organization, 200, 'Salesman assigned');
@@ -120,6 +121,24 @@ export class OrganizationController {
   listContactPersons = async (req: Request, res: Response): Promise<void> => {
     const contacts = await this.orgRepo.listContactPersons(req.params.id as string);
     ApiResponse.success(res, contacts);
+  };
+
+  getContactPerson = async (req: Request, res: Response): Promise<void> => {
+    const contact = await this.orgRepo.getContactPerson(req.params.contactId as string);
+    if (!contact) throw new NotFoundError('Contact person not found');
+    ApiResponse.success(res, contact);
+  };
+
+  updateContactPerson = async (req: Request, res: Response): Promise<void> => {
+    const contact = await this.orgRepo.updateContactPerson(req.params.contactId as string, req.body);
+    if (!contact) throw new NotFoundError('Contact person not found');
+    ApiResponse.success(res, contact, 200, 'Contact person updated');
+  };
+
+  removeContactPerson = async (req: Request, res: Response): Promise<void> => {
+    const removed = await this.orgRepo.removeContactPerson(req.params.contactId as string);
+    if (!removed) throw new NotFoundError('Contact person not found');
+    ApiResponse.success(res, null, 200, 'Contact person removed');
   };
 
   resendInvite = async (req: Request, res: Response): Promise<void> => {
