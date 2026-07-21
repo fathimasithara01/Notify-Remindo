@@ -19,7 +19,7 @@ const editPlanSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   userLimit: z.coerce.number().int().positive('Must be a positive number'),
   durationDays: z.coerce.number().int().positive('Must be a positive number'),
-  price: z.coerce.number().nonnegative('Cannot be negative'),
+  price: z.coerce.number().nonnegative('Cannot be negative').positive('Must be a positive number'),
   description: z.string().optional(),
   status: z.enum(['active', 'inactive']),
 });
