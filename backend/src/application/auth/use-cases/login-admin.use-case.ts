@@ -49,6 +49,7 @@ export class LoginAdminUseCase {
       roleId: role.id,
       roleSlug: role.slug,
       organizationId: user.organizationId,
+      tokenVersion: user.tokenVersion,
     };
 
     return {

@@ -63,6 +63,7 @@ export class UserRepository implements IUserRepository {
       organizationId: doc.organizationId ? doc.organizationId.toString() : null,
       inviteToken: doc.inviteToken,
       inviteTokenExpiresAt: doc.inviteTokenExpiresAt,
+      tokenVersion: doc.tokenVersion,
       deletedAt: doc.deletedAt,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

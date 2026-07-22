@@ -31,6 +31,10 @@ export class RefreshTokenUseCase {
       throw new UnauthorizedError('User is not active');
     }
 
+    if ((payload.tokenVersion ?? 0) !== user.tokenVersion) {
+      throw new UnauthorizedError('Session has been revoked. Please log in again.');
+    }
+
     const role = await this.roleRepo.findById(user.roleId);
     if (!role || role.status === 'inactive') {
       throw new UnauthorizedError('Role is not active');
@@ -41,6 +45,7 @@ export class RefreshTokenUseCase {
       roleId: role.id,
       roleSlug: role.slug,
       organizationId: user.organizationId,
+      tokenVersion: user.tokenVersion,
     };
 
     return {

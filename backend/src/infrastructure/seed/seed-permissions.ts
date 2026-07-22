@@ -1,6 +1,7 @@
 import { connectDB, disconnectDB } from '../../config/db';
 import { PermissionModel } from '../database/models/permission.model';
 
+
 const PERMISSIONS: Array<{ name: string; module: string; description: string }> = [
   { name: 'role.create', module: 'role', description: 'Create new roles' },
   { name: 'role.view', module: 'role', description: 'View roles' },
@@ -44,6 +45,13 @@ const PERMISSIONS: Array<{ name: string; module: string; description: string }> 
   { name: 'notification.delete', module: 'notification', description: 'Cancel a notification' },
 
   { name: 'dashboard.view', module: 'dashboard', description: 'View business reports' },
+
+  { name: 'user.create', module: 'user', description: 'Create internal admin/support users' },
+  { name: 'user.view', module: 'user', description: 'View internal admin/support users' },
+  { name: 'user.edit', module: 'user', description: 'Edit internal admin/support users' },
+  { name: 'user.delete', module: 'user', description: 'Delete internal admin/support users' },
+
+  { name: 'auditlog.view', module: 'auditlog', description: 'View the audit log' },
 ];
 
 export async function seedPermissions(): Promise<void> {

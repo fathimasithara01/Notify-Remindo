@@ -9,6 +9,7 @@ export interface UserDocument extends Document {
   organizationId: Types.ObjectId | null;
   inviteToken: string | null;
   inviteTokenExpiresAt: Date | null;
+  tokenVersion: number;
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -24,6 +25,7 @@ const userSchema = new Schema<UserDocument>(
     organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', default: null },
     inviteToken: { type: String, default: null, index: true },
     inviteTokenExpiresAt: { type: Date, default: null },
+    tokenVersion: { type: Number, default: 0 },
     deletedAt: { type: Date, default: null },
   },
   { timestamps: true }

@@ -76,6 +76,7 @@ export class CreateOrganizationUseCase {
       organizationId: organization.id,
       inviteToken,
       inviteTokenExpiresAt,
+      tokenVersion: 0,
     });
 
     await this.sendInviteEmail(data.contactEmail, data.name, inviteToken);
@@ -92,6 +93,8 @@ export class CreateOrganizationUseCase {
         message: `An account has been created for ${orgName}. Set your password to get started: ${inviteUrl} (link expires in ${INVITE_TOKEN_TTL_HOURS} hours).`,
       });
     } catch (error) {
+      // Don't fail organization creation if the email provider is down —
+      // the Super Admin can use "Resend invite" once SMTP is configured/fixed.
       console.error('Failed to send invite email:', error);
     }
   }

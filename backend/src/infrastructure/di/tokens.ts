@@ -1,3 +1,14 @@
+/**
+ * tsyringe can't resolve TypeScript interfaces at runtime — interfaces
+ * disappear after compilation. These tokens are runtime-identifiable
+ * stand-ins that we register concrete classes against, and use with
+ * @inject() wherever a constructor parameter's type is an interface.
+ *
+ * Concrete classes (use-cases, controllers) are also registered under
+ * their own class reference directly — tsyringe supports that natively
+ * via @injectable(), so they don't strictly need a token. They're listed
+ * here anyway for consistency and easy discovery.
+ */
 export const TOKENS = {
   // Repositories (interfaces)
   UserRepository: Symbol('UserRepository'),
@@ -24,6 +35,9 @@ export const TOKENS = {
   VerifyInviteTokenUseCase: Symbol('VerifyInviteTokenUseCase'),
   AcceptInviteUseCase: Symbol('AcceptInviteUseCase'),
   ResendInviteUseCase: Symbol('ResendInviteUseCase'),
+  CreateUserUseCase: Symbol('CreateUserUseCase'),
+  EditUserUseCase: Symbol('EditUserUseCase'),
+  RevokeSessionsUseCase: Symbol('RevokeSessionsUseCase'),
   CreateRoleUseCase: Symbol('CreateRoleUseCase'),
   AssignPermissionsUseCase: Symbol('AssignPermissionsUseCase'),
   EditRoleUseCase: Symbol('EditRoleUseCase'),
@@ -49,4 +63,6 @@ export const TOKENS = {
   SubscriptionController: Symbol('SubscriptionController'),
   NotificationController: Symbol('NotificationController'),
   DashboardController: Symbol('DashboardController'),
+  UserController: Symbol('UserController'),
+  AuditLogController: Symbol('AuditLogController'),
 } as const;

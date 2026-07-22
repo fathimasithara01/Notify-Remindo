@@ -51,6 +51,7 @@ export class AcceptInviteUseCase {
       roleId: updated.roleId,
       roleSlug: role?.slug ?? '',
       organizationId: updated.organizationId,
+      tokenVersion: updated.tokenVersion,
     };
 
     return {

@@ -3,6 +3,7 @@ export interface TokenPayload {
   roleId: string;
   roleSlug: string;
   organizationId?: string | null;
+  tokenVersion?: number;
 }
 
 export interface ITokenService {

@@ -26,7 +26,7 @@ export class NotificationRepository implements INotificationRepository {
         return result !== null;
     }
 
-    async list(filter?: { organizationId?: string; status?: 'pending' | 'sent' | 'failed'; mode?: 'whatsapp' | 'email' | 'in_app'; }): Promise<Notification[]> {
+    async list(filter?: { organizationId?: string; status?: 'pending' | 'sent' | 'failed'; mode?: 'whatsapp' | 'email'; }): Promise<Notification[]> {
         const query: Record<string, unknown> = {};
         if (filter?.organizationId) query.organizationId = filter.organizationId;
         if (filter?.status) query.status = filter.status;

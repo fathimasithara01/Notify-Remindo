@@ -73,10 +73,7 @@ export class OrganizationRepository implements IOrganizationRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
-  async addContactPerson(
-    organizationId: string,
-    data: NewContactPerson
-  ): Promise<ContactPerson> {
+  async addContactPerson(organizationId: string, data: NewContactPerson): Promise<ContactPerson> {
     const doc = await ContactPersonModel.create({ ...data, organizationId });
     return this.contactToDomain(doc);
   }
@@ -91,10 +88,7 @@ export class OrganizationRepository implements IOrganizationRepository {
     return doc ? this.contactToDomain(doc) : null;
   }
 
-  async updateContactPerson(
-    contactPersonId: string,
-    data: Partial<NewContactPerson>
-  ): Promise<ContactPerson | null> {
+  async updateContactPerson(contactPersonId: string, data: Partial<NewContactPerson>): Promise<ContactPerson | null> {
     const doc = await ContactPersonModel.findByIdAndUpdate(contactPersonId, data, { new: true });
     return doc ? this.contactToDomain(doc) : null;
   }
