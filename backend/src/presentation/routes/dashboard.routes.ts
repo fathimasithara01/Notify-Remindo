@@ -11,6 +11,6 @@ const controller = container.resolve<DashboardController>(TOKENS.DashboardContro
 
 router.use(requireAuth);
 
-router.get('/report', authorize('dashboard.view'), asyncHandler(controller.getReport));
+router.get('/', authorize('dashboard.view'), asyncHandler(controller.getReport));
 
 export default router;

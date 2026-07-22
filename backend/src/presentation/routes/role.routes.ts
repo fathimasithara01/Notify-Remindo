@@ -17,7 +17,12 @@ router.post('/', authorize('role.create'), validateRequest(createRoleSchema), as
 router.get('/', authorize('role.view'), asyncHandler(controller.list));
 router.get('/:id', authorize('role.view'), asyncHandler(controller.getOne));
 router.patch('/:id', authorize('role.edit'), validateRequest(editRoleSchema), asyncHandler(controller.update));
-router.post('/:id/permissions', authorize('role.edit'), validateRequest(assignPermissionsSchema), asyncHandler(controller.assignPermissions));
 router.delete('/:id', authorize('role.delete'), asyncHandler(controller.delete));
 
+router.post('/:id/permissions', authorize('role.edit'), validateRequest(assignPermissionsSchema), asyncHandler(controller.assignPermissions));
+
+// add
+// GET    /roles/:id/permissions - getPermissions
+// POST   /roles/:id/permissions  - assignPermissions
+// DELETE /roles/:id/permissions/:permissionId -removePermission
 export default router;
