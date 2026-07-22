@@ -17,11 +17,11 @@ router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
 router.use('/permissions', permissionRoutes);
 
+router.use('/dashboard', dashboardRoutes);
+router.use('/audit-logs', auditLogRoutes);
+
 router.use('/organizations', organizationRoutes);
 router.use('/subscriptions', subscriptionRoutes);
 router.use('/notifications', notificationRoutes);
-
-router.use('/dashboard', dashboardRoutes);
-router.use('/audit-logs', auditLogRoutes);
 
 export default router;

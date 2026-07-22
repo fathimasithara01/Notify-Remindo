@@ -16,7 +16,6 @@ router.post('/refresh', asyncHandler(controller.refreshToken));
 router.post('/logout', requireAuth, asyncHandler(controller.logout));
 router.get('/me', requireAuth, asyncHandler(controller.me));
 
-// Invite
 router.get('/invites/:token', asyncHandler(controller.verifyInviteToken));
 router.post('/invites/accept', validateRequest(acceptInviteSchema), asyncHandler(controller.acceptInvite));
 

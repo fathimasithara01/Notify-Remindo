@@ -14,7 +14,7 @@ export class LoginAdminUseCase {
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
     @inject(TOKENS.HashService) private hashService: IHashService,
     @inject(TOKENS.TokenService) private tokenService: ITokenService
-  ) {}
+  ) { }
 
   async execute(data: LoginDto): Promise<LoginResult> {
     const user = await this.userRepo.findByEmail(data.email);
