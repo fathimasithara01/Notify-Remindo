@@ -18,4 +18,7 @@ router.get('/', authorize('notification.view'), asyncHandler(controller.list));
 router.post('/:id/send-now', authorize('notification.send'), asyncHandler(controller.sendNow));
 router.delete('/:id', authorize('notification.delete'), asyncHandler(controller.delete));
 
+// add
+// GET    /notifications/:id
+// PATCH  /notifications/:id
 export default router;

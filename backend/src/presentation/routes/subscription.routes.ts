@@ -5,13 +5,7 @@ import { SubscriptionController } from '../controllers/subscription.controller';
 import { requireAuth } from '../middlewares/require-auth.middleware';
 import { authorize } from '../middlewares/authorize.middleware';
 import { validateRequest } from '../middlewares/validate-request.middleware';
-import {
-  createPlanSchema,
-  editPlanSchema,
-  createFeatureSchema,
-  editFeatureSchema,
-  setPlanFeatureSchema,
-} from '../validators/subscription.validator';
+import { createPlanSchema, editPlanSchema, createFeatureSchema, editFeatureSchema, setPlanFeatureSchema } from '../validators/subscription.validator';
 import { asyncHandler } from '../../shared/utils/async-handler';
 
 const router = Router();
@@ -62,4 +56,7 @@ router.patch(
 );
 router.delete('/features/:id', authorize('feature.delete'), asyncHandler(controller.deleteFeature));
 
+
+// add
+// GET /features/:id
 export default router;
