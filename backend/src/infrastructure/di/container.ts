@@ -76,7 +76,6 @@ export function registerDependencies(): void {
     useFactory: (c) => ({
       whatsapp: c.resolve(TOKENS.WhatsAppNotifierService),
       email: c.resolve(TOKENS.EmailNotifierService),
-      in_app: c.resolve(TOKENS.InAppNotifierService),
     }),
   });
 

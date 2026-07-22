@@ -25,7 +25,6 @@ export const TOKENS = {
   TokenService: Symbol('TokenService'),
   WhatsAppNotifierService: Symbol('WhatsAppNotifierService'),
   EmailNotifierService: Symbol('EmailNotifierService'),
-  InAppNotifierService: Symbol('InAppNotifierService'),
   NotifierMap: Symbol('NotifierMap'),
 
   // Use-cases (concrete classes, registered for discoverability/consistency)
