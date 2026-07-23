@@ -1,7 +1,7 @@
 export interface TokenPayload {
   userId: string;
-  roleId: string;
-  roleSlug: string;
+  roleIds: string[];
+  roleSlugs: string[];
   organizationId?: string | null;
   tokenVersion?: number;
 }

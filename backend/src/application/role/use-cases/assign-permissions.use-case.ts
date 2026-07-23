@@ -4,6 +4,7 @@ import { IRoleRepository } from '../../../domain/repositories/role.repository.in
 import { IPermissionRepository } from '../../../domain/repositories/permission.repository.interface';
 import { RoleWithPermissions } from '../../../domain/entities/role.entity';
 import { NotFoundError, DomainError } from '../../../domain/errors/domain.error';
+import { RolePermissionCache } from '../../../infrastructure/cache/role-permission-cache';
 
 export interface AssignPermissionsDto {
   roleId: string;
@@ -14,7 +15,8 @@ export interface AssignPermissionsDto {
 export class AssignPermissionsUseCase {
   constructor(
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
-    @inject(TOKENS.PermissionRepository) private permissionRepo: IPermissionRepository
+    @inject(TOKENS.PermissionRepository) private permissionRepo: IPermissionRepository,
+    @inject(TOKENS.RolePermissionCache) private cache: RolePermissionCache
   ) {}
 
   async execute(data: AssignPermissionsDto): Promise<RoleWithPermissions> {
@@ -24,6 +26,7 @@ export class AssignPermissionsUseCase {
     }
 
     await this.permissionRepo.assignToRole(data.roleId, data.permissionIds);
+    this.cache.invalidate(data.roleId);
 
     const updated = await this.roleRepo.findWithPermissions(data.roleId);
     if (!updated) {

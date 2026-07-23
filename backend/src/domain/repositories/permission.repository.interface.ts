@@ -6,7 +6,7 @@ export interface IPermissionRepository {
   findByName(name: string): Promise<Permission | null>;
   update(id: string, data: Partial<NewPermission>): Promise<Permission | null>;
   delete(id: string): Promise<boolean>;
-  list(filter?: { module?: string }): Promise<Permission[]>;
+  list(filter?: { module?: string; search?: string }): Promise<Permission[]>;
 
   assignToRole(roleId: string, permissionIds: string[]): Promise<void>;
   removeFromRole(roleId: string, permissionIds: string[]): Promise<void>;

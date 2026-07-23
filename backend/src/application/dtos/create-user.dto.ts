@@ -2,11 +2,10 @@ export interface CreateUserDto {
   name: string;
   email: string;
   password: string;
-  roleId: string;
+  roleIds: string[];
 }
 
 export interface EditUserDto {
   name?: string;
-  roleId?: string;
   status?: 'active' | 'inactive';
 }

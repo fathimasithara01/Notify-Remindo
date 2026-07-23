@@ -25,7 +25,10 @@ export const TOKENS = {
   TokenService: Symbol('TokenService'),
   WhatsAppNotifierService: Symbol('WhatsAppNotifierService'),
   EmailNotifierService: Symbol('EmailNotifierService'),
+  InAppNotifierService: Symbol('InAppNotifierService'),
   NotifierMap: Symbol('NotifierMap'),
+  RolePermissionCache: Symbol('RolePermissionCache'),
+  TokenRevocationRegistry: Symbol('TokenRevocationRegistry'),
 
   // Use-cases (concrete classes, registered for discoverability/consistency)
   LoginAdminUseCase: Symbol('LoginAdminUseCase'),

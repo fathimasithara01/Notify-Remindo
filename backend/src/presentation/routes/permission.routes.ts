@@ -11,14 +11,7 @@ const controller = container.resolve<PermissionController>(TOKENS.PermissionCont
 
 router.use(requireAuth);
 
-// router.post( '/', authorize('permission.create'), validateRequest(createPermissionSchema), asyncHandler(controller.create)); //remove
 router.get('/', authorize('permission.view'), asyncHandler(controller.list));
 router.get('/:id', authorize('permission.view'), asyncHandler(controller.getOne));
-// router.patch( '/:id', authorize('permission.edit'), validateRequest(editPermissionSchema), asyncHandler(controller.update)); //remove
-// router.delete('/:id', authorize('permission.delete'), asyncHandler(controller.delete));//remove
-
-// only
-// GET /permissions
-// GET /permissions/:id
 
 export default router;

@@ -18,7 +18,7 @@ export class RoleController {
     @inject(TOKENS.EditRoleUseCase) private editRoleUseCase: EditRoleUseCase,
     @inject(TOKENS.DeleteRoleUseCase) private deleteRoleUseCase: DeleteRoleUseCase,
     @inject(TOKENS.AssignPermissionsUseCase) private assignPermissionsUseCase: AssignPermissionsUseCase
-  ) { }
+  ) {}
 
   create = async (req: Request, res: Response): Promise<void> => {
     const role = await this.createRoleUseCase.execute(req.body);
@@ -46,7 +46,13 @@ export class RoleController {
   };
 
   update = async (req: Request, res: Response): Promise<void> => {
-    const role = await this.editRoleUseCase.execute(req.params.id as string, req.body);
+    if (!req.user) throw new UnauthorizedError();
+
+    const role = await this.editRoleUseCase.execute({
+      roleId: req.params.id as string,
+      adminId: req.user.userId,
+      data: req.body,
+    });
     ApiResponse.success(res, role, 200, 'Role updated');
   };
 

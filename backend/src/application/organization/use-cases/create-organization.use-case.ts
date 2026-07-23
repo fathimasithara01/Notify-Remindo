@@ -64,20 +64,22 @@ export class CreateOrganizationUseCase {
       status: 'active',
     });
 
+    // Create the invited Org Admin user and send them a "set your password" link.
     const inviteToken = crypto.randomBytes(32).toString('hex');
     const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
 
-    await this.userRepo.create({
+    const orgAdminUser = await this.userRepo.create({
       name: `${data.name} Admin`,
       email: data.contactEmail,
       passwordHash: null,
-      roleId: orgAdminRole.id,
       status: 'invited',
       organizationId: organization.id,
       inviteToken,
       inviteTokenExpiresAt,
       tokenVersion: 0,
     });
+
+    await this.userRepo.assignRole(orgAdminUser.id, orgAdminRole.id);
 
     await this.sendInviteEmail(data.contactEmail, data.name, inviteToken);
 
@@ -92,9 +94,7 @@ export class CreateOrganizationUseCase {
         subject: `You're invited to manage ${orgName} on Notify`,
         message: `An account has been created for ${orgName}. Set your password to get started: ${inviteUrl} (link expires in ${INVITE_TOKEN_TTL_HOURS} hours).`,
       });
-    } catch (error) {
-      // Don't fail organization creation if the email provider is down —
-      // the Super Admin can use "Resend invite" once SMTP is configured/fixed.
+    } catch (error) {    
       console.error('Failed to send invite email:', error);
     }
   }

@@ -12,11 +12,15 @@ import { FeatureRepository } from '../database/repositories/feature.repository';
 import { NotificationRepository } from '../database/repositories/notification.repository';
 import { AuditLogRepository } from '../database/repositories/audit-log.repository';
 
+// Services
 import { BcryptHashService } from '../services/bcrypt-hash.service';
 import { JwtTokenService } from '../services/jwt-token.service';
 import { WhatsAppNotifierService } from '../services/whatsapp-notifier.service';
 import { EmailNotifierService } from '../services/email-notifier.service';
+import { RolePermissionCache } from '../cache/role-permission-cache';
+import { TokenRevocationRegistry } from '../cache/token-revocation-registry';
 
+// Use-cases
 import { LoginAdminUseCase } from '../../application/auth/use-cases/login-admin.use-case';
 import { RefreshTokenUseCase } from '../../application/auth/use-cases/refresh-token.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-current-user.use-case';
@@ -71,6 +75,8 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.TokenService, JwtTokenService);
   container.registerSingleton(TOKENS.WhatsAppNotifierService, WhatsAppNotifierService);
   container.registerSingleton(TOKENS.EmailNotifierService, EmailNotifierService);
+  container.registerSingleton(TOKENS.RolePermissionCache, RolePermissionCache);
+  container.registerSingleton(TOKENS.TokenRevocationRegistry, TokenRevocationRegistry);
 
   container.register(TOKENS.NotifierMap, {
     useFactory: (c) => ({
@@ -79,6 +85,9 @@ export function registerDependencies(): void {
     }),
   });
 
+  // Use-cases — registered under their own class token so @injectable() classes
+  // that depend on them (none currently do, but controllers resolve them directly)
+  // and container.resolve(XUseCase) both work.
   container.register(TOKENS.LoginAdminUseCase, { useClass: LoginAdminUseCase });
   container.register(TOKENS.RefreshTokenUseCase, { useClass: RefreshTokenUseCase });
   container.register(TOKENS.GetCurrentUserUseCase, { useClass: GetCurrentUserUseCase });

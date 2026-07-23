@@ -1,4 +1,5 @@
 import { User, NewUser } from '../entities/user.entity';
+import { Role } from '../entities/role.entity';
 
 export interface IUserRepository {
   create(data: NewUser): Promise<User>;
@@ -9,7 +10,12 @@ export interface IUserRepository {
   delete(id: string): Promise<boolean>;
   list(filter?: {
     status?: 'invited' | 'active' | 'inactive';
-    roleId?: string;
     organizationId?: string;
+    internalOnly?: boolean;
+    search?: string;
   }): Promise<User[]>;
+
+  listRoles(userId: string): Promise<Role[]>;
+  assignRole(userId: string, roleId: string): Promise<void>;
+  removeRole(userId: string, roleId: string): Promise<void>;
 }

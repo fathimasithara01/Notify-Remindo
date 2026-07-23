@@ -39,9 +39,6 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    // Soft delete — existing Organizations may still reference this plan via
-    // currentPlanId / OrganizationSubscription history. Mark inactive + deleted
-    // instead of removing, so those references stay resolvable.
     const result = await SubscriptionPlanModel.findOneAndUpdate(
       { _id: id, deletedAt: null },
       { deletedAt: new Date(), status: 'inactive' }

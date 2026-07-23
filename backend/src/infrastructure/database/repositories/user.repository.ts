@@ -1,7 +1,11 @@
 import { injectable } from 'tsyringe';
+import { Types } from 'mongoose';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { User, NewUser } from '../../../domain/entities/user.entity';
+import { Role } from '../../../domain/entities/role.entity';
 import { UserModel, UserDocument } from '../models/user.model';
+import { UserRoleModel } from '../models/user-role.model';
+import { RoleModel } from '../models/role.model';
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -40,16 +44,50 @@ export class UserRepository implements IUserRepository {
 
   async list(filter?: {
     status?: 'invited' | 'active' | 'inactive';
-    roleId?: string;
     organizationId?: string;
+    internalOnly?: boolean;
+    search?: string;
   }): Promise<User[]> {
     const query: Record<string, unknown> = { deletedAt: null };
     if (filter?.status) query.status = filter.status;
-    if (filter?.roleId) query.roleId = filter.roleId;
     if (filter?.organizationId) query.organizationId = filter.organizationId;
+    if (filter?.internalOnly) query.organizationId = null;
+    if (filter?.search) {
+      const regex = new RegExp(filter.search.trim(), 'i');
+      query.$or = [{ name: regex }, { email: regex }];
+    }
 
     const docs = await UserModel.find(query);
     return docs.map((doc) => this.toDomain(doc));
+  }
+
+  async listRoles(userId: string): Promise<Role[]> {
+    const links = await UserRoleModel.find({ userId });
+    const roleIds = links.map((link) => link.roleId);
+    const docs = await RoleModel.find({ _id: { $in: roleIds }, deletedAt: null });
+    return docs.map((doc) => ({
+      id: doc._id.toString(),
+      name: doc.name,
+      slug: doc.slug,
+      description: doc.description,
+      isSystem: doc.isSystem,
+      status: doc.status,
+      deletedAt: doc.deletedAt,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    }));
+  }
+
+  async assignRole(userId: string, roleId: string): Promise<void> {
+    await UserRoleModel.findOneAndUpdate(
+      { userId: new Types.ObjectId(userId), roleId: new Types.ObjectId(roleId) },
+      { $setOnInsert: { userId: new Types.ObjectId(userId), roleId: new Types.ObjectId(roleId) } },
+      { upsert: true }
+    );
+  }
+
+  async removeRole(userId: string, roleId: string): Promise<void> {
+    await UserRoleModel.deleteOne({ userId, roleId });
   }
 
   private toDomain(doc: UserDocument): User {
@@ -58,7 +96,6 @@ export class UserRepository implements IUserRepository {
       name: doc.name,
       email: doc.email,
       passwordHash: doc.passwordHash,
-      roleId: doc.roleId.toString(),
       status: doc.status,
       organizationId: doc.organizationId ? doc.organizationId.toString() : null,
       inviteToken: doc.inviteToken,

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { container } from '../../infrastructure/di/container';
 import { TOKENS } from '../../infrastructure/di/tokens';
 import { IRoleRepository } from '../../domain/repositories/role.repository.interface';
+import { RolePermissionCache } from '../../infrastructure/cache/role-permission-cache';
 import { UnauthorizedError, ForbiddenError } from '../../domain/errors/domain.error';
 
 export function authorize(requiredPermission: string) {
@@ -10,19 +11,31 @@ export function authorize(requiredPermission: string) {
       return next(new UnauthorizedError('Authentication required'));
     }
 
+    const cache = container.resolve<RolePermissionCache>(TOKENS.RolePermissionCache);
     const roleRepo = container.resolve<IRoleRepository>(TOKENS.RoleRepository);
-    const role = await roleRepo.findWithPermissions(req.user.roleId);
 
-    if (!role || role.status !== 'active') {
-      return next(new ForbiddenError('Role is not active'));
+    let hasActiveRole = false;
+    for (const roleId of req.user.roleIds) {
+      let role = cache.get(roleId);
+      if (!role) {
+        const fetched = await roleRepo.findWithPermissions(roleId);
+        if (!fetched) continue;
+        cache.set(roleId, fetched);
+        role = fetched;
+      }
+
+      if (role.status !== 'active') continue;
+      hasActiveRole = true;
+
+      if (role.permissions.includes('*') || role.permissions.includes(requiredPermission)) {
+        return next();
+      }
     }
 
-    const hasPermission = role.permissions.includes('*') || role.permissions.includes(requiredPermission);
-
-    if (!hasPermission) {
-      return next(new ForbiddenError(`Missing required permission: ${requiredPermission}`));
+    if (!hasActiveRole) {
+      return next(new ForbiddenError('No active role assigned'));
     }
 
-    next();
+    return next(new ForbiddenError(`Missing required permission: ${requiredPermission}`));
   };
 }

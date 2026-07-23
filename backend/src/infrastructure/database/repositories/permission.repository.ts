@@ -7,7 +7,6 @@ import { RolePermissionModel } from '../models/role-permission.model';
 
 @injectable()
 export class PermissionRepository implements IPermissionRepository {
-  
   async create(data: NewPermission): Promise<Permission> {
     const doc = await PermissionModel.create(data);
     return this.toDomain(doc);
@@ -34,9 +33,12 @@ export class PermissionRepository implements IPermissionRepository {
     return result !== null;
   }
 
-  async list(filter?: { module?: string }): Promise<Permission[]> {
+  async list(filter?: { module?: string; search?: string }): Promise<Permission[]> {
     const query: Record<string, unknown> = {};
     if (filter?.module) query.module = filter.module;
+    if (filter?.search) {
+      query.name = new RegExp(filter.search.trim(), 'i');
+    }
 
     const docs = await PermissionModel.find(query);
     return docs.map((doc) => this.toDomain(doc));

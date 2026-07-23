@@ -3,6 +3,7 @@ import { RoleModel } from '../database/models/role.model';
 import { PermissionModel } from '../database/models/permission.model';
 import { RolePermissionModel } from '../database/models/role-permission.model';
 import { UserModel } from '../database/models/user.model';
+import { UserRoleModel } from '../database/models/user-role.model';
 import { BcryptHashService } from '../services/bcrypt-hash.service';
 import { seedPermissions } from './seed-permissions';
 import { env } from '../../config/env';
@@ -24,18 +25,6 @@ export async function seedSuperAdmin(): Promise<void> {
     { upsert: true, new: true }
   );
 
-  const allPermissions = await PermissionModel.find({});
-  const ops = allPermissions.map((permission) => ({
-    updateOne: {
-      filter: { roleId: role._id, permissionId: permission._id },
-      update: { $setOnInsert: { roleId: role._id, permissionId: permission._id } },
-      upsert: true,
-    },
-  }));
-  if (ops.length > 0) {
-    await RolePermissionModel.bulkWrite(ops);
-  }
-
   await RoleModel.findOneAndUpdate(
     { slug: 'orgadmin' },
     {
@@ -50,6 +39,18 @@ export async function seedSuperAdmin(): Promise<void> {
     { upsert: true }
   );
 
+  const allPermissions = await PermissionModel.find({});
+  const ops = allPermissions.map((permission) => ({
+    updateOne: {
+      filter: { roleId: role._id, permissionId: permission._id },
+      update: { $setOnInsert: { roleId: role._id, permissionId: permission._id } },
+      upsert: true,
+    },
+  }));
+  if (ops.length > 0) {
+    await RolePermissionModel.bulkWrite(ops);
+  }
+
   const existing = await UserModel.findOne({ email: env.SUPER_ADMIN_EMAIL });
   if (existing) {
     console.log('Super Admin user already exists — skipping user creation');
@@ -59,13 +60,18 @@ export async function seedSuperAdmin(): Promise<void> {
   const hashService = new BcryptHashService();
   const passwordHash = await hashService.hash(env.SUPER_ADMIN_PASSWORD);
 
-  await UserModel.create({
+  const user = await UserModel.create({
     name: env.SUPER_ADMIN_NAME,
     email: env.SUPER_ADMIN_EMAIL,
     passwordHash,
-    roleId: role._id,
     status: 'active',
   });
+
+  await UserRoleModel.findOneAndUpdate(
+    { userId: user._id, roleId: role!._id },
+    { $setOnInsert: { userId: user._id, roleId: role!._id } },
+    { upsert: true }
+  );
 
   console.log(`Super Admin user created: ${env.SUPER_ADMIN_EMAIL}`);
 }

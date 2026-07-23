@@ -8,10 +8,11 @@ import { RevokeSessionsUseCase } from '../../application/user/use-cases/revoke-s
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError } from '../../domain/errors/domain.error';
 import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
+import { User } from '../../domain/entities/user.entity';
 
-function toSafeUser(user: { id: string; name: string; email: string; roleId: string; status: string; createdAt: Date }) {
-  const { id, name, email, roleId, status, createdAt } = user;
-  return { id, name, email, roleId, status, createdAt };
+function toSafeUser(user: User) {
+  const { id, name, email, status, organizationId, createdAt } = user;
+  return { id, name, email, status, organizationId, createdAt };
 }
 
 @injectable()
@@ -29,10 +30,13 @@ export class UserController {
   };
 
   list = async (req: Request, res: Response): Promise<void> => {
+    const { search } = req.query;
     const pagination = parsePagination(req.query as Record<string, unknown>);
 
-    const allUsers = await this.userRepo.list();
-    const internalUsers = allUsers.filter((u) => !u.organizationId);
+    const internalUsers = await this.userRepo.list({
+      internalOnly: true,
+      search: search as string | undefined,
+    });
 
     const start = (pagination.page - 1) * pagination.limit;
     const pageItems = internalUsers.slice(start, start + pagination.limit).map(toSafeUser);
@@ -63,5 +67,29 @@ export class UserController {
   revokeSessions = async (req: Request, res: Response): Promise<void> => {
     await this.revokeSessionsUseCase.execute(req.params.id as string);
     ApiResponse.success(res, null, 200, 'All sessions revoked for this user');
+  };
+
+
+  getRoles = async (req: Request, res: Response): Promise<void> => {
+    const roles = await this.userRepo.listRoles(req.params.id as string);
+    ApiResponse.success(res, roles);
+  };
+
+  assignRole = async (req: Request, res: Response): Promise<void> => {
+    const user = await this.userRepo.findById(req.params.id as string);
+    if (!user) throw new NotFoundError('User not found');
+
+    await this.userRepo.assignRole(req.params.id as string, req.body.roleId);
+    const roles = await this.userRepo.listRoles(req.params.id as string);
+    ApiResponse.success(res, roles, 200, 'Role assigned');
+  };
+
+  removeRole = async (req: Request, res: Response): Promise<void> => {
+    const user = await this.userRepo.findById(req.params.id as string);
+    if (!user) throw new NotFoundError('User not found');
+
+    await this.userRepo.removeRole(req.params.id as string, req.params.roleId as string);
+    const roles = await this.userRepo.listRoles(req.params.id as string);
+    ApiResponse.success(res, roles, 200, 'Role removed');
   };
 }

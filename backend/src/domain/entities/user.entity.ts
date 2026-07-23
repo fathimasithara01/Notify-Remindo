@@ -5,7 +5,6 @@ export interface User {
   name: string;
   email: string;
   passwordHash: string | null;
-  roleId: string;
   status: UserStatus;
   organizationId?: string | null; 
   inviteToken?: string | null;
