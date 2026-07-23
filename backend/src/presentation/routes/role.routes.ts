@@ -23,6 +23,5 @@ router.post('/:id/permissions', authorize('role.edit'), validateRequest(assignPe
 
 // add
 // GET    /roles/:id/permissions - getPermissions
-// POST   /roles/:id/permissions  - assignPermissions
 // DELETE /roles/:id/permissions/:permissionId -removePermission
 export default router;
