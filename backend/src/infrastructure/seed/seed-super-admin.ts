@@ -65,6 +65,7 @@ export async function seedSuperAdmin(): Promise<void> {
     email: env.SUPER_ADMIN_EMAIL,
     passwordHash,
     status: 'active',
+
   });
 
   await UserRoleModel.findOneAndUpdate(

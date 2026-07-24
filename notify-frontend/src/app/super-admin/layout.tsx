@@ -30,7 +30,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
 
     return (
         <div className="flex h-screen overflow-hidden">
-            <Sidebar />
+            <Sidebar user={user} />
             <main className="flex-1 overflow-y-auto bg-muted/20 p-8">{children}</main>
         </div>
     );

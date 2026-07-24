@@ -6,6 +6,7 @@ import { LayoutDashboard, Building2, ShieldCheck, KeyRound, CreditCard, Bell, Lo
 import { useCurrentUser, useLogout } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { AuthUser } from '@/lib/types/auth';
 
 const NAV_ITEMS = [
     { href: '/super-admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -16,9 +17,13 @@ const NAV_ITEMS = [
     { href: '/super-admin/notifications', label: 'Notifications', icon: Bell },
 ];
 
-export function Sidebar() {
+interface Prop {
+    user: AuthUser
+}
+
+export function Sidebar({ user }: Prop) {
     const pathname = usePathname();
-    const { data: user } = useCurrentUser();
+
     const logout = useLogout();
 
     return (
