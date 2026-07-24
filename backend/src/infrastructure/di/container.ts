@@ -57,7 +57,7 @@ import { NotificationController } from '../../presentation/controllers/notificat
 import { DashboardController } from '../../presentation/controllers/dashboard.controller';
 import { UserController } from '../../presentation/controllers/user.controller';
 import { AuditLogController } from '../../presentation/controllers/audit-log.controller';
-
+import { InviteController } from '../../presentation/controllers/invite.controller';
 
 export function registerDependencies(): void {
   // Repositories
@@ -85,9 +85,6 @@ export function registerDependencies(): void {
     }),
   });
 
-  // Use-cases — registered under their own class token so @injectable() classes
-  // that depend on them (none currently do, but controllers resolve them directly)
-  // and container.resolve(XUseCase) both work.
   container.register(TOKENS.LoginAdminUseCase, { useClass: LoginAdminUseCase });
   container.register(TOKENS.RefreshTokenUseCase, { useClass: RefreshTokenUseCase });
   container.register(TOKENS.GetCurrentUserUseCase, { useClass: GetCurrentUserUseCase });
@@ -124,6 +121,7 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.DashboardController, DashboardController);
   container.registerSingleton(TOKENS.UserController, UserController);
   container.registerSingleton(TOKENS.AuditLogController, AuditLogController);
+  container.registerSingleton(TOKENS.InviteController, InviteController);
 }
 
 export { container };

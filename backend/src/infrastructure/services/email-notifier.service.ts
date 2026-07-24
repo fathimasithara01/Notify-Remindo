@@ -1,7 +1,9 @@
+import { injectable } from 'tsyringe';
 import nodemailer, { Transporter } from 'nodemailer';
 import { INotifierService, NotificationPayload } from '../../domain/services/notifier.service.interface';
 import { env } from '../../config/env';
 
+@injectable()
 export class EmailNotifierService implements INotifierService {
   private transporter: Transporter;
 
@@ -22,6 +24,7 @@ export class EmailNotifierService implements INotifierService {
       to: payload.to,
       subject: payload.subject ?? 'Notification',
       text: payload.message,
+      ...(payload.html ? { html: payload.html } : {}),
     });
   }
 }

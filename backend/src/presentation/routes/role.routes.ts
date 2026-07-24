@@ -5,7 +5,7 @@ import { RoleController } from '../controllers/role.controller';
 import { requireAuth } from '../middlewares/require-auth.middleware';
 import { authorize } from '../middlewares/authorize.middleware';
 import { validateRequest } from '../middlewares/validate-request.middleware';
-import { createRoleSchema, editRoleSchema, assignPermissionsSchema } from '../validators/role.validator';
+import { createRoleSchema, editRoleSchema, addPermissionSchema } from '../validators/role.validator';
 import { asyncHandler } from '../../shared/utils/async-handler';
 
 const router = Router();
@@ -13,15 +13,33 @@ const controller = container.resolve<RoleController>(TOKENS.RoleController);
 
 router.use(requireAuth);
 
-router.post('/', authorize('role.create'), validateRequest(createRoleSchema), asyncHandler(controller.create));
+router.post(
+  '/',
+  authorize('role.create'),
+  validateRequest(createRoleSchema),
+  asyncHandler(controller.create)
+);
 router.get('/', authorize('role.view'), asyncHandler(controller.list));
 router.get('/:id', authorize('role.view'), asyncHandler(controller.getOne));
-router.patch('/:id', authorize('role.edit'), validateRequest(editRoleSchema), asyncHandler(controller.update));
+router.patch(
+  '/:id',
+  authorize('role.edit'),
+  validateRequest(editRoleSchema),
+  asyncHandler(controller.update)
+);
 router.delete('/:id', authorize('role.delete'), asyncHandler(controller.delete));
 
-router.post('/:id/permissions', authorize('role.edit'), validateRequest(assignPermissionsSchema), asyncHandler(controller.assignPermissions));
+router.get('/:id/permissions', authorize('role.view'), asyncHandler(controller.getPermissions));
+router.post(
+  '/:id/permissions',
+  authorize('role.edit'),
+  validateRequest(addPermissionSchema),
+  asyncHandler(controller.addPermission)
+);
+router.delete(
+  '/:id/permissions/:permissionId',
+  authorize('role.edit'),
+  asyncHandler(controller.removePermission)
+);
 
-// add
-// GET    /roles/:id/permissions - getPermissions
-// DELETE /roles/:id/permissions/:permissionId -removePermission
 export default router;

@@ -3,7 +3,7 @@ import { Schema, model, Types, Document } from 'mongoose';
 export interface AuditLogDocument extends Document {
   adminId: Types.ObjectId;
   action: string;
-  targetType: 'Organization' | 'SubscriptionPlan' | 'Role' | 'User';
+  targetType: 'Organization' | 'SubscriptionPlan' | 'Role' | 'User' | 'Feature' | 'ContactPerson';
   targetId: Types.ObjectId;
   metadata?: Record<string, unknown>;
   createdAt: Date;
@@ -25,7 +25,7 @@ const auditLogSchema = new Schema<AuditLogDocument>(
       type: String,
       required: true,
       trim: true,
-      enum: ['Organization', 'SubscriptionPlan', 'Role', 'User'],
+      enum: ['Organization', 'SubscriptionPlan', 'Role', 'User', 'Feature', 'ContactPerson'],
     },
     targetId: {
       type: Schema.Types.ObjectId,

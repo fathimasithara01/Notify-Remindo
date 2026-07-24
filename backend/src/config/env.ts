@@ -35,6 +35,11 @@ export const env = {
   WHATSAPP_API_URL: process.env.WHATSAPP_API_URL ?? '',
   WHATSAPP_API_KEY: process.env.WHATSAPP_API_KEY ?? '',
 
+  TWILIO_ACCOUNT_SID : process.env.TWILIO_ACCOUNT_SID,
+  TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
+  TWILIO_WHATSAPP_FROM:process.env.TWILIO_WHATSAPP_FROM,
+  TWILIO_CONTENT_SID: process.env.TWILIO_CONTENT_SID,
+
   SMTP_HOST: process.env.SMTP_HOST ?? '',
   SMTP_PORT: process.env.SMTP_PORT ?? '587',
   SMTP_USER: process.env.SMTP_USER ?? '',

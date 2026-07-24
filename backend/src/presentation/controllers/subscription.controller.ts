@@ -18,11 +18,13 @@ export class SubscriptionController {
     @inject(TOKENS.CreatePlanUseCase) private createPlanUseCase: CreatePlanUseCase,
     @inject(TOKENS.EditPlanUseCase) private editPlanUseCase: EditPlanUseCase,
     @inject(TOKENS.CreateFeatureUseCase) private createFeatureUseCase: CreateFeatureUseCase
-  ) { }
+  ) {}
 
+  // --- Plans ---
 
   createPlan = async (req: Request, res: Response): Promise<void> => {
-    const plan = await this.createPlanUseCase.execute(req.body);
+    if (!req.user) throw new UnauthorizedError();
+    const plan = await this.createPlanUseCase.execute({ data: req.body, adminId: req.user.userId });
     ApiResponse.created(res, plan);
   };
 
@@ -45,7 +47,7 @@ export class SubscriptionController {
   };
 
   getPlan = async (req: Request, res: Response): Promise<void> => {
-    const plan = await this.planRepo.findById(req.params.id as string);
+    const plan = await this.planRepo.findById(req.params.id);
     if (!plan) throw new NotFoundError('Plan not found');
 
     const features = await this.planRepo.listFeatures(plan.id);
@@ -56,7 +58,7 @@ export class SubscriptionController {
     if (!req.user) throw new UnauthorizedError();
 
     const plan = await this.editPlanUseCase.execute({
-      planId: req.params.id as string,
+      planId: req.params.id,
       adminId: req.user.userId,
       data: req.body,
     });
@@ -64,14 +66,14 @@ export class SubscriptionController {
   };
 
   deletePlan = async (req: Request, res: Response): Promise<void> => {
-    const deleted = await this.planRepo.delete(req.params.id as string);
+    const deleted = await this.planRepo.delete(req.params.id);
     if (!deleted) throw new NotFoundError('Plan not found');
     ApiResponse.success(res, null, 200, 'Plan deleted');
   };
 
   setPlanFeature = async (req: Request, res: Response): Promise<void> => {
     const planFeature = await this.planRepo.setFeature({
-      planId: req.params.id as string,
+      planId: req.params.id,
       featureId: req.body.featureId,
       featureValue: req.body.featureValue,
     });
@@ -79,14 +81,19 @@ export class SubscriptionController {
   };
 
   removePlanFeature = async (req: Request, res: Response): Promise<void> => {
-    const removed = await this.planRepo.removeFeature(req.params.id as string, req.params.featureId as string);
+    const removed = await this.planRepo.removeFeature(req.params.id, req.params.featureId);
     if (!removed) throw new NotFoundError('Plan feature not found');
     ApiResponse.success(res, null, 200, 'Plan feature removed');
   };
 
+  // --- Features ---
 
   createFeature = async (req: Request, res: Response): Promise<void> => {
-    const feature = await this.createFeatureUseCase.execute(req.body);
+    if (!req.user) throw new UnauthorizedError();
+    const feature = await this.createFeatureUseCase.execute({
+      data: req.body,
+      adminId: req.user.userId,
+    });
     ApiResponse.created(res, feature);
   };
 
@@ -107,14 +114,20 @@ export class SubscriptionController {
     });
   };
 
+  getFeature = async (req: Request, res: Response): Promise<void> => {
+    const feature = await this.featureRepo.findById(req.params.id);
+    if (!feature) throw new NotFoundError('Feature not found');
+    ApiResponse.success(res, feature);
+  };
+
   updateFeature = async (req: Request, res: Response): Promise<void> => {
-    const feature = await this.featureRepo.update(req.params.id as string, req.body);
+    const feature = await this.featureRepo.update(req.params.id, req.body);
     if (!feature) throw new NotFoundError('Feature not found');
     ApiResponse.success(res, feature, 200, 'Feature updated');
   };
 
   deleteFeature = async (req: Request, res: Response): Promise<void> => {
-    const deleted = await this.featureRepo.delete(req.params.id as string);
+    const deleted = await this.featureRepo.delete(req.params.id);
     if (!deleted) throw new NotFoundError('Feature not found');
     ApiResponse.success(res, null, 200, 'Feature deleted');
   };

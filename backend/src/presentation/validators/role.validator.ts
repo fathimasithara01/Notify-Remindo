@@ -15,6 +15,6 @@ export const editRoleSchema = z.object({
   status: z.enum(['active', 'inactive']).optional(),
 });
 
-export const assignPermissionsSchema = z.object({
-  permissionIds: z.array(z.string()).min(1, 'At least one permission is required'),
+export const addPermissionSchema = z.object({
+  permissionId: z.string().min(1, 'permissionId is required'),
 });

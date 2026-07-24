@@ -3,19 +3,28 @@ import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { IHashService } from '../../../domain/services/hash.service.interface';
+import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
 import { User } from '../../../domain/entities/user.entity';
 import { ConflictError, DomainError } from '../../../domain/errors/domain.error';
 import { CreateUserDto } from '../../dtos/create-user.dto';
+
+export interface CreateUserInput {
+  data: CreateUserDto;
+  adminId: string;
+}
 
 @injectable()
 export class CreateUserUseCase {
   constructor(
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
-    @inject(TOKENS.HashService) private hashService: IHashService
+    @inject(TOKENS.HashService) private hashService: IHashService,
+    @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository
   ) {}
 
-  async execute(data: CreateUserDto): Promise<User> {
+  async execute(input: CreateUserInput): Promise<User> {
+    const { data, adminId } = input;
+
     if (data.roleIds.length === 0) {
       throw new DomainError('At least one role is required');
     }
@@ -46,6 +55,14 @@ export class CreateUserUseCase {
     for (const roleId of data.roleIds) {
       await this.userRepo.assignRole(user.id, roleId);
     }
+
+    await this.auditLogRepo.create({
+      adminId,
+      action: 'CREATE_USER',
+      targetType: 'User',
+      targetId: user.id,
+      metadata: { email: user.email, roleIds: data.roleIds },
+    });
 
     return user;
   }

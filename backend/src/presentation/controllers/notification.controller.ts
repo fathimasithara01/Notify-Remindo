@@ -28,7 +28,7 @@ export class NotificationController {
     const notifications = await this.notificationRepo.list({
       organizationId: organizationId as string | undefined,
       status: status as 'pending' | 'sent' | 'failed' | undefined,
-      mode: mode as 'whatsapp' | 'email' | undefined,
+      mode: mode as 'whatsapp' | 'email' | 'in_app' | undefined,
     });
 
     const start = (pagination.page - 1) * pagination.limit;
@@ -40,13 +40,25 @@ export class NotificationController {
     });
   };
 
+  getOne = async (req: Request, res: Response): Promise<void> => {
+    const notification = await this.notificationRepo.findById(req.params.id);
+    if (!notification) throw new NotFoundError('Notification not found');
+    ApiResponse.success(res, notification);
+  };
+
+  update = async (req: Request, res: Response): Promise<void> => {
+    const notification = await this.notificationRepo.update(req.params.id, req.body);
+    if (!notification) throw new NotFoundError('Notification not found');
+    ApiResponse.success(res, notification, 200, 'Notification updated');
+  };
+
   sendNow = async (req: Request, res: Response): Promise<void> => {
-    await this.sendReminderUseCase.execute(req.params.id as string);
+    await this.sendReminderUseCase.execute(req.params.id);
     ApiResponse.success(res, null, 200, 'Notification sent');
   };
 
   delete = async (req: Request, res: Response): Promise<void> => {
-    const deleted = await this.notificationRepo.delete(req.params.id as string);
+    const deleted = await this.notificationRepo.delete(req.params.id);
     if (!deleted) throw new NotFoundError('Notification not found');
     ApiResponse.success(res, null, 200, 'Notification cancelled');
   };

@@ -10,12 +10,10 @@
 
     "lib": ["ES2022"],
 
-    "types": ["node"],
-
     "strict": true,
 
-    "experimentalDecorators": true,     
-    "emitDecoratorMetadata": true,      
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
 
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -25,5 +23,19 @@
     "forceConsistentCasingInFileNames": true,
 
     "sourceMap": true
+  },
+
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts"
+  ],
+
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+
+  "ts-node": {
+    "files": true
   }
 }

@@ -8,3 +8,9 @@ export const scheduleNotificationSchema = z.object({
   mode: z.enum(['whatsapp', 'email', 'in_app']),
   expiryDate: z.coerce.date(),
 });
+
+export const editNotificationSchema = z.object({
+  notifyBefore: z.number().int().nonnegative().optional(),
+  mode: z.enum(['whatsapp', 'email', 'in_app']).optional(),
+  scheduledAt: z.coerce.date().optional(),
+});

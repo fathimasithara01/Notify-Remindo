@@ -1,9 +1,15 @@
-export type AuditTargetType = 'Organization' | 'SubscriptionPlan' | 'Role' | 'User';
+export type AuditTargetType =
+  | 'Organization'
+  | 'SubscriptionPlan'
+  | 'Role'
+  | 'User'
+  | 'Feature'
+  | 'ContactPerson';
 
 export interface AuditLog {
   id: string;
-  adminId: string;
-  action: string; 
+  adminId: string; 
+  action: string;
   targetType: AuditTargetType;
   targetId: string;
   metadata?: Record<string, unknown>;

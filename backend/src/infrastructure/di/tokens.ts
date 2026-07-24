@@ -67,4 +67,5 @@ export const TOKENS = {
   DashboardController: Symbol('DashboardController'),
   UserController: Symbol('UserController'),
   AuditLogController: Symbol('AuditLogController'),
+  InviteController: Symbol('InviteController'),
 } as const;
