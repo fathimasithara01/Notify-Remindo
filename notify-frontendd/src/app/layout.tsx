@@ -1,37 +1,24 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { QueryProvider } from "@/providers/queryProvider";
-import { AuthProvider } from "@/providers/authProvider";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import type { Metadata } from 'next';
+import { QueryProvider } from '@/providers/QueryProvider';
+import { ThemeProvider } from '@/providers/ThemeProvider';
+import { Toaster } from 'sonner';
+import { APP_NAME, APP_DESCRIPTION } from '@/constants/app';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Notify",
-  description: "Reminder and PDC Management Platform",
+  title: `${APP_NAME} — Super Admin`,
+  description: APP_DESCRIPTION,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en">
+      <body>
         <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <ThemeProvider>
+            {children}
+            <Toaster richColors position="top-right" />
+          </ThemeProvider>
         </QueryProvider>
       </body>
     </html>

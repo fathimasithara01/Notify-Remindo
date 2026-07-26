@@ -1,54 +1,28 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
-const PUBLIC_ROUTES = [
-    "/login",
-    "/forgot-password",
-    "/reset-password",
-];
+const PROTECTED_PREFIX = '/super-admin';
+const LOGIN_PATH = '/login';
 
-export function middleware(
-    request: NextRequest,
-) {
-    const { pathname } = request.nextUrl;
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const token = request.cookies.get('accessToken')?.value;
 
-    const isPublicRoute =
-        PUBLIC_ROUTES.some(
-            (route) =>
-                pathname === route ||
-                pathname.startsWith(`${route}/`),
-        );
+  const isProtected = pathname.startsWith(PROTECTED_PREFIX);
+  const isLoginPage = pathname.startsWith(LOGIN_PATH);
 
-    if (isPublicRoute) {
-        return NextResponse.next();
-    }
+  if (isProtected && !token) {
+    const loginUrl = new URL(LOGIN_PATH, request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
-    const accessToken =
-        request.cookies.get(
-            "access_token",
-        )?.value;
+  if (isLoginPage && token) {
+    return NextResponse.redirect(new URL('/super-admin/dashboard', request.url));
+  }
 
-    if (!accessToken) {
-        const loginUrl = new URL(
-            "/login",
-            request.url,
-        );
-
-        loginUrl.searchParams.set(
-            "redirect",
-            pathname,
-        );
-
-        return NextResponse.redirect(
-            loginUrl,
-        );
-    }
-
-    return NextResponse.next();
+  return NextResponse.next();
 }
 
 export const config = {
-    matcher: [
-        "/platform/:path*",
-    ],
+  matcher: ['/super-admin/:path*', '/login'],
 };
