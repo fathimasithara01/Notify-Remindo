@@ -12,6 +12,7 @@ export const queryKeys = {
   },
   roles: {
     all: () => ['roles'] as const,
+    
     list: (page: number) => ['roles', page] as const,
     detail: (id: string) => ['roles', id] as const,
     permissions: (id: string) => ['roles', id, 'permissions'] as const,
@@ -20,7 +21,7 @@ export const queryKeys = {
     all: () => ['permissions'] as const,
   },
   subscriptions: {
-    plans: () => ['subscriptions', 'plans'] as const,
+    plans: () => ['subscriptzions', 'plans'] as const,
     plan: (id: string) => ['subscriptions', 'plans', id] as const,
     features: () => ['subscriptions', 'features'] as const,
   },
