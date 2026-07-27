@@ -7,30 +7,21 @@ const PROTECTED_PREFIX = '/super-admin';
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const accessToken =
-    request.cookies.get('accessToken')?.value;
+  const accessToken = request.cookies.get('accessToken')?.value;
 
-  const isProtectedRoute =
-    pathname.startsWith(PROTECTED_PREFIX);
+  const isProtectedRoute = pathname.startsWith(PROTECTED_PREFIX);
 
-  const isLoginPage =
-    pathname === ROUTES.login;
+  const isLoginPage = pathname === ROUTES.login;
 
   if (isProtectedRoute && !accessToken) {
-    const loginUrl = createLoginRedirectUrl(
-      request.url,
-      pathname
-    );
+    const loginUrl = createLoginRedirectUrl(request.url, pathname);
 
     return NextResponse.redirect(loginUrl);
   }
 
   if (isLoginPage && accessToken) {
     return NextResponse.redirect(
-      new URL(
-        ROUTES.dashboard,
-        request.url
-      )
+      new URL(ROUTES.dashboard, request.url)
     );
   }
 

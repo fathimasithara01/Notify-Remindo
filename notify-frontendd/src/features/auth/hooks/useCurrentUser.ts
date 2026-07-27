@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
-import {queryKeys} from '@/constants'
+import {queryKeys} from '@/lib/query/query-keys'
 
 
 export function useCurrentUser() {

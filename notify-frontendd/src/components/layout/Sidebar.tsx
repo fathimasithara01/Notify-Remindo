@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LogOut } from 'lucide-react';
-import { useAuth } from '@/providers/authProvider';
+import { useAuth } from '@/providers/AuthProvider';
 import { useLogout } from '@/features/auth/hooks/useLogout';
 import { NAV_ITEMS } from '@/config/navigation';
 import { APP_NAME } from '@/constants/app';

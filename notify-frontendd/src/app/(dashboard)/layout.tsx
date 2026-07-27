@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AuthProvider, useAuth } from '@/providers/authProvider';
+import { AuthProvider, useAuth } from '@/providers/AuthProvider';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Loader2 } from 'lucide-react';
 import { ROUTES } from '@/config/routes';
@@ -12,9 +12,6 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isError } = useAuth();
 
   useEffect(() => {
-    // The middleware already blocks obviously-logged-out visitors via the
-    // cookie check, but a cookie can exist and still be invalid/expired —
-    // this catches that case once the real /auth/me call returns 401.
     if (isError) {
       router.replace(ROUTES.login);
     }
@@ -29,7 +26,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   }
 
   if (isError || !user) {
-    return null; // redirect is in flight
+    return null; 
   }
 
   return (
