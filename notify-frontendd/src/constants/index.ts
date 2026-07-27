@@ -1,2 +1,2 @@
 export * from './app';
-export * from './query-keys';
+export * from '../lib/query/query-keys';

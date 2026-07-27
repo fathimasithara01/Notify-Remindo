@@ -1,7 +1,3 @@
-/**
- * SSR-safe wrapper — Next.js renders on the server first, where `window`
- * doesn't exist, so every method guards for that before touching localStorage.
- */
 export const localStorage = {
   get<T>(key: string): T | null {
     if (typeof window === 'undefined') return null;
