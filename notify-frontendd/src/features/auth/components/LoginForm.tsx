@@ -20,7 +20,7 @@ export function LoginForm() {
   const login = useLogin();
 
   const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema), //Ithu Zod validation React Hook Form-umayi connect cheyyunnu.
     defaultValues: { email: '', password: '' },
   });
 
