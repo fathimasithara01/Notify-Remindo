@@ -7,7 +7,7 @@ import { useAuth } from '@/providers/authProvider';
 import { useLogout } from '@/features/auth/hooks/useLogout';
 import { NAV_ITEMS } from '@/config/navigation';
 import { APP_NAME } from '@/constants/app';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { Button } from '@/components/ui/button';
 
 export function Sidebar() {
