@@ -1,6 +1,6 @@
 export const ROUTES = {
   login: '/login',
-  dashboard: '/super-admin/dashboard',
+  dashboard: '/dashboard',
   organizations: {
     list: '/super-admin/organizations',
     new: '/super-admin/organizations/new',
