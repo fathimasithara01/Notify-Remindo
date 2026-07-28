@@ -33,8 +33,8 @@ export function OrganizationTable() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
-
     const { data, isLoading } = useOrganizations({ page, limit: DEFAULT_PAGE_SIZE, search });
+
     const blockMutation = useBlockOrganization();
     const unblockMutation = useUnblockOrganization();
     const deleteMutation = useDeleteOrganization();

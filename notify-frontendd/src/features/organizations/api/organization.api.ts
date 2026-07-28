@@ -1,22 +1,15 @@
 import { apiClient } from '@/lib/api/client';
 import { PaginatedResponse } from '@/types/pagination';
-import {
-    Organization,
-    ContactPerson,
-    CreateOrganizationPayload,
-    EditOrganizationPayload,
-    OrganizationListFilter,
-} from '../types/organization.types';
+import { Organization, ContactPerson, CreateOrganizationPayload, EditOrganizationPayload, OrganizationListFilter } from '../types/organization.types';
 
 export const organizationApi = {
-    list: (filter?: OrganizationListFilter) =>
-        apiClient.get<PaginatedResponse<Organization>>('/organizations', {
-            status: filter?.status,
-            planId: filter?.planId,
-            search: filter?.search,
-            page: filter?.page?.toString(),
-            limit: filter?.limit?.toString(),
-        }),
+    list: (filter?: OrganizationListFilter) => apiClient.get<PaginatedResponse<Organization>>('/organizations', {
+        status: filter?.status,
+        planId: filter?.planId,
+        search: filter?.search,
+        page: filter?.page?.toString(),
+        limit: filter?.limit?.toString(),
+    }),
 
     getOne: (id: string) =>
         apiClient.get<Organization & { contactPersons: ContactPerson[] }>(`/organizations/${id}`),
@@ -29,8 +22,7 @@ export const organizationApi = {
 
     delete: (id: string) => apiClient.delete<null>(`/organizations/${id}`),
 
-    block: (id: string, reason?: string) =>
-        apiClient.post<Organization>(`/organizations/${id}/block`, { reason }),
+    block: (id: string, reason?: string) => apiClient.post<Organization>(`/organizations/${id}/block`, { reason }),
 
     unblock: (id: string) => apiClient.post<Organization>(`/organizations/${id}/unblock`),
 
