@@ -56,13 +56,14 @@ export function OrganizationTable() {
             ) : (
                 <div className="rounded-md border bg-card">
                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Contact Email</TableHead>
-                                <TableHead>Contact Phone</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                        <TableHeader >
+                            <TableRow >
+                                <TableHead className="font-bold ">Name</TableHead>
+                                <TableHead className=" font-bold">Contact Email</TableHead>
+                                <TableHead className=" font-bold">Contact Phone</TableHead>
+                                <TableHead className=" font-bold">Status</TableHead>
+                                <TableHead className="text-right text- font-bold">Actions</TableHead>
+                                
                             </TableRow>
                         </TableHeader>
                         <TableBody>

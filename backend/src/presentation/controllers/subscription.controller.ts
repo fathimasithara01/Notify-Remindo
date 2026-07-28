@@ -20,8 +20,6 @@ export class SubscriptionController {
     @inject(TOKENS.CreateFeatureUseCase) private createFeatureUseCase: CreateFeatureUseCase
   ) {}
 
-  // --- Plans ---
-
   createPlan = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
     const plan = await this.createPlanUseCase.execute({ data: req.body, adminId: req.user.userId });
@@ -85,8 +83,6 @@ export class SubscriptionController {
     if (!removed) throw new NotFoundError('Plan feature not found');
     ApiResponse.success(res, null, 200, 'Plan feature removed');
   };
-
-  // --- Features ---
 
   createFeature = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();

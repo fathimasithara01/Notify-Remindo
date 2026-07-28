@@ -28,7 +28,7 @@ export class NotificationController {
     const notifications = await this.notificationRepo.list({
       organizationId: organizationId as string | undefined,
       status: status as 'pending' | 'sent' | 'failed' | undefined,
-      mode: mode as 'whatsapp' | 'email' | 'in_app' | undefined,
+      mode: mode as 'whatsapp' | 'email' | undefined,
     });
 
     const start = (pagination.page - 1) * pagination.limit;

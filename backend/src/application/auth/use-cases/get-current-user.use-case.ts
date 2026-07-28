@@ -12,7 +12,7 @@ export interface CurrentUserResult {
 
 @injectable()
 export class GetCurrentUserUseCase {
-  constructor(@inject(TOKENS.UserRepository) private userRepo: IUserRepository) {}
+  constructor(@inject(TOKENS.UserRepository) private userRepo: IUserRepository) { }
 
   async execute(userId: string): Promise<CurrentUserResult> {
     const user = await this.userRepo.findById(userId);

@@ -14,7 +14,7 @@ export class RefreshTokenUseCase {
   constructor(
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.TokenService) private tokenService: ITokenService
-  ) {}
+  ) { }
 
   async execute(refreshToken: string): Promise<RefreshTokenResult> {
     let payload;

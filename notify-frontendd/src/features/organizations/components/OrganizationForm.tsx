@@ -58,7 +58,7 @@ export function OrganizationForm() {
                 <FormItem>
                   <FormLabel>Organization Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Acme Trading LLC" {...field} />
+                    <Input placeholder="Enter name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -72,7 +72,7 @@ export function OrganizationForm() {
                 <FormItem>
                   <FormLabel>Contact Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="contact@acme.com" {...field} />
+                    <Input type="email" placeholder="enter email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

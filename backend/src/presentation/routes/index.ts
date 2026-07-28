@@ -24,3 +24,4 @@ router.use('/audit-logs', auditLogRoutes);
 router.use('/invites', inviteRoutes);
 
 export default router;
+

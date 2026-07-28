@@ -20,7 +20,3 @@ router.get('/verify-invite-token/:token', asyncHandler(controller.verifyInviteTo
 router.post('/accept-invite', authRateLimiter, validateRequest(acceptInviteSchema), asyncHandler(controller.acceptInvite));
 
 export default router;
-// add
-// POST /invites/resend  router.post('/invites/resend',requireAuth,authorize(Permissions.Invites.Resend),asyncHandler(controller.resendInvite));
-// DELETE /invites/:id   router.delete('/invites/:id',requireAuth,authorize(Permissions.Invites.Delete),asyncHandler(controller.cancelInvite));
-// GET /invites - router.get('/invites',  requireAuth,  authorize(Permissions.Invites.Read),  asyncHandler(controller.listInvites));
