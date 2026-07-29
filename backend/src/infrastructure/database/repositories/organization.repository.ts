@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
-import { IOrganizationRepository } from '../../../domain/repositories/organization.repository.interface';
-import { Organization, NewOrganization } from '../../../domain/entities/organization.entity';
+import { IOrganizationRepository, OrganizationListFilters, OrganizationListResult } from '../../../domain/repositories/organization.repository.interface';
+import { Organization, NewOrganization,OrganizationWithAdmin } from '../../../domain/entities/organization.entity';
 import { ContactPerson, NewContactPerson } from '../../../domain/entities/contact-person.entity';
 import { OrganizationModel, OrganizationDocument } from '../models/organization.model';
 import { ContactPersonModel, ContactPersonDocument } from '../models/contact-person.model';
@@ -22,10 +22,7 @@ export class OrganizationRepository implements IOrganizationRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
-  async update(
-    id: string,
-    data: Partial<NewOrganization>
-  ): Promise<Organization | null> {
+  async update(id: string, data: Partial<NewOrganization>): Promise<Organization | null> {
     const doc = await OrganizationModel.findOneAndUpdate(
       {
         _id: id,
@@ -54,40 +51,212 @@ export class OrganizationRepository implements IOrganizationRepository {
     return result !== null;
   }
 
-  async list(filter?: {
-    status?: 'active' | 'blocked';
-    salesmanId?: string;
-    planId?: string;
-    search?: string;
-  }): Promise<Organization[]> {
+  async list(filters: OrganizationListFilters = {}): Promise<OrganizationListResult> {
+    const page = Math.max(filters.page ?? 1, 1);
+    const limit = Math.min(Math.max(filters.limit ?? 10, 1), 100);
 
-    const query: Record<string, unknown> = { deletedAt: null };
+    const skip = (page - 1) * limit;
 
-    if (filter?.status) {
-      query.status = filter.status;
+    const match: Record<string, unknown> = {
+      deletedAt: null,
+    };
+
+    if (filters.status) {
+      match.status = filters.status;
     }
 
-    if (filter?.salesmanId) {
-      query.salesmanId = filter.salesmanId;
+    if (filters.planId) {
+      match.currentPlanId = filters.planId;
     }
 
-    if (filter?.planId) {
-      query.currentPlanId = filter.planId;
+    if (filters.salesmanId) {
+      match.salesmanId = filters.salesmanId;
     }
 
-    if (filter?.search) {
-      const regex = new RegExp(filter.search.trim(), 'i');
-
-      query.$or = [
-        { name: regex },
-        { businessEmail: regex },
-        { businessPhone: regex },
-      ];
+    if (filters.search) {
+      match.name = {
+        $regex: filters.search,
+        $options: 'i',
+      };
     }
 
-    const docs = await OrganizationModel.find(query);
+    const [result] = await OrganizationModel.aggregate([
+      // 1. Filter organizations
+      {
+        $match: match,
+      },
 
-    return docs.map((doc) => this.toDomain(doc));
+      // 2. Find Organization Admin
+      {
+        $lookup: {
+          from: 'users',
+          let: {
+            organizationId: '$_id',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    '$organizationId',
+                    '$$organizationId',
+                  ],
+                },
+              },
+            },
+
+            // 3. Find user's roles through UserRole collection
+            {
+              $lookup: {
+                from: 'userroles',
+                localField: '_id',
+                foreignField: 'userId',
+                as: 'userRoleMappings',
+              },
+            },
+
+            // 4. Get role details
+            {
+              $lookup: {
+                from: 'roles',
+                localField: 'userRoleMappings.roleId',
+                foreignField: '_id',
+                as: 'userRoles',
+              },
+            },
+
+            // 5. Only Organization Admin
+            {
+              $match: {
+                'userRoles.slug': 'orgadmin',
+              },
+            },
+
+            // 6. Only active or invited admin
+            {
+              $match: {
+                status: {
+                  $in: ['active', 'invited'],
+                },
+              },
+            },
+
+            // 7. Only required fields
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                email: 1,
+                phone: 1,
+                status: 1,
+              },
+            },
+
+            // 8. One organization admin
+            {
+              $limit: 1,
+            },
+          ],
+          as: 'admin',
+        },
+      },
+
+      // 9. Convert admin array to object
+      {
+        $unwind: {
+          path: '$admin',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // 10. Sort latest organizations first
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+
+      // 11. Pagination + total count
+      {
+        $facet: {
+          items: [
+            {
+              $skip: skip,
+            },
+            {
+              $limit: limit,
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                businessEmail: 1,
+                businessPhone: 1,
+                address: 1,
+                status: 1,
+                currentPlanId: 1,
+                salesmanId: 1,
+                documents: 1,
+                deletedAt: 1,
+                createdAt: 1,
+                updatedAt: 1,
+
+                admin: {
+                  id: '$admin._id',
+                  name: '$admin.name',
+                  email: '$admin.email',
+                  phone: '$admin.phone',
+                  status: '$admin.status',
+                },
+              },
+            },
+          ],
+
+          total: [
+            {
+              $count: 'count',
+            },
+          ],
+        },
+      },
+    ]);
+
+    const total = result?.total?.[0]?.count ?? 0;
+
+    const items: OrganizationWithAdmin[] = (result?.items ?? []).map(
+      (doc: any) => ({
+        id: doc._id.toString(),
+        name: doc.name,
+        businessEmail: doc.businessEmail,
+        businessPhone: doc.businessPhone,
+        address: doc.address,
+        status: doc.status,
+        currentPlanId: doc.currentPlanId?.toString() ?? null,
+        salesmanId: doc.salesmanId?.toString() ?? null,
+        documents: doc.documents,
+        deletedAt: doc.deletedAt ?? null,
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt,
+
+        admin: doc.admin
+          ? {
+            id: doc.admin.id.toString(),
+            name: doc.admin.name,
+            email: doc.admin.email,
+            phone: doc.admin.phone ?? null,
+            status: doc.admin.status,
+          }
+          : null,
+      })
+    );
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async block(id: string): Promise<Organization | null> {

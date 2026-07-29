@@ -80,15 +80,15 @@ export class CreateOrganizationUseCase {
       documents: data.documents,
     });
 
-    // 5. Create Primary Contact Person
-    const contactPerson = await this.orgRepo.addContactPerson(
-      organization.id,
-      {
-        name: data.admin.name,
-        contactPhone: data.admin.phone,
-        contactEmail: data.admin.email,
-      }
-    );
+    // // 5. Create Primary Contact Person
+    // const contactPerson = await this.orgRepo.addContactPerson(
+    //   organization.id,
+    //   {
+    //     name: data.admin.name,
+    //     contactPhone: data.admin.phone,
+    //     contactEmail: data.admin.email,
+    //   }
+    // );
 
     // 6. Create Subscription if plan exists
     if (plan) {

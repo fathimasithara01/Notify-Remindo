@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../infrastructure/di/tokens';
 import { IOrganizationRepository } from '../../domain/repositories/organization.repository.interface';
+import { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { IAuditLogRepository } from '../../domain/repositories/audit-log.repository.interface';
 import { CreateOrganizationUseCase } from '../../application/organization/use-cases/create-organization.use-case';
 import { EditOrganizationUseCase } from '../../application/organization/use-cases/edit-organization.use-case';
@@ -13,10 +14,12 @@ import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError, NotFoundError } from '../../domain/errors/domain.error';
 import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
 
+
 @injectable()
 export class OrganizationController {
   constructor(
     @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
+    @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.CreateOrganizationUseCase) private createOrgUseCase: CreateOrganizationUseCase,
     @inject(TOKENS.EditOrganizationUseCase) private editOrgUseCase: EditOrganizationUseCase,
@@ -39,19 +42,24 @@ export class OrganizationController {
     const { status, salesmanId, planId, search } = req.query;
     const pagination = parsePagination(req.query as Record<string, unknown>);
 
-    const organizations = await this.orgRepo.list({
+    const result = await this.orgRepo.list({
       status: status as 'active' | 'blocked' | undefined,
       salesmanId: salesmanId as string | undefined,
       planId: planId as string | undefined,
       search: search as string | undefined,
+      page: pagination.page,
+      limit: pagination.limit,
     });
 
-    const start = (pagination.page - 1) * pagination.limit;
-    const pageItems = organizations.slice(start, start + pagination.limit);
 
     ApiResponse.success(res, {
-      items: pageItems,
-      meta: paginationMeta(organizations.length, pagination),
+      items: result.items,
+      meta: {
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
+      },
     });
   };
 

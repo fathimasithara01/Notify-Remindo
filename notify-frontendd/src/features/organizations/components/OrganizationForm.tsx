@@ -3,14 +3,17 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+
 import { useCreateOrganization } from '../hooks/useOrganizationMutations';
 import { usePlans } from '@/features/subscriptions/hooks/usePlans';
 import {
   createOrganizationSchema,
   CreateOrganizationFormValues,
 } from '../schemas/organization.schema';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+
 import {
   Form,
   FormControl,
@@ -19,6 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+
 import {
   Select,
   SelectContent,
@@ -26,17 +30,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+
+
 import { ROUTES } from '@/config/routes';
 
 export function OrganizationForm() {
   const router = useRouter();
+
   const createMutation = useCreateOrganization();
-  const { data: plansData, isLoading: plansLoading } = usePlans('active');
+
+  const {
+    data: plansData,
+    isLoading: plansLoading,
+  } = usePlans('active');
 
   const form = useForm<CreateOrganizationFormValues>({
     resolver: zodResolver(createOrganizationSchema),
-    defaultValues: { name: '', contactEmail: '', contactPhone: '', address: '', planId: '' },
+
+    defaultValues: {
+      name: '',
+      businessEmail: '',
+      businessPhone: '',
+      address: '',
+      planId: '',
+
+      admin: {
+        name: '',
+        email: '',
+        phone: '',
+      },
+    },
   });
 
   const onSubmit = (values: CreateOrganizationFormValues) => {
@@ -44,111 +75,328 @@ export function OrganizationForm() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Organization Details</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Organization Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <div className="mx-auto w-full max-w-4xl space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Create Organization
+        </h1>
 
-            <FormField
-              control={form.control}
-              name="contactEmail"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="enter email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <p className="text-sm text-muted-foreground">
+          Create a new organization and assign its primary administrator.
+        </p>
+      </div>
 
-            <FormField
-              control={form.control}
-              name="contactPhone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact Phone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="+971 50 123 4567" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
+          {/* ================================================= */}
+          {/* BUSINESS DETAILS */}
+          {/* ================================================= */}
 
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address (optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Business address" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <Card>
+            <CardHeader>
+              <CardTitle>Business Details</CardTitle>
 
-            <FormField
-              control={form.control}
-              name="planId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subscription Plan</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+              <CardDescription>
+                Enter the basic information of the organization.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="grid gap-6 md:grid-cols-2">
+              {/* Organization Name */}
+
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>
+                      Organization Name
+                    </FormLabel>
+
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={plansLoading ? 'Loading plans…' : 'Select a plan'}
-                        />
-                      </SelectTrigger>
+                      <Input
+                        placeholder="e.g. Tech Solutions Pvt Ltd"
+                        {...field}
+                      />
                     </FormControl>
-                    <SelectContent>
-                      {plansData?.items.map((plan) => (
-                        <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} — {plan.userLimit} users / {plan.durationDays} days
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push(ROUTES.organizations.list)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? 'Creating…' : 'Create Organization'}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Business Email */}
+
+              <FormField
+                control={form.control}
+                name="businessEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Business Email
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="info@company.com"
+                        {...field}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Business Phone */}
+
+              <FormField
+                control={form.control}
+                name="businessPhone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Business Phone
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        type="tel"
+                        placeholder="+91 9876543210"
+                        {...field}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Address */}
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>
+                      Business Address
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        placeholder="Enter business address"
+                        {...field}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* ================================================= */}
+          {/* ORGANIZATION ADMIN */}
+          {/* ================================================= */}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Organization Administrator
+              </CardTitle>
+
+              <CardDescription>
+                This person will receive the invitation email and
+                become the primary administrator of this organization.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              <div className="rounded-md border bg-muted/40 p-4">
+                <p className="text-sm font-medium">
+                  Primary Organization Admin
+                </p>
+
+                <p className="mt-1 text-xs text-muted-foreground">
+                  The administrator can log in, manage organization
+                  users, and access organization-level features.
+                </p>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Admin Name */}
+
+                <FormField
+                  control={form.control}
+                  name="admin.name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Full Name
+                      </FormLabel>
+
+                      <FormControl>
+                        <Input
+                          placeholder="e.g. John Doe"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Admin Phone */}
+
+                <FormField
+                  control={form.control}
+                  name="admin.phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Phone Number
+                      </FormLabel>
+
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          placeholder="+91 9876543210"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Admin Email */}
+
+                <FormField
+                  control={form.control}
+                  name="admin.email"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>
+                        Admin Login Email
+                      </FormLabel>
+
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="admin@company.com"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <p className="text-xs text-muted-foreground">
+                        An invitation link will be sent to this email
+                        address.
+                      </p>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* ================================================= */}
+          {/* SUBSCRIPTION */}
+          {/* ================================================= */}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Subscription
+              </CardTitle>
+
+              <CardDescription>
+                Select a subscription plan for the organization.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="planId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Subscription Plan
+                    </FormLabel>
+
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={
+                              plansLoading
+                                ? 'Loading plans...'
+                                : 'Select a subscription plan'
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+
+                      <SelectContent>
+                        {plansData?.items.map((plan) => (
+                          <SelectItem
+                            key={plan.id}
+                            value={plan.id}
+                          >
+                            {plan.name} — {plan.userLimit} users /{' '}
+                            {plan.durationDays} days
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* ================================================= */}
+          {/* ACTIONS */}
+          {/* ================================================= */}
+
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={createMutation.isPending}
+              onClick={() =>
+                router.push(ROUTES.organizations.list)
+              }
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={createMutation.isPending}
+            >
+              {createMutation.isPending
+                ? 'Creating Organization...'
+                : 'Create Organization'}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
-}   
+}

@@ -1,6 +1,14 @@
 import { User, NewUser } from '../entities/user.entity';
 import { Role } from '../entities/role.entity';
 
+export interface OrganizationAdminSummary {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  status: string;
+}
+
 export interface IUserRepository {
   create(data: NewUser): Promise<User>;
   findById(id: string): Promise<User | null>;
@@ -18,5 +26,6 @@ export interface IUserRepository {
   listRoles(userId: string): Promise<Role[]>;
   assignRole(userId: string, roleId: string): Promise<void>;
   removeRole(userId: string, roleId: string): Promise<void>;
-  findOrganizationAdmin(organizationId: string): Promise<User | null>;
+  findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null>;
+
 }

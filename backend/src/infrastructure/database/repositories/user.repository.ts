@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 import { Types } from 'mongoose';
-import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
+import { IUserRepository, OrganizationAdminSummary } from '../../../domain/repositories/user.repository.interface';
 import { User, NewUser } from '../../../domain/entities/user.entity';
 import { Role } from '../../../domain/entities/role.entity';
 import { UserModel, UserDocument } from '../models/user.model';
@@ -9,7 +9,7 @@ import { RoleModel } from '../models/role.model';
 
 @injectable()
 export class UserRepository implements IUserRepository {
- 
+
   async create(data: NewUser): Promise<User> {
     const doc = await UserModel.create(data);
     return this.toDomain(doc);
@@ -62,21 +62,6 @@ export class UserRepository implements IUserRepository {
     return docs.map((doc) => this.toDomain(doc));
   }
 
-  async findOrganizationAdmin(organizationId: string): Promise<User | null> {
-    const doc = await UserModel.findOne({
-      organizationId,
-      status: {
-        $in: ['active', 'invited'],
-      },
-    }).populate({
-      path: 'roles',
-      match: {
-        slug: 'orgadmin',
-      },
-    });
-
-    return doc ? this.toDomain(doc) : null;
-  }
   async listRoles(userId: string): Promise<Role[]> {
     const links = await UserRoleModel.find({ userId });
     const roleIds = links.map((link) => link.roleId);
@@ -93,6 +78,41 @@ export class UserRepository implements IUserRepository {
       updatedAt: doc.updatedAt,
     }));
   }
+
+async findOrganizationAdmin(
+  organizationId: string
+): Promise<OrganizationAdminSummary | null> {
+
+  const orgAdminRole = await RoleModel.findOne({
+    slug: 'orgadmin',
+  }).select('_id');
+
+  if (!orgAdminRole) {
+    return null;
+  }
+
+  const user = await UserModel.findOne({
+    organizationId,
+    roleId: orgAdminRole._id,
+    status: {
+      $in: ['active', 'invited'],
+    },
+  })
+    .select('_id name email phone status')
+    .lean();
+
+  if (!user) {
+    return null;
+  }
+
+  return {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    phone: user.phone ?? null,
+    status: user.status,
+  };
+}
 
   async assignRole(userId: string, roleId: string): Promise<void> {
     await UserRoleModel.findOneAndUpdate(

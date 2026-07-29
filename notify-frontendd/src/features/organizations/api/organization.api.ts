@@ -1,46 +1,167 @@
 import { apiClient } from '@/lib/api/client';
 import { PaginatedResponse } from '@/types/pagination';
-import { Organization, ContactPerson, CreateOrganizationPayload, EditOrganizationPayload, OrganizationListFilter } from '../types/organization.types';
+
+import {
+    Organization,
+    CreateOrganizationPayload,
+    EditOrganizationPayload,
+    OrganizationListFilters,
+    ContactPerson,
+} from '../types/organization.types';
 
 export const organizationApi = {
-    list: (filter?: OrganizationListFilter) => apiClient.get<PaginatedResponse<Organization>>('/organizations', {
-        status: filter?.status,
-        planId: filter?.planId,
-        search: filter?.search,
-        page: filter?.page?.toString(),
-        limit: filter?.limit?.toString(),
-    }),
+    /**
+     * Get organizations with filters and pagination
+     *
+     * Backend:
+     * GET /organizations
+     *
+     * Supports:
+     * - status
+     * - salesmanId
+     * - planId
+     * - search
+     * - page
+     * - limit
+     */
+    list: (filters?: OrganizationListFilters) => apiClient.get<PaginatedResponse<Organization>>('/organizations',
+        {
+            status: filters?.status,
+            salesmanId: filters?.salesmanId,
+            planId: filters?.planId,
+            search: filters?.search,
+            page: filters?.page?.toString(),
+            limit: filters?.limit?.toString(),
+        }
+    ),
 
-    getOne: (id: string) =>
-        apiClient.get<Organization & { contactPersons: ContactPerson[] }>(`/organizations/${id}`),
+    /**
+     * Get single organization
+     *
+     * Returns:
+     * - organization details
+     * - organization admin
+     * - contact persons
+     */
+    getOne: (id: string) => apiClient.get<Organization & { contactPersons: ContactPerson[] }>(`/organizations/${id}`),
 
+    /**
+     * Create organization
+     *
+     * Creates:
+     * - Organization
+     * - Initial Organization Admin User
+     * - Organization Admin Role assignment
+     * - Subscription (if plan selected)
+     * - Invitation email
+     */
     create: (payload: CreateOrganizationPayload) =>
-        apiClient.post<Organization>('/organizations', payload),
+        apiClient.post<Organization>(
+            '/organizations',
+            payload
+        ),
 
-    update: (id: string, payload: EditOrganizationPayload) =>
-        apiClient.patch<Organization>(`/organizations/${id}`, payload),
+    /**
+     * Update organization details
+     */
+    update: (
+        id: string,
+        payload: EditOrganizationPayload
+    ) =>
+        apiClient.patch<Organization>(
+            `/organizations/${id}`,
+            payload
+        ),
 
-    delete: (id: string) => apiClient.delete<null>(`/organizations/${id}`),
+    /**
+     * Soft delete organization
+     */
+    delete: (id: string) =>
+        apiClient.delete<null>(
+            `/organizations/${id}`
+        ),
 
-    block: (id: string, reason?: string) => apiClient.post<Organization>(`/organizations/${id}/block`, { reason }),
+    /**
+     * Block organization
+     */
+    block: (
+        id: string,
+        reason?: string
+    ) =>
+        apiClient.post<Organization>(
+            `/organizations/${id}/block`,
+            { reason }
+        ),
 
-    unblock: (id: string) => apiClient.post<Organization>(`/organizations/${id}/unblock`),
+    /**
+     * Unblock organization
+     */
+    unblock: (id: string) =>
+        apiClient.post<Organization>(
+            `/organizations/${id}/unblock`
+        ),
 
-    upgradePlan: (id: string, newPlanId: string) =>
-        apiClient.post<Organization>(`/organizations/${id}/upgrade-plan`, { newPlanId }),
+    /**
+     * Upgrade organization subscription plan
+     */
+    upgradePlan: (
+        id: string,
+        newPlanId: string
+    ) =>
+        apiClient.post<Organization>(
+            `/organizations/${id}/upgrade-plan`,
+            { newPlanId }
+        ),
 
+    /**
+     * Get all additional contact persons
+     */
     listContactPersons: (id: string) =>
-        apiClient.get<ContactPerson[]>(`/organizations/${id}/contacts`),
+        apiClient.get<ContactPerson[]>(
+            `/organizations/${id}/contacts`
+        ),
 
-    addContactPerson: (id: string, payload: Omit<ContactPerson, 'id' | 'organizationId'>) =>
-        apiClient.post<ContactPerson>(`/organizations/${id}/contacts`, payload),
+    /**
+     * Add additional contact person
+     */
+    addContactPerson: (
+        id: string,
+        payload: Omit<
+            ContactPerson,
+            'id' | 'organizationId'
+        >
+    ) =>
+        apiClient.post<ContactPerson>(
+            `/organizations/${id}/contacts`,
+            payload
+        ),
 
+    /**
+     * Update additional contact person
+     */
     updateContactPerson: (
         id: string,
         contactId: string,
-        payload: Partial<Omit<ContactPerson, 'id' | 'organizationId'>>
-    ) => apiClient.patch<ContactPerson>(`/organizations/${id}/contacts/${contactId}`, payload),
+        payload: Partial<
+            Omit<
+                ContactPerson,
+                'id' | 'organizationId'
+            >
+        >
+    ) =>
+        apiClient.patch<ContactPerson>(
+            `/organizations/${id}/contacts/${contactId}`,
+            payload
+        ),
 
-    removeContactPerson: (id: string, contactId: string) =>
-        apiClient.delete<null>(`/organizations/${id}/contacts/${contactId}`),
+    /**
+     * Remove additional contact person
+     */
+    removeContactPerson: (
+        id: string,
+        contactId: string
+    ) =>
+        apiClient.delete<null>(
+            `/organizations/${id}/contacts/${contactId}`
+        ),
 };

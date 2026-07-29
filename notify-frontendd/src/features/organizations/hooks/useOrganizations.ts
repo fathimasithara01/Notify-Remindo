@@ -1,13 +1,18 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+
 import { organizationApi } from '../api/organization.api';
-import { OrganizationListFilter } from '../types/organization.types';
+import { OrganizationListFilters, } from '../types/organization.types';
+
 import { queryKeys } from '@/lib/query/query-keys';
 
-export function useOrganizations(filter: OrganizationListFilter) {
+export function useOrganizations(filters: OrganizationListFilters = {}) {
   return useQuery({
-    queryKey: [...queryKeys.organizations.list(filter.page ?? 1), filter.search, filter.status],
-    queryFn: () => organizationApi.list(filter),
+    queryKey: queryKeys.organizations.list(filters),
+    queryFn: () => organizationApi.list(filters),
+    enabled: true,
+    placeholderData: (previousData) => previousData,
+    staleTime: 30 * 1000,
   });
 }

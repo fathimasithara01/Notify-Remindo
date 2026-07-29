@@ -25,7 +25,12 @@ export class GetBusinessReportUseCase {
   ) { }
 
   async execute(): Promise<BusinessReport> {
-    const [allOrgs, activeOrgs, blockedOrgs, activePlans] = await Promise.all([
+    const [
+      allOrgsResult,
+      activeOrgsResult,
+      blockedOrgsResult,
+      activePlans,
+    ] = await Promise.all([
       this.orgRepo.list(),
       this.orgRepo.list({ status: 'active' }),
       this.orgRepo.list({ status: 'blocked' }),
@@ -35,15 +40,15 @@ export class GetBusinessReportUseCase {
     const organizationsByPlan = activePlans.map((plan) => ({
       planId: plan.id,
       planName: plan.name,
-      count: allOrgs.filter(
+      count: allOrgsResult.items.filter(
         (org) => org.currentPlanId === plan.id
       ).length,
     }));
 
     return {
-      totalOrganizations: allOrgs.length,
-      activeOrganizations: activeOrgs.length,
-      blockedOrganizations: blockedOrgs.length,
+      totalOrganizations: allOrgsResult.total,
+      activeOrganizations: activeOrgsResult.total,
+      blockedOrganizations: blockedOrgsResult.total,
       totalActivePlans: activePlans.length,
       organizationsByPlan,
     };

@@ -1,17 +1,30 @@
-import { Organization, NewOrganization } from '../entities/organization.entity';
+import { Organization, OrganizationStatus, NewOrganization,OrganizationWithAdmin, OrganizationAdminSummary } from '../entities/organization.entity';
 import { ContactPerson, NewContactPerson } from '../entities/contact-person.entity';
+
+export interface OrganizationListFilters {
+  status?: OrganizationStatus;
+  planId?: string;
+  salesmanId?: string;
+  search?: string;
+
+  page?: number;
+  limit?: number;
+}
+
+export interface OrganizationListResult {
+  items: OrganizationWithAdmin[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 export interface IOrganizationRepository {
   create(data: NewOrganization): Promise<Organization>;
   findById(id: string): Promise<Organization | null>;
   update(id: string, data: Partial<NewOrganization>): Promise<Organization | null>;
   delete(id: string): Promise<boolean>;
-  list(filter?: {
-    status?: 'active' | 'blocked';
-    salesmanId?: string;
-    planId?: string;
-    search?: string;
-  }): Promise<Organization[]>;
+  list( filters?: OrganizationListFilters): Promise<OrganizationListResult>;
 
   block(id: string): Promise<Organization | null>;
   unblock(id: string): Promise<Organization | null>;

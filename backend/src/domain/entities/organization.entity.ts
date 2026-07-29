@@ -3,10 +3,13 @@ export type OrganizationStatus = 'active' | 'blocked';
 export interface Organization {
   id: string;
   name: string;
+
   businessEmail: string;
   businessPhone: string;
   address?: string;
+
   status: OrganizationStatus;
+  
   currentPlanId: string | null;
   salesmanId?: string | null; 
   documents?: {
@@ -20,6 +23,18 @@ export interface Organization {
   deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface OrganizationAdminSummary {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  status: 'active' | 'invited' | 'inactive';
+}
+
+export interface OrganizationWithAdmin extends Organization {
+  admin: OrganizationAdminSummary | null;
 }
 
 export type NewOrganization = Omit<Organization, 'id' | 'createdAt' | 'updatedAt' | 'status'> & {
