@@ -3,12 +3,18 @@ export type OrganizationStatus = 'active' | 'blocked';
 export type OrganizationAdminStatus = 'active' | 'invited' | 'inactive';
 
 export interface OrganizationDocument {
+  id: string;
+  organizationId: string;
   fileName: string;
-  fileUrl: string;
-  fileKey?: string;
+  fileKey: string;
+  fileUrl?: string;
   mimeType: string;
   fileSize: number;
-  uploadedAt?: string;
+  documentType: string;
+  uploadedBy: string;
+  uploadedByName?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface OrganizationAdmin {
@@ -103,8 +109,15 @@ export interface ContactPerson {
   organizationId: string;
   name: string;
   designation?: string;
-  contactPhone?: string | null;
   contactEmail?: string | null;
-  createdAt: string;
-  updatedAt: string;
+  contactPhone?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface NewContactPersonPayload {
+  name: string;
+  designation?: string;
+  contactEmail?: string;
+  contactPhone?: string;
 }

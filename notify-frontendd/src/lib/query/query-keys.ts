@@ -49,6 +49,9 @@ export const queryKeys = {
         'detail',
         id,
       ] as const,
+
+      contacts: (id: string) => ['organizations', id, 'contacts'] as const,
+      documents: (id: string) =>['organizations', id, 'documents'] as const,
   },
 
   roles: {

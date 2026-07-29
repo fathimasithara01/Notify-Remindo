@@ -10,7 +10,7 @@ export interface UserDocument extends Document {
   inviteToken: string | null;
   inviteTokenExpiresAt: Date | null;
   tokenVersion: number;
-  deletedAt: Date | null;
+  deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

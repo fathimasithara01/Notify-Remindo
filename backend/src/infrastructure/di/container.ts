@@ -11,6 +11,8 @@ import { SubscriptionPlanRepository } from '../database/repositories/subscriptio
 import { FeatureRepository } from '../database/repositories/feature.repository';
 import { NotificationRepository } from '../database/repositories/notification.repository';
 import { AuditLogRepository } from '../database/repositories/audit-log.repository';
+import { OrganizationDocumentRepository } from '../database/repositories/organization-document.repository';
+
 
 // Services
 import { BcryptHashService } from '../services/bcrypt-hash.service';
@@ -35,6 +37,8 @@ import { AssignPermissionsUseCase } from '../../application/role/use-cases/assig
 import { EditRoleUseCase } from '../../application/role/use-cases/edit-role.use-case';
 import { DeleteRoleUseCase } from '../../application/role/use-cases/delete-role.use-case';
 import { CreateOrganizationUseCase } from '../../application/organization/use-cases/create-organization.use-case';
+import { OrganizationDocumentUseCase } from '../../application/organization/use-cases/organization-document.usecase.ts';
+
 import { EditOrganizationUseCase } from '../../application/organization/use-cases/edit-organization.use-case';
 import { DeleteOrganizationUseCase } from '../../application/organization/use-cases/delete-organization.use-case';
 import { UpgradePlanUseCase } from '../../application/organization/use-cases/upgrade-plan.use-case';
@@ -58,6 +62,8 @@ import { DashboardController } from '../../presentation/controllers/dashboard.co
 import { UserController } from '../../presentation/controllers/user.controller';
 import { AuditLogController } from '../../presentation/controllers/audit-log.controller';
 import { InviteController } from '../../presentation/controllers/invite.controller';
+import { S3FileStorageService } from '../storage/s3-file-storage.service';
+import { OrganizationDocumentController } from '../../presentation/controllers/organization-document.controller';
 
 export function registerDependencies(): void {
   // Repositories
@@ -69,6 +75,7 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.FeatureRepository, FeatureRepository);
   container.registerSingleton(TOKENS.NotificationRepository, NotificationRepository);
   container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
+  container.registerSingleton(TOKENS.OrganizationDocumentRepository, OrganizationDocumentRepository);
 
   // Services
   container.registerSingleton(TOKENS.HashService, BcryptHashService);
@@ -77,6 +84,7 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.EmailNotifierService, EmailNotifierService);
   container.registerSingleton(TOKENS.RolePermissionCache, RolePermissionCache);
   container.registerSingleton(TOKENS.TokenRevocationRegistry, TokenRevocationRegistry);
+  container.registerSingleton(TOKENS.FileStorageService, S3FileStorageService);
 
   container.register(TOKENS.NotifierMap, {
     useFactory: (c) => ({
@@ -110,6 +118,8 @@ export function registerDependencies(): void {
   container.register(TOKENS.ScheduleNotificationUseCase, { useClass: ScheduleNotificationUseCase });
   container.register(TOKENS.SendReminderUseCase, { useClass: SendReminderUseCase });
   container.register(TOKENS.GetBusinessReportUseCase, { useClass: GetBusinessReportUseCase });
+  container.register(TOKENS.OrganizationDocumentUseCase, { useClass: OrganizationDocumentUseCase });
+
 
   // Controllers
   container.registerSingleton(TOKENS.AuthController, AuthController);
@@ -122,6 +132,9 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.UserController, UserController);
   container.registerSingleton(TOKENS.AuditLogController, AuditLogController);
   container.registerSingleton(TOKENS.InviteController, InviteController);
+  container.registerSingleton(TOKENS.OrganizationDocumentController, OrganizationDocumentController);
+
+
 }
 
 export { container };

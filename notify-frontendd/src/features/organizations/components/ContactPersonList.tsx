@@ -1,216 +1,254 @@
-// 'use client';
+'use client';
 
-// import { useState } from 'react';
-// import { useForm } from 'react-hook-form';
-// import { zodResolver } from '@hookform/resolvers/zod';
-// import {
-//   useAddContactPerson,
-//   useUpdateContactPerson,
-//   useRemoveContactPerson,
-// } from '../hooks/useContactPersonMutations';
-// import { contactPersonSchema, ContactPersonFormValues } from '../schemas/organization.schema';
-// import { ContactPerson } from '../types/organization.types';
-// import { Button } from '@/components/ui/button';
-// import { Input } from '@/components/ui/input';
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-//   DialogFooter,
-// } from '@/components/ui/dialog';
-// import {
-//   Form,
-//   FormControl,
-//   FormField,
-//   FormItem,
-//   FormLabel,
-//   FormMessage,
-// } from '@/components/ui/form';
-// import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-// import { EmptyState } from '@/components/common/EmptyState';
-// import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import {
+  Mail,
+  Phone,
+  Pencil,
+  Trash2,
+  UserRound,
+} from 'lucide-react';
 
-// function ContactPersonDialog({
-//   organizationId,
-//   contact,
-//   trigger,
-// }: {
-//   organizationId: string;
-//   contact?: ContactPerson;
-//   trigger: React.ReactNode;
-// }) {
-//   const [open, setOpen] = useState(false);
-//   const addMutation = useAddContactPerson(organizationId);
-//   const updateMutation = useUpdateContactPerson(organizationId);
+import { useContactPersons } from '../hooks/useContactPersons';
+import { organizationApi } from '../api/organization.api';
+import { queryKeys } from '@/lib/query/query-keys';
+import { ContactPerson } from '../types/organization.types';
 
-//   const form = useForm<ContactPersonFormValues>({
-//     resolver: zodResolver(contactPersonSchema),
-//     defaultValues: {
-//       name: contact?.name ?? '',
-//       designation: contact?.designation ?? '',
-//       phone: contact?.phone ?? '',
-//       email: contact?.email ?? '',
-//     },
-//   });
+import { AddContactPersonDialog } from './AddContactPersonDialog';
+import { EditContactPersonDialog } from './EditContactPersonDialog';
 
-//   const onSubmit = (values: ContactPersonFormValues) => {
-//     const mutation = contact
-//       ? updateMutation.mutateAsync({ contactId: contact.id, payload: values })
-//       : addMutation.mutateAsync(values);
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
-//     mutation.then(() => {
-//       setOpen(false);
-//       form.reset();
-//     });
-//   };
+import { LoadingState } from '@/components/common/LoadingState';
+import { EmptyState } from '@/components/common/EmptyState';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 
-//   const isPending = addMutation.isPending || updateMutation.isPending;
+interface ContactPersonListProps {
+  organizationId: string;
+}
 
-//   return (
-//     <Dialog open={open} onOpenChange={setOpen}>
-//       <DialogTrigger asChild>{trigger}</DialogTrigger>
-//       <DialogContent>
-//         <DialogHeader>
-//           <DialogTitle>{contact ? 'Edit Contact Person' : 'Add Contact Person'}</DialogTitle>
-//         </DialogHeader>
-//         <Form {...form}>
-//           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-//             <FormField
-//               control={form.control}
-//               name="name"
-//               render={({ field }) => (
-//                 <FormItem>
-//                   <FormLabel>Name</FormLabel>
-//                   <FormControl>
-//                     <Input {...field} />
-//                   </FormControl>
-//                   <FormMessage />
-//                 </FormItem>
-//               )}
-//             />
-//             <FormField
-//               control={form.control}
-//               name="designation"
-//               render={({ field }) => (
-//                 <FormItem>
-//                   <FormLabel>Designation (optional)</FormLabel>
-//                   <FormControl>
-//                     <Input {...field} />
-//                   </FormControl>
-//                   <FormMessage />
-//                 </FormItem>
-//               )}
-//             />
-//             <FormField
-//               control={form.control}
-//               name="phone"
-//               render={({ field }) => (
-//                 <FormItem>
-//                   <FormLabel>Phone (optional)</FormLabel>
-//                   <FormControl>
-//                     <Input {...field} />
-//                   </FormControl>
-//                   <FormMessage />
-//                 </FormItem>
-//               )}
-//             />
-//             <FormField
-//               control={form.control}
-//               name="email"
-//               render={({ field }) => (
-//                 <FormItem>
-//                   <FormLabel>Email (optional)</FormLabel>
-//                   <FormControl>
-//                     <Input type="email" {...field} />
-//                   </FormControl>
-//                   <FormMessage />
-//                 </FormItem>
-//               )}
-//             />
-//             <DialogFooter>
-//               <Button type="submit" disabled={isPending}>
-//                 {isPending ? 'Saving…' : contact ? 'Save Changes' : 'Add Contact'}
-//               </Button>
-//             </DialogFooter>
-//           </form>
-//         </Form>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
+export function ContactPersonList({
+  organizationId,
+}: ContactPersonListProps) {
+  const queryClient = useQueryClient();
 
-// export function ContactPersonList({
-//   organizationId,
-//   contacts,
-// }: {
-//   organizationId: string;
-//   contacts: ContactPerson[];
-// }) {
-//   const removeMutation = useRemoveContactPerson(organizationId);
+  const [isAddOpen, setIsAddOpen] = useState(false);
 
-//   return (
-//     <div className="space-y-3">
-//       <div className="flex justify-end">
-//         <ContactPersonDialog
-//           organizationId={organizationId}
-//           trigger={
-//             <Button size="sm">
-//               <Plus className="mr-2 h-3.5 w-3.5" />
-//               Add Contact
-//             </Button>
-//           }
-//         />
-//       </div>
+  const [editingContact, setEditingContact] =
+    useState<ContactPerson | null>(null);
 
-//       {contacts.length === 0 ? (
-//         <EmptyState title="No contact persons added yet." />
-//       ) : (
-//         <ul className="space-y-3">
-//           {contacts.map((contact) => (
-//             <li
-//               key={contact.id}
-//               className="flex items-start justify-between gap-2 rounded-md border p-3 text-sm"
-//             >
-//               <div>
-//                 <p className="font-medium">{contact.name}</p>
-//                 <p className="text-muted-foreground">
-//                   {contact.designation && `${contact.designation} · `}
-//                   {contact.phone}
-//                   {contact.email && ` · ${contact.email}`}
-//                 </p>
-//               </div>
-//               <div className="flex shrink-0 gap-1">
-//                 <ContactPersonDialog
-//                   organizationId={organizationId}
-//                   contact={contact}
-//                   trigger={
-//                     <Button variant="ghost" size="sm">
-//                       <Pencil className="h-3.5 w-3.5" />
-//                     </Button>
-//                   }
-//                 />
-//                 <ConfirmDialog
-//                   trigger={
-//                     <Button
-//                       variant="ghost"
-//                       size="sm"
-//                       className="text-destructive hover:text-destructive"
-//                     >
-//                       <Trash2 className="h-3.5 w-3.5" />
-//                     </Button>
-//                   }
-//                   title="Remove this contact?"
-//                   description={`"${contact.name}" will be removed from this organization.`}
-//                   onConfirm={() => removeMutation.mutate(contact.id)}
-//                   isPending={removeMutation.isPending}
-//                 />
-//               </div>
-//             </li>
-//           ))}
-//         </ul>
-//       )}
-//     </div>
-//   );
-// }
+  const {
+    data: contacts,
+    isLoading,
+  } = useContactPersons(organizationId);
+
+  const deleteContactMutation = useMutation({
+    mutationFn: (contactId: string) =>
+      organizationApi.removeContactPerson(
+        organizationId,
+        contactId
+      ),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey:
+          queryKeys.organizations.contacts(
+            organizationId
+          ),
+      });
+
+      toast.success(
+        'Contact person deleted successfully'
+      );
+    },
+
+    onError: (error: Error) => {
+      toast.error(
+        error.message ||
+          'Failed to delete contact person'
+      );
+    },
+  });
+
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
+  return (
+    <div className="space-y-4">
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+
+        <div>
+          <h3 className="text-base font-semibold">
+            Contact Persons
+          </h3>
+
+          <p className="text-sm text-muted-foreground">
+            Manage people associated with this organization.
+          </p>
+        </div>
+
+        <Button
+          onClick={() => setIsAddOpen(true)}
+        >
+          Add Contact Person
+        </Button>
+
+      </div>
+
+      {/* Empty State */}
+      {!contacts || contacts.length === 0 ? (
+
+        <EmptyState
+          title="No contact persons found"
+        />
+
+      ) : (
+
+        <div className="grid gap-4 md:grid-cols-2">
+
+          {contacts.map((contact) => {
+
+            const isDeleting =
+              deleteContactMutation.isPending &&
+              deleteContactMutation.variables ===
+                contact.id;
+
+            return (
+              <Card key={contact.id}>
+
+                <CardContent className="p-5">
+
+                  <div className="flex items-start justify-between gap-4">
+
+                    {/* Contact Info */}
+                    <div className="flex gap-4">
+
+                      {/* Avatar */}
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+
+                        <UserRound className="h-5 w-5 text-muted-foreground" />
+
+                      </div>
+
+                      <div className="space-y-2">
+
+                        {/* Name */}
+                        <div>
+                          <h4 className="font-semibold">
+                            {contact.name}
+                          </h4>
+
+                          {contact.designation && (
+                            <p className="text-sm text-muted-foreground">
+                              {contact.designation}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Email */}
+                        {contact.contactEmail && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Mail className="h-4 w-4" />
+                            <span>
+                              {contact.contactEmail}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Phone */}
+                        {contact.contactPhone && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Phone className="h-4 w-4" />
+                            <span>
+                              {contact.contactPhone}
+                            </span>
+                          </div>
+                        )}
+
+                      </div>
+
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1">
+
+                      {/* Edit */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          setEditingContact(contact)
+                        }
+                        disabled={isDeleting}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+
+                      {/* Delete */}
+                      <ConfirmDialog
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            disabled={isDeleting}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        }
+
+                        title="Delete contact person?"
+
+                        description={`Are you sure you want to remove ${contact.name} from this organization? This action cannot be undone.`}
+
+                        onConfirm={() =>
+                          deleteContactMutation.mutate(
+                            contact.id
+                          )
+                        }
+
+                        isPending={isDeleting}
+                      />
+
+                    </div>
+
+                  </div>
+
+                </CardContent>
+
+              </Card>
+            );
+          })}
+
+        </div>
+
+      )}
+
+      {/* Add Contact Person */}
+      <AddContactPersonDialog
+        organizationId={organizationId}
+        open={isAddOpen}
+        onOpenChange={setIsAddOpen}
+      />
+
+      {/* Edit Contact Person */}
+      <EditContactPersonDialog
+        organizationId={organizationId}
+        contact={editingContact}
+        open={Boolean(editingContact)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingContact(null);
+          }
+        }}
+      />
+
+    </div>
+  );
+}

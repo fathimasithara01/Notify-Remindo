@@ -79,40 +79,48 @@ export class UserRepository implements IUserRepository {
     }));
   }
 
-async findOrganizationAdmin(
-  organizationId: string
-): Promise<OrganizationAdminSummary | null> {
+  async findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null> {
 
-  const orgAdminRole = await RoleModel.findOne({
-    slug: 'orgadmin',
-  }).select('_id');
+    const orgAdminRole = await RoleModel.findOne({
+      slug: 'orgadmin',
+      deletedAt: null,
+    }).select('_id').lean();
 
-  if (!orgAdminRole) {
-    return null;
+    if (!orgAdminRole) {
+      return null;
+    }
+
+    const userRole = await UserRoleModel.findOne({
+      roleId: orgAdminRole._id,
+    }).select('userId').lean();
+
+    if (!userRole) {
+      return null;
+    }
+
+    const user = await UserModel.findOne({
+      _id: userRole.userId,
+      organizationId,
+      status: {
+        $in: ['active', 'invited'],
+      },
+      deletedAt: null,
+    })
+      .select('_id name email phone status')
+      .lean();
+
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      phone: user.phone ?? null,
+      status: user.status,
+    };
   }
-
-  const user = await UserModel.findOne({
-    organizationId,
-    roleId: orgAdminRole._id,
-    status: {
-      $in: ['active', 'invited'],
-    },
-  })
-    .select('_id name email phone status')
-    .lean();
-
-  if (!user) {
-    return null;
-  }
-
-  return {
-    id: user._id.toString(),
-    name: user.name,
-    email: user.email,
-    phone: user.phone ?? null,
-    status: user.status,
-  };
-}
 
   async assignRole(userId: string, roleId: string): Promise<void> {
     await UserRoleModel.findOneAndUpdate(

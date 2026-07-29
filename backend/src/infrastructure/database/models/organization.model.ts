@@ -68,7 +68,7 @@ const organizationSchema = new Schema<OrganizationDocument>(
     name: { type: String, required: true, trim: true },
     businessEmail: { type: String, required: true, lowercase: true, trim: true },
     businessPhone: { type: String, required: true, trim: true },
-    address: { type: String,      required: true, trim: true },
+    address: { type: String, required: true, trim: true },
     status: { type: String, enum: ['active', 'blocked'], default: 'active' },
 
     currentPlanId: {
@@ -77,7 +77,7 @@ const organizationSchema = new Schema<OrganizationDocument>(
       default: null,
     },
     salesmanId: { type: Schema.Types.ObjectId, ref: 'Salesman', default: null },
-    
+
     documents: { type: [organizationFileSchema], default: [] },
     deletedAt: { type: Date, default: null },
   },

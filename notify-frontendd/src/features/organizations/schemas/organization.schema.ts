@@ -3,54 +3,54 @@ import { z } from 'zod';
 //  Create Organization  is created together with its initial Organization Admin user.
 
 export const createOrganizationSchema = z.object({
-  name: z .string().trim() .min(1, 'Organization name is required'),
+    name: z.string().trim().min(1, 'Organization name is required'),
 
-  businessEmail: z .string() .trim() .email('Enter a valid business email address'),
-  businessPhone: z.string().trim().min(1, 'Business phone is required'),
+    businessEmail: z.string().trim().email('Enter a valid business email address'),
+    businessPhone: z.string().trim().min(1, 'Business phone is required'),
 
-  address: z
-    .string()
-    .trim()
-    .min(1, 'Address is required'),
+    address: z
+        .string()
+        .trim()
+        .min(1, 'Address is required'),
 
-  planId: z
-    .string()
-    .trim()
-    .optional(),
+    planId: z
+        .string()
+        .trim()
+        .optional(),
 
-  salesmanId: z
-    .string()
-    .trim()
-    .optional(),
+    salesmanId: z
+        .string()
+        .trim()
+        .optional(),
 
     // Initial Organization Admin
-   
+
     // This user will:
     // - receive the invitation email
     // - accept the invitation
     // - set their password
     // - login as Organization Admin
 
-  admin: z.object({
-    name: z
-      .string()
-      .trim()
-      .min(1, 'Admin name is required'),
+    admin: z.object({
+        name: z
+            .string()
+            .trim()
+            .min(1, 'Admin name is required'),
 
-    email: z
-      .string()
-      .trim()
-      .email('Enter a valid admin email address'),
+        email: z
+            .string()
+            .trim()
+            .email('Enter a valid admin email address'),
 
-    phone: z
-      .string()
-      .trim()
-      .optional(),
-  }),
+        phone: z
+            .string()
+            .trim()
+            .optional(),
+    }),
 });
 
 export type CreateOrganizationFormValues = z.infer<
-  typeof createOrganizationSchema
+    typeof createOrganizationSchema
 >;
 
 
@@ -61,31 +61,31 @@ export type CreateOrganizationFormValues = z.infer<
  * Admin user should be managed separately.
  */
 export const editOrganizationSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, 'Organization name is required'),
+    name: z
+        .string()
+        .trim()
+        .min(1, 'Organization name is required'),
 
-  businessEmail: z
-    .string()
-    .trim()
-    .email('Enter a valid business email address')
-    .optional(),
+    businessEmail: z
+        .string()
+        .trim()
+        .email('Enter a valid business email address')
+        .optional(),
 
-  businessPhone: z
-    .string()
-    .trim()
-    .min(1, 'Business phone is required')
-    .optional(),
+    businessPhone: z
+        .string()
+        .trim()
+        .min(1, 'Business phone is required')
+        .optional(),
 
-  address: z
-    .string()
-    .trim()
-    .optional(),
+    address: z
+        .string()
+        .trim()
+        .optional(),
 });
 
 export type EditOrganizationFormValues = z.infer<
-  typeof editOrganizationSchema
+    typeof editOrganizationSchema
 >;
 
 
@@ -100,29 +100,27 @@ export type EditOrganizationFormValues = z.infer<
  * through this schema.
  */
 export const contactPersonSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, 'Name is required'),
+    name: z
+        .string()
+        .trim()
+        .min(1, 'Name is required'),
 
-  designation: z
-    .string()
-    .trim()
-    .optional(),
+    designation: z
+        .string()
+        .trim()
+        .optional(),
 
-  phone: z
-    .string()
-    .trim()
-    .optional(),
+    contactPhone: z
+        .string()
+        .optional(),
 
-  email: z
-    .string()
-    .trim()
-    .email('Enter a valid email address')
-    .optional()
-    .or(z.literal('')),
+    contactEmail: z
+        .string()
+        .email('Enter a valid email address')
+        .optional()
+        .or(z.literal('')),
 });
 
 export type ContactPersonFormValues = z.infer<
-  typeof contactPersonSchema
+    typeof contactPersonSchema
 >;

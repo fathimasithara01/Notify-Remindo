@@ -1,3 +1,5 @@
+import { symbol } from "zod/v4";
+
 /**
  * tsyringe can't resolve TypeScript interfaces at runtime — interfaces
  * disappear after compilation. These tokens are runtime-identifiable
@@ -19,6 +21,7 @@ export const TOKENS = {
   FeatureRepository: Symbol('FeatureRepository'),
   NotificationRepository: Symbol('NotificationRepository'),
   AuditLogRepository: Symbol('AuditLogRepository'),
+  OrganizationDocumentRepository: Symbol('OrganizationDocumentRepository'),
 
   // Services (interfaces)
   HashService: Symbol('HashService'),
@@ -29,6 +32,8 @@ export const TOKENS = {
   NotifierMap: Symbol('NotifierMap'),
   RolePermissionCache: Symbol('RolePermissionCache'),
   TokenRevocationRegistry: Symbol('TokenRevocationRegistry'),
+  FileStorageService: Symbol('FileStorageService'),
+
 
   // Use-cases (concrete classes, registered for discoverability/consistency)
   LoginAdminUseCase: Symbol('LoginAdminUseCase'),
@@ -56,6 +61,7 @@ export const TOKENS = {
   ScheduleNotificationUseCase: Symbol('ScheduleNotificationUseCase'),
   SendReminderUseCase: Symbol('SendReminderUseCase'),
   GetBusinessReportUseCase: Symbol('GetBusinessReportUseCase'),
+  OrganizationDocumentUseCase: Symbol('OrganizationDocumentUseCase'),
 
   // Controllers
   AuthController: Symbol('AuthController'),
@@ -68,4 +74,5 @@ export const TOKENS = {
   UserController: Symbol('UserController'),
   AuditLogController: Symbol('AuditLogController'),
   InviteController: Symbol('InviteController'),
+  OrganizationDocumentController: Symbol('OrganizationDocumentController'),
 } as const;

@@ -7,6 +7,7 @@ import {
     EditOrganizationPayload,
     OrganizationListFilters,
     ContactPerson,
+    NewContactPersonPayload,
 } from '../types/organization.types';
 
 export const organizationApi = {
@@ -113,50 +114,30 @@ export const organizationApi = {
             { newPlanId }
         ),
 
-    /**
-     * Get all additional contact persons
-     */
     listContactPersons: (id: string) =>
         apiClient.get<ContactPerson[]>(
             `/organizations/${id}/contacts`
         ),
 
-    /**
-     * Add additional contact person
-     */
     addContactPerson: (
         id: string,
-        payload: Omit<
-            ContactPerson,
-            'id' | 'organizationId'
-        >
+        payload: NewContactPersonPayload
     ) =>
         apiClient.post<ContactPerson>(
             `/organizations/${id}/contacts`,
             payload
         ),
 
-    /**
-     * Update additional contact person
-     */
     updateContactPerson: (
         id: string,
         contactId: string,
-        payload: Partial<
-            Omit<
-                ContactPerson,
-                'id' | 'organizationId'
-            >
-        >
+        payload: Partial<NewContactPersonPayload>
     ) =>
         apiClient.patch<ContactPerson>(
             `/organizations/${id}/contacts/${contactId}`,
             payload
         ),
 
-    /**
-     * Remove additional contact person
-     */
     removeContactPerson: (
         id: string,
         contactId: string

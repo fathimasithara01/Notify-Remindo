@@ -6,7 +6,7 @@ export interface Organization {
 
   businessEmail: string;
   businessPhone: string;
-  address?: string;
+  address: string;
 
   status: OrganizationStatus;
   
@@ -31,6 +31,10 @@ export interface OrganizationAdminSummary {
   email: string;
   phone: string | null;
   status: 'active' | 'invited' | 'inactive';
+}
+
+export interface OrganizationDetails extends Organization {
+  admin: OrganizationAdminSummary | null;
 }
 
 export interface OrganizationWithAdmin extends Organization {
