@@ -25,11 +25,23 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
         });
     }
 
+    const isFormData = body instanceof FormData;
+
     const res = await fetch(url.toString(), {
         method,
         credentials: 'include',
-        headers: body ? { 'Content-Type': 'application/json' } : undefined,
-        body: body ? JSON.stringify(body) : undefined,
+
+        headers: isFormData
+            ? undefined
+            : body
+                ? { 'Content-Type': 'application/json' }
+                : undefined,
+
+        body: body
+            ? isFormData
+                ? body
+                : JSON.stringify(body)
+            : undefined,
     });
 
     const json: ApiResponse<T> = await res.json().catch(() => ({

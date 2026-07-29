@@ -310,8 +310,8 @@ export function OrganizationDetail({
               Contact Persons
             </CardTitle>
 
-            <CardDescription>
-              Business contacts.
+            <CardDescription >
+              Manage people associated with this organization.
             </CardDescription>
 
           </div>

@@ -68,7 +68,7 @@ export function ContactPersonList({
     onError: (error: Error) => {
       toast.error(
         error.message ||
-          'Failed to delete contact person'
+        'Failed to delete contact person'
       );
     },
   });
@@ -79,27 +79,6 @@ export function ContactPersonList({
 
   return (
     <div className="space-y-4">
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
-
-        <div>
-          <h3 className="text-base font-semibold">
-            Contact Persons
-          </h3>
-
-          <p className="text-sm text-muted-foreground">
-            Manage people associated with this organization.
-          </p>
-        </div>
-
-        <Button
-          onClick={() => setIsAddOpen(true)}
-        >
-          Add Contact Person
-        </Button>
-
-      </div>
 
       {/* Empty State */}
       {!contacts || contacts.length === 0 ? (
@@ -117,7 +96,7 @@ export function ContactPersonList({
             const isDeleting =
               deleteContactMutation.isPending &&
               deleteContactMutation.variables ===
-                contact.id;
+              contact.id;
 
             return (
               <Card key={contact.id}>
@@ -230,13 +209,7 @@ export function ContactPersonList({
 
       )}
 
-      {/* Add Contact Person */}
-      <AddContactPersonDialog
-        organizationId={organizationId}
-        open={isAddOpen}
-        onOpenChange={setIsAddOpen}
-      />
-
+     
       {/* Edit Contact Person */}
       <EditContactPersonDialog
         organizationId={organizationId}

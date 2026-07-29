@@ -9,6 +9,7 @@ import dashboardRoutes from './dashboard.routes';
 import userRoutes from './user.routes';
 import auditLogRoutes from './audit-log.routes';
 import inviteRoutes from './invite.routes';
+import organizationDocuments from './organization-document.routes'
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.use('/auth', authRoutes);
 router.use('/roles', roleRoutes);
 router.use('/permissions', permissionRoutes);
 router.use('/organizations', organizationRoutes);
+router.use('/organizations',organizationDocuments)
 router.use('/subscriptions', subscriptionRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/dashboard', dashboardRoutes);

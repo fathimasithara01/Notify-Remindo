@@ -65,7 +65,7 @@ router.use(requireAuth);
  * POST /organizations/:organizationId/documents
  */
 router.post(
-  '/organizations/:organizationId/documents',
+  '/:id/documents',
   authorize('organization.edit'),
   upload.single('document'),
   asyncHandler(controller.upload)
@@ -78,7 +78,7 @@ router.post(
  * GET /organizations/:organizationId/documents
  */
 router.get(
-  '/organizations/:organizationId/documents',
+  '/:organizationId/documents',
   authorize('organization.view'),
   asyncHandler(controller.list)
 );
@@ -90,7 +90,7 @@ router.get(
  * GET /organizations/:organizationId/documents/:documentId/download
  */
 router.get(
-  '/organizations/:organizationId/documents/:documentId/download',
+  '/:organizationId/documents/:documentId/download',
   authorize('organization.view'),
   asyncHandler(controller.download)
 );
@@ -102,7 +102,7 @@ router.get(
  * DELETE /organizations/:organizationId/documents/:documentId
  */
 router.delete(
-  '/organizations/:organizationId/documents/:documentId',
+  '/:id/documents/:documentId',
   authorize('organization.edit'),
   asyncHandler(controller.delete)
 );
