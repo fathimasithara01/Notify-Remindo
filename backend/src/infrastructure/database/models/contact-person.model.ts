@@ -4,8 +4,8 @@ export interface ContactPersonDocument extends Document {
   organizationId: Types.ObjectId;
   name: string;
   designation?: string;
-  phone?: string;
-  email?: string;
+  contactPhone?: string;
+  contactEmail?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,11 +26,11 @@ const contactPersonSchema = new Schema<ContactPersonDocument>(
       type: String,
       trim: true,
     },
-    phone: {
+    contactPhone: {
       type: String,
       trim: true,
     },
-    email: {
+    contactEmail: {
       type: String,
       lowercase: true,
       trim: true,

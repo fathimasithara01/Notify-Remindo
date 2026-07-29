@@ -18,4 +18,5 @@ export interface IUserRepository {
   listRoles(userId: string): Promise<Role[]>;
   assignRole(userId: string, roleId: string): Promise<void>;
   removeRole(userId: string, roleId: string): Promise<void>;
+  findOrganizationAdmin(organizationId: string): Promise<User | null>;
 }

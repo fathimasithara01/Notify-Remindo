@@ -232,8 +232,8 @@ export class OrganizationRepository implements IOrganizationRepository {
       organizationId: doc.organizationId.toString(),
       name: doc.name,
       designation: doc.designation,
-      contactEmail: doc.phone,
-      contactPhone: doc.email,
+      contactEmail: doc.contactEmail,
+      contactPhone: doc.contactPhone,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     };

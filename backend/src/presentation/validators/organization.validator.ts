@@ -12,26 +12,37 @@ const organizationFileSchema = z.object({
 export const createOrganizationSchema = z.object({
   name: z.string().min(1, 'Name is required'),
 
-  businessEmail: z.string().email('Invalid email address'),
-
+  businessEmail: z.string().email('Invalid business email'),
   businessPhone: z.string().min(1, 'Business phone is required'),
+  address: z.string().min(1, 'Address is required'),
 
-  address: z.string().optional(),
-
-  planId: z.string().min(1, 'planId is required'),
-
+  planId: z.string().optional(),
   salesmanId: z.string().optional(),
 
-  documents: z.array(organizationFileSchema).optional(),
-});
+  documents: z
+    .array(
+      z.object({
+        fileName: z.string(),
+        fileUrl: z.string().url(),
+        fileKey: z.string(),
+        mimeType: z.string(),
+        fileSize: z.number(),
+        uploadedAt: z.coerce.date().optional(),
+      })
+    ).optional(),
+
+  admin: z.object({
+    name: z.string().min(1, 'Admin name is required'),
+    email: z.string().email('Invalid admin email'),
+    phone: z.string().optional(),
+  }),
+})
 
 export const editOrganizationSchema = z.object({
   name: z.string().min(1).optional(),
 
   businessEmail: z.string().email().optional(),
-
   businessPhone: z.string().min(1).optional(),
-
   address: z.string().optional(),
 
   documents: z.array(organizationFileSchema).optional(),

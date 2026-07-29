@@ -46,6 +46,7 @@ export class CreateUserUseCase {
     const user = await this.userRepo.create({
       name: data.name,
       email: data.email,
+      phone:data.phone,
       passwordHash,
       status: 'active',
       organizationId: null,

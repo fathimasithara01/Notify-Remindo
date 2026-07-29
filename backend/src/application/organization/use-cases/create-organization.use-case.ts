@@ -18,7 +18,6 @@ import { CreateOrganizationDto } from '../../dtos/create-organization.dto';
 
 import { inviteEmailTemplate } from '../../../infrastructure/email-templates/invite-email.template';
 import { env } from '../../../config/env';
-import { promise } from 'zod/v4';
 
 const INVITE_TOKEN_TTL_HOURS = 24;
 
@@ -49,43 +48,25 @@ export class CreateOrganizationUseCase {
     private emailNotifier: INotifierService
   ) { }
 
-  async execute(
-    input: CreateOrganizationInput
-  ): Promise<Organization> {
+  async execute(input: CreateOrganizationInput): Promise<Organization> {
     const { data, adminId } = input;
 
     // 1. Validate subscription plan if provided
-    let plan = null;
-
-    if (data.planId) {
-      plan = await this.planRepo.findById(data.planId);
-
-      if (!plan || plan.status !== 'active') {
-        throw new DomainError(
-          'Selected subscription plan is not available'
-        );
-      }
+    const plan = data.planId ? await this.planRepo.findById(data.planId) : null;
+    if (data.planId && (!plan || plan.status != 'active')) {
+      throw new DomainError('Selected subscription plan is not available');
     }
 
     // 2. Check whether Admin login email already exists
-    const existingUser = await this.userRepo.findByEmail(
-      data.admin.email
-    );
-
+    const existingUser = await this.userRepo.findByEmail(data.admin.email);
     if (existingUser) {
-      throw new DomainError(
-        `An account already exists for ${data.admin.email}.`
-      );
+      throw new DomainError(`An account already exists for ${data.admin.email}.`);
     }
 
     // 3. Find Organization Admin role
-    const orgAdminRole =
-      await this.roleRepo.findBySlug('orgadmin');
-
-    if (!orgAdminRole) {
-      throw new DomainError(
-        'Organization Admin role is not configured.'
-      );
+    const organizationAdminRole = await this.roleRepo.findBySlug('orgadmin');
+    if (!organizationAdminRole) {
+      throw new DomainError('Organization Admin role is not configured.');
     }
 
     // 4. Create Organization
@@ -100,8 +81,15 @@ export class CreateOrganizationUseCase {
     });
 
     // 5. Create Primary Contact Person
-    await this.orgRepo.addContactPerson( organization.id, data.contactPerson);
-   
+    const contactPerson = await this.orgRepo.addContactPerson(
+      organization.id,
+      {
+        name: data.admin.name,
+        contactPhone: data.admin.phone,
+        contactEmail: data.admin.email,
+      }
+    );
+
     // 6. Create Subscription if plan exists
     if (plan) {
       const startDate = new Date();
@@ -122,19 +110,15 @@ export class CreateOrganizationUseCase {
     }
 
     // 7. Generate invitation token
-    const inviteToken = crypto
-      .randomBytes(32)
-      .toString('hex');
+    const inviteToken = crypto.randomBytes(32).toString('hex');
 
-    const inviteTokenExpiresAt = new Date(
-      Date.now() +
-      INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000
-    );
+    const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
 
     // 8. Create Organization Admin User
-    const orgAdminUser = await this.userRepo.create({
+    const organizationAdminUser = await this.userRepo.create({
       name: data.admin.name,
       email: data.admin.email,
+      phone: data.admin.phone ?? null,
       passwordHash: null,
       status: 'invited',
       organizationId: organization.id,
@@ -144,17 +128,10 @@ export class CreateOrganizationUseCase {
     });
 
     // 9. Assign Organization Admin Role
-    await this.userRepo.assignRole(
-      orgAdminUser.id,
-      orgAdminRole.id
-    );
+    await this.userRepo.assignRole(organizationAdminUser.id, organizationAdminRole.id);
 
     // 10. Send invitation to Admin login email
-    await this.sendInviteEmail(
-      data.admin.email,
-      data.name,
-      inviteToken
-    );
+    await this.sendInviteEmail(data.admin.email, data.name, inviteToken);
 
     // 11. Audit log
     await this.auditLogRepo.create({
@@ -165,20 +142,15 @@ export class CreateOrganizationUseCase {
       metadata: {
         name: organization.name,
         planId: plan?.id ?? null,
-        adminUserId: orgAdminUser.id,
+        adminUserId: organizationAdminUser.id,
       },
     });
 
     return organization;
   }
 
-  private async sendInviteEmail(
-    email: string,
-    orgName: string,
-    token: string
-  ): Promise<void> {
-    const inviteUrl =
-      `${env.FRONTEND_URL}/accept-invite/${token}`;
+  private async sendInviteEmail(email: string, orgName: string, token: string): Promise<void> {
+    const inviteUrl = `${env.FRONTEND_URL}/accept-invite/${token}`;
 
     const content = inviteEmailTemplate({
       orgName,

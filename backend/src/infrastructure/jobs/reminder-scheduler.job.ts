@@ -5,12 +5,14 @@ import { INotificationRepository } from '../../domain/repositories/notification.
 import { IOrganizationRepository } from '../../domain/repositories/organization.repository.interface';
 import { INotifierService } from '../../domain/services/notifier.service.interface';
 import { SendReminderUseCase } from '../../application/notification/use-cases/send-reminder.use-case';
+import { IUserRepository } from '../../domain/repositories/user.repository.interface';
 
 type NotifierMap = Record<'whatsapp' | 'email', INotifierService>;
 
 async function runDueNotifications(): Promise<void> {
   const notificationRepo = container.resolve<INotificationRepository>(TOKENS.NotificationRepository);
   const orgRepo = container.resolve<IOrganizationRepository>(TOKENS.OrganizationRepository);
+  const userRepo =container.resolve<IUserRepository>(TOKENS.UserRepository)
   const notifiers = container.resolve<NotifierMap>(TOKENS.NotifierMap);
 
   const due = await notificationRepo.listDue(new Date());
@@ -18,7 +20,7 @@ async function runDueNotifications(): Promise<void> {
 
   console.log(`[reminder-scheduler] dispatching ${due.length} due notification(s)`);
 
-  const useCase = new SendReminderUseCase(notificationRepo, orgRepo, notifiers);
+  const useCase = new SendReminderUseCase(notificationRepo, orgRepo, userRepo, notifiers);
 
   for (const notification of due) {
     try {

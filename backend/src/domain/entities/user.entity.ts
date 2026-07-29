@@ -4,9 +4,10 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  phone?: string | null;
   passwordHash: string | null;
   status: UserStatus;
-  organizationId?: string | null; 
+  organizationId?: string | null;
   inviteToken?: string | null;
   inviteTokenExpiresAt?: Date | null;
   tokenVersion: number;

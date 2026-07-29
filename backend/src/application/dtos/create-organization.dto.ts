@@ -3,9 +3,9 @@ export interface CreateOrganizationDto {
 
   businessEmail: string;
   businessPhone: string;
-  address?: string;
+  address: string;
 
-  planId: string;
+  planId?: string;
   salesmanId?: string;
 
   documents?: {
@@ -17,15 +17,10 @@ export interface CreateOrganizationDto {
     uploadedAt: Date;
   }[];
 
-  contactPerson: {
-    name: string;
-    designation?: string;
-    phone?: string;
-    email?: string;
-  };
-
+  // Primary contact = initial Organization Admin
   admin: {
     name: string;
     email: string;
+    phone?: string;
   };
 }

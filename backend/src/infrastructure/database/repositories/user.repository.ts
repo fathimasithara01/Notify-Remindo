@@ -9,6 +9,7 @@ import { RoleModel } from '../models/role.model';
 
 @injectable()
 export class UserRepository implements IUserRepository {
+ 
   async create(data: NewUser): Promise<User> {
     const doc = await UserModel.create(data);
     return this.toDomain(doc);
@@ -61,6 +62,21 @@ export class UserRepository implements IUserRepository {
     return docs.map((doc) => this.toDomain(doc));
   }
 
+  async findOrganizationAdmin(organizationId: string): Promise<User | null> {
+    const doc = await UserModel.findOne({
+      organizationId,
+      status: {
+        $in: ['active', 'invited'],
+      },
+    }).populate({
+      path: 'roles',
+      match: {
+        slug: 'orgadmin',
+      },
+    });
+
+    return doc ? this.toDomain(doc) : null;
+  }
   async listRoles(userId: string): Promise<Role[]> {
     const links = await UserRoleModel.find({ userId });
     const roleIds = links.map((link) => link.roleId);
@@ -95,6 +111,7 @@ export class UserRepository implements IUserRepository {
       id: doc._id.toString(),
       name: doc.name,
       email: doc.email,
+      phone: doc.phone,
       passwordHash: doc.passwordHash,
       status: doc.status,
       organizationId: doc.organizationId ? doc.organizationId.toString() : null,

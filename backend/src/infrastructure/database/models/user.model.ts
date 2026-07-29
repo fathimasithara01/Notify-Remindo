@@ -3,6 +3,7 @@ import { Schema, model, Types, Document } from 'mongoose';
 export interface UserDocument extends Document {
   name: string;
   email: string;
+  phone: string;
   passwordHash: string | null;
   status: 'invited' | 'active' | 'inactive';
   organizationId: Types.ObjectId | null;
@@ -18,6 +19,7 @@ const userSchema = new Schema<UserDocument>(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    phone: { type: String, trim: true, default: null },
     passwordHash: { type: String, default: null },
     status: { type: String, enum: ['invited', 'active', 'inactive'], default: 'active' },
     organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', default: null },
