@@ -1,21 +1,40 @@
 import { z } from 'zod';
 
+const organizationFileSchema = z.object({
+  fileName: z.string().min(1, 'File name is required'),
+  fileUrl: z.string().url('Invalid file URL'),
+  fileKey: z.string().optional(),
+  mimeType: z.string().min(1, 'MIME type is required'),
+  fileSize: z.number().positive('File size must be greater than 0'),
+  uploadedAt: z.coerce.date().optional(),
+});
+
 export const createOrganizationSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  businessDetails: z.record(z.string(), z.unknown()).optional(),
-  contactEmail: z.string().email('Invalid email address'),
-  contactPhone: z.string().min(1, 'Contact phone is required'),
+
+  businessEmail: z.string().email('Invalid email address'),
+
+  businessPhone: z.string().min(1, 'Business phone is required'),
+
   address: z.string().optional(),
+
   planId: z.string().min(1, 'planId is required'),
+
   salesmanId: z.string().optional(),
+
+  documents: z.array(organizationFileSchema).optional(),
 });
 
 export const editOrganizationSchema = z.object({
   name: z.string().min(1).optional(),
-  businessDetails: z.record(z.string(), z.unknown()).optional(),
-  contactEmail: z.string().email().optional(),
-  contactPhone: z.string().min(1).optional(),
+
+  businessEmail: z.string().email().optional(),
+
+  businessPhone: z.string().min(1).optional(),
+
   address: z.string().optional(),
+
+  documents: z.array(organizationFileSchema).optional(),
 });
 
 export const upgradePlanSchema = z.object({

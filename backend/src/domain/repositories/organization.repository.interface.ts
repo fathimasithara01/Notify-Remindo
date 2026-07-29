@@ -20,10 +20,11 @@ export interface IOrganizationRepository {
 
   addContactPerson(organizationId: string, data: NewContactPerson): Promise<ContactPerson>;
   listContactPersons(organizationId: string): Promise<ContactPerson[]>;
-  getContactPerson(contactPersonId: string): Promise<ContactPerson | null>;
+  getContactPerson(organizationId: string, contactPersonId: string): Promise<ContactPerson | null>;
   updateContactPerson(
+    organizationId: string,
     contactPersonId: string,
     data: Partial<NewContactPerson>
   ): Promise<ContactPerson | null>;
-  removeContactPerson(contactPersonId: string): Promise<boolean>;
+  removeContactPerson(organizationId: string, contactPersonId: string): Promise<boolean>;
 }

@@ -32,6 +32,8 @@ export class EditOrganizationUseCase {
       throw new NotFoundError('Organization not found');
     }
 
+    // const contactUpdate = await this.orgRepo.updateContactPerson(input.organizationId, )
+
     await this.auditLogRepo.create({
       adminId: input.adminId,
       action: 'EDIT_ORGANIZATION',

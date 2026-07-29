@@ -3,10 +3,10 @@ export interface ContactPerson {
   organizationId: string;
   name: string;
   designation?: string;
-  phone?: string;
-  email?: string;
+  contactPhone?: string;
+  contactEmail?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type NewContactPerson = Omit<ContactPerson, 'id' | 'createdAt' | 'updatedAt'>;
+export type NewContactPerson = Omit<ContactPerson, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'>;

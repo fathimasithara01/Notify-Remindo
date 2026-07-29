@@ -4,7 +4,7 @@ export function createQueryClient(): QueryClient {
     return new QueryClient({
         defaultOptions: {
             queries: {
-                staleTime: 30 * 1000, // API-il ninnu data vannal, 30 seconds vare data fresh aanu enn TanStack Query consider cheyyum.
+                staleTime: 30 * 1000,
 
                 gcTime: 5 * 60 * 1000, // Oru query use cheyyunnilla enkil, athinte cached data 5 minutes vare memory-il keep cheyyum.than garbage collect
 

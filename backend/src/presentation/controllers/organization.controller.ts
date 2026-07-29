@@ -24,7 +24,7 @@ export class OrganizationController {
     @inject(TOKENS.UpgradePlanUseCase) private upgradePlanUseCase: UpgradePlanUseCase,
     @inject(TOKENS.BlockCustomerUseCase) private blockCustomerUseCase: BlockCustomerUseCase,
     @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase
-  ) {}
+  ) { }
 
   create = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
@@ -86,7 +86,6 @@ export class OrganizationController {
 
   block = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-
     const organization = await this.blockCustomerUseCase.execute({
       organizationId: req.params.id,
       adminId: req.user.userId,
@@ -139,7 +138,7 @@ export class OrganizationController {
   };
 
   getContactPerson = async (req: Request, res: Response): Promise<void> => {
-    const contact = await this.orgRepo.getContactPerson(req.params.contactId);
+    const contact = await this.orgRepo.getContactPerson(req.params.id, req.params.contactId);
     if (!contact) throw new NotFoundError('Contact person not found');
     ApiResponse.success(res, contact);
   };
@@ -147,7 +146,7 @@ export class OrganizationController {
   updateContactPerson = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
 
-    const contact = await this.orgRepo.updateContactPerson(req.params.contactId, req.body);
+    const contact = await this.orgRepo.updateContactPerson(req.params.id, req.params.contactId, req.body);
     if (!contact) throw new NotFoundError('Contact person not found');
 
     await this.auditLogRepo.create({
@@ -155,7 +154,10 @@ export class OrganizationController {
       action: 'EDIT_CONTACT_PERSON',
       targetType: 'ContactPerson',
       targetId: contact.id,
-      metadata: { changes: req.body },
+      metadata: {
+        organizationId: req.params.id,
+        changes: req.body,
+      },
     });
 
     ApiResponse.success(res, contact, 200, 'Contact person updated');
@@ -164,7 +166,7 @@ export class OrganizationController {
   removeContactPerson = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
 
-    const removed = await this.orgRepo.removeContactPerson(req.params.contactId);
+    const removed = await this.orgRepo.removeContactPerson(req.params.id, req.params.contactId);
     if (!removed) throw new NotFoundError('Contact person not found');
 
     await this.auditLogRepo.create({
@@ -172,6 +174,9 @@ export class OrganizationController {
       action: 'REMOVE_CONTACT_PERSON',
       targetType: 'ContactPerson',
       targetId: req.params.contactId,
+      metadata: {
+        organizationId: req.params.id,
+      },
     });
 
     ApiResponse.success(res, null, 200, 'Contact person removed');

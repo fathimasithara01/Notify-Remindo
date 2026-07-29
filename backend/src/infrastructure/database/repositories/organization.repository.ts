@@ -7,26 +7,50 @@ import { ContactPersonModel, ContactPersonDocument } from '../models/contact-per
 
 @injectable()
 export class OrganizationRepository implements IOrganizationRepository {
+
   async create(data: NewOrganization): Promise<Organization> {
     const doc = await OrganizationModel.create(data);
     return this.toDomain(doc);
   }
 
   async findById(id: string): Promise<Organization | null> {
-    const doc = await OrganizationModel.findOne({ _id: id, deletedAt: null });
+    const doc = await OrganizationModel.findOne({
+      _id: id,
+      deletedAt: null,
+    });
+
     return doc ? this.toDomain(doc) : null;
   }
 
-  async update(id: string, data: Partial<NewOrganization>): Promise<Organization | null> {
-    const doc = await OrganizationModel.findByIdAndUpdate(id, data, { new: true });
+  async update(
+    id: string,
+    data: Partial<NewOrganization>
+  ): Promise<Organization | null> {
+    const doc = await OrganizationModel.findOneAndUpdate(
+      {
+        _id: id,
+        deletedAt: null,
+      },
+      data,
+      {
+        new: true,
+      }
+    );
+
     return doc ? this.toDomain(doc) : null;
   }
 
   async delete(id: string): Promise<boolean> {
     const result = await OrganizationModel.findOneAndUpdate(
-      { _id: id, deletedAt: null },
-      { deletedAt: new Date(), status: 'blocked' }
+      {
+        _id: id,
+        deletedAt: null,
+      },
+      {
+        deletedAt: new Date(),
+      }
     );
+
     return result !== null;
   }
 
@@ -36,65 +60,151 @@ export class OrganizationRepository implements IOrganizationRepository {
     planId?: string;
     search?: string;
   }): Promise<Organization[]> {
+
     const query: Record<string, unknown> = { deletedAt: null };
-    if (filter?.status) query.status = filter.status;
-    if (filter?.salesmanId) query.salesmanId = filter.salesmanId;
-    if (filter?.planId) query.currentPlanId = filter.planId;
+
+    if (filter?.status) {
+      query.status = filter.status;
+    }
+
+    if (filter?.salesmanId) {
+      query.salesmanId = filter.salesmanId;
+    }
+
+    if (filter?.planId) {
+      query.currentPlanId = filter.planId;
+    }
+
     if (filter?.search) {
       const regex = new RegExp(filter.search.trim(), 'i');
-      query.$or = [{ name: regex }, { contactEmail: regex }, { contactPhone: regex }];
+
+      query.$or = [
+        { name: regex },
+        { businessEmail: regex },
+        { businessPhone: regex },
+      ];
     }
 
     const docs = await OrganizationModel.find(query);
+
     return docs.map((doc) => this.toDomain(doc));
   }
 
   async block(id: string): Promise<Organization | null> {
-    const doc = await OrganizationModel.findByIdAndUpdate(id, { status: 'blocked' }, { new: true });
+    const doc = await OrganizationModel.findOneAndUpdate(
+      {
+        _id: id,
+        deletedAt: null,
+      },
+      {
+        status: 'blocked',
+      },
+      {
+        new: true,
+      }
+    );
+
     return doc ? this.toDomain(doc) : null;
   }
 
   async unblock(id: string): Promise<Organization | null> {
-    const doc = await OrganizationModel.findByIdAndUpdate(id, { status: 'active' }, { new: true });
+    const doc = await OrganizationModel.findOneAndUpdate(
+      {
+        _id: id,
+        deletedAt: null,
+      },
+      {
+        status: 'active',
+      },
+      {
+        new: true,
+      }
+    );
+
     return doc ? this.toDomain(doc) : null;
   }
 
   async assignSalesman(id: string, salesmanId: string): Promise<Organization | null> {
-    const doc = await OrganizationModel.findByIdAndUpdate(id, { salesmanId }, { new: true });
+    const doc = await OrganizationModel.findOneAndUpdate(
+      {
+        _id: id,
+        deletedAt: null,
+      },
+      {
+        salesmanId,
+      },
+      {
+        new: true,
+      }
+    );
+
     return doc ? this.toDomain(doc) : null;
   }
 
-  async changePlan(id: string, planId: string): Promise<Organization | null> {
-    const doc = await OrganizationModel.findByIdAndUpdate(
-      id,
-      { currentPlanId: planId },
-      { new: true }
+  async changePlan(id: string, currentPlanId: string): Promise<Organization | null> {
+    const doc = await OrganizationModel.findOneAndUpdate(
+      {
+        _id: id,
+        deletedAt: null,
+      },
+      {
+        currentPlanId,
+      },
+      {
+        new: true,
+      }
     );
+
     return doc ? this.toDomain(doc) : null;
   }
 
   async addContactPerson(organizationId: string, data: NewContactPerson): Promise<ContactPerson> {
-    const doc = await ContactPersonModel.create({ ...data, organizationId });
+    const doc = await ContactPersonModel.create({
+      ...data, // without spread they give nested data
+      organizationId,
+    });
+
     return this.contactToDomain(doc);
   }
 
   async listContactPersons(organizationId: string): Promise<ContactPerson[]> {
-    const docs = await ContactPersonModel.find({ organizationId });
+    const docs = await ContactPersonModel.find({
+      organizationId,
+    });
+
     return docs.map((doc) => this.contactToDomain(doc));
   }
 
-  async getContactPerson(contactPersonId: string): Promise<ContactPerson | null> {
-    const doc = await ContactPersonModel.findById(contactPersonId);
+  async getContactPerson(organizationId: string, contactPersonId: string): Promise<ContactPerson | null> {
+    const doc = await ContactPersonModel.findOne({
+      _id: contactPersonId,
+      organizationId,
+    });
+
     return doc ? this.contactToDomain(doc) : null;
   }
 
-  async updateContactPerson(contactPersonId: string, data: Partial<NewContactPerson>): Promise<ContactPerson | null> {
-    const doc = await ContactPersonModel.findByIdAndUpdate(contactPersonId, data, { new: true });
+  async updateContactPerson(organizationId: string, contactPersonId: string, data: Partial<NewContactPerson>): Promise<ContactPerson | null> {
+    const doc = await ContactPersonModel.findOneAndUpdate(
+      {
+        _id: contactPersonId,
+        organizationId,
+      },
+      data,
+      {
+        new: true,
+      }
+    );
+
     return doc ? this.contactToDomain(doc) : null;
   }
 
-  async removeContactPerson(contactPersonId: string): Promise<boolean> {
-    const result = await ContactPersonModel.findByIdAndDelete(contactPersonId);
+  async removeContactPerson(organizationId: string, contactPersonId: string): Promise<boolean> {
+    const result = await ContactPersonModel.findOneAndDelete({
+      _id: contactPersonId,
+      organizationId,
+    });
+
     return result !== null;
   }
 
@@ -102,27 +212,28 @@ export class OrganizationRepository implements IOrganizationRepository {
     return {
       id: doc._id.toString(),
       name: doc.name,
-      businessDetails: doc.businessDetails,
-      contactEmail: doc.contactEmail,
-      contactPhone: doc.contactPhone,
+      businessEmail: doc.businessEmail,
+      businessPhone: doc.businessPhone,
       address: doc.address,
       status: doc.status,
-      currentPlanId: doc.currentPlanId.toString(),
-      salesmanId: doc.salesmanId ? doc.salesmanId.toString() : null,
+      currentPlanId: doc.currentPlanId?.toString() ?? null,
+      salesmanId: doc.salesmanId?.toString() ?? null,
       deletedAt: doc.deletedAt,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     };
   }
 
-  private contactToDomain(doc: ContactPersonDocument): ContactPerson {
+  private contactToDomain(
+    doc: ContactPersonDocument
+  ): ContactPerson {
     return {
       id: doc._id.toString(),
       organizationId: doc.organizationId.toString(),
       name: doc.name,
       designation: doc.designation,
-      phone: doc.phone,
-      email: doc.email,
+      contactEmail: doc.phone,
+      contactPhone: doc.email,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     };
