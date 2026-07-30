@@ -4,7 +4,9 @@ export type AuditTargetType =
   | 'Role'
   | 'User'
   | 'Feature'
-  | 'ContactPerson';
+  | 'ContactPerson'
+  |  "PlanFeature"
+  | "OrganizationSubscription";
 
 export interface AuditLog {
   id: string;

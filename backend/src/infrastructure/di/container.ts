@@ -14,6 +14,7 @@ import { AuditLogRepository } from '../database/repositories/audit-log.repositor
 import { OrganizationDocumentRepository } from '../database/repositories/organization-document.repository';
 
 
+
 // Services
 import { BcryptHashService } from '../services/bcrypt-hash.service';
 import { JwtTokenService } from '../services/jwt-token.service';
@@ -44,8 +45,6 @@ import { DeleteOrganizationUseCase } from '../../application/organization/use-ca
 import { UpgradePlanUseCase } from '../../application/organization/use-cases/upgrade-plan.use-case';
 import { BlockCustomerUseCase } from '../../application/organization/use-cases/block-customer.use-case';
 import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
-import { CreatePlanUseCase } from '../../application/subscription/use-cases/create-plan.use-case';
-import { EditPlanUseCase } from '../../application/subscription/use-cases/edit-plan.use-case';
 import { CreateFeatureUseCase } from '../../application/subscription/use-cases/create-feature.use-case';
 import { ScheduleNotificationUseCase } from '../../application/notification/use-cases/schedule-notification.use-case';
 import { SendReminderUseCase } from '../../application/notification/use-cases/send-reminder.use-case';
@@ -56,7 +55,6 @@ import { AuthController } from '../../presentation/controllers/auth.controller';
 import { RoleController } from '../../presentation/controllers/role.controller';
 import { PermissionController } from '../../presentation/controllers/permission.controller';
 import { OrganizationController } from '../../presentation/controllers/organization.controller';
-import { SubscriptionController } from '../../presentation/controllers/subscription.controller';
 import { NotificationController } from '../../presentation/controllers/notification.controller';
 import { DashboardController } from '../../presentation/controllers/dashboard.controller';
 import { UserController } from '../../presentation/controllers/user.controller';
@@ -64,6 +62,18 @@ import { AuditLogController } from '../../presentation/controllers/audit-log.con
 import { InviteController } from '../../presentation/controllers/invite.controller';
 import { S3FileStorageService } from '../storage/s3-file-storage.service';
 import { OrganizationDocumentController } from '../../presentation/controllers/organization-document.controller';
+import { PlanFeatureRepository } from '../database/repositories/plan-feature.repository';
+import { OrganizationSubscriptionRepository } from '../database/repositories/organization-subscription.repository';
+import { UpdateFeatureUseCase } from '../../application/subscription/use-cases/update-feature.use-case';
+import { DeleteFeatureUseCase } from '../../application/subscription/use-cases/delete-feature.use-case';
+import { CreateOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/create-organization-subscription.use-case';
+import { RenewOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/renew-organization-subscription.use-case';
+import { CancelOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/cancel-organization-subscription.use-case';
+import { AddPlanFeatureUseCase } from '../../application/subscription/use-cases/add-plan-feature.use-case';
+import { RemovePlanFeatureUseCase } from '../../application/subscription/use-cases/remove-plan-feature.use-case';
+import { CreateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/create-subscription-plan.use-case';
+import { UpdateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/update-subscription-plan.use-case';
+import { DeleteSubscriptionPlanUseCase } from '../../application/subscription/use-cases/delete-subscription-plan.use-case';
 
 export function registerDependencies(): void {
   // Repositories
@@ -76,6 +86,8 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.NotificationRepository, NotificationRepository);
   container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
   container.registerSingleton(TOKENS.OrganizationDocumentRepository, OrganizationDocumentRepository);
+  container.registerSingleton(TOKENS.PlanFeatureRepository, PlanFeatureRepository),
+    container.registerSingleton(TOKENS.OrganizationSubscriptionRepository, OrganizationSubscriptionRepository)
 
   // Services
   container.registerSingleton(TOKENS.HashService, BcryptHashService);
@@ -112,21 +124,27 @@ export function registerDependencies(): void {
   container.register(TOKENS.UpgradePlanUseCase, { useClass: UpgradePlanUseCase });
   container.register(TOKENS.BlockCustomerUseCase, { useClass: BlockCustomerUseCase });
   container.register(TOKENS.AssignSalesmanUseCase, { useClass: AssignSalesmanUseCase });
-  container.register(TOKENS.CreatePlanUseCase, { useClass: CreatePlanUseCase });
-  container.register(TOKENS.EditPlanUseCase, { useClass: EditPlanUseCase });
   container.register(TOKENS.CreateFeatureUseCase, { useClass: CreateFeatureUseCase });
   container.register(TOKENS.ScheduleNotificationUseCase, { useClass: ScheduleNotificationUseCase });
   container.register(TOKENS.SendReminderUseCase, { useClass: SendReminderUseCase });
   container.register(TOKENS.GetBusinessReportUseCase, { useClass: GetBusinessReportUseCase });
   container.register(TOKENS.OrganizationDocumentUseCase, { useClass: OrganizationDocumentUseCase });
-
+  container.register(TOKENS.UpdateFeatureUseCase, UpdateFeatureUseCase);
+  container.register(TOKENS.DeleteFeatureUseCase, DeleteFeatureUseCase);
+  container.register(TOKENS.CreateOrganizationSubscriptionUseCase, CreateOrganizationSubscriptionUseCase);
+  container.register(TOKENS.RenewOrganizationSubscriptionUseCase, RenewOrganizationSubscriptionUseCase);
+  container.register(TOKENS.CancelOrganizationSubscriptionUseCase, CancelOrganizationSubscriptionUseCase);
+  container.register(TOKENS.AddPlanFeatureUseCase, AddPlanFeatureUseCase);
+  container.register(TOKENS.RemovePlanFeatureUseCase, RemovePlanFeatureUseCase);
+  container.register(TOKENS.CreateSubscriptionPlanUseCase, CreateSubscriptionPlanUseCase);
+  container.register(TOKENS.UpdateSubscriptionPlanUseCase, UpdateSubscriptionPlanUseCase);
+  container.register(TOKENS.DeleteSubscriptionPlanUseCase, DeleteSubscriptionPlanUseCase);
 
   // Controllers
   container.registerSingleton(TOKENS.AuthController, AuthController);
   container.registerSingleton(TOKENS.RoleController, RoleController);
   container.registerSingleton(TOKENS.PermissionController, PermissionController);
   container.registerSingleton(TOKENS.OrganizationController, OrganizationController);
-  container.registerSingleton(TOKENS.SubscriptionController, SubscriptionController);
   container.registerSingleton(TOKENS.NotificationController, NotificationController);
   container.registerSingleton(TOKENS.DashboardController, DashboardController);
   container.registerSingleton(TOKENS.UserController, UserController);

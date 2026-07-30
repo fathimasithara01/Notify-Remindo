@@ -1,66 +1,165 @@
-import { Router } from 'express';
-import { container } from '../../infrastructure/di/container';
-import { TOKENS } from '../../infrastructure/di/tokens';
-import { SubscriptionController } from '../controllers/subscription.controller';
+import { Router } from "express";
+import { container } from "tsyringe";
+
+import { SubscriptionPlanController } from "../controllers/subscription.controller";
+import { FeatureController } from "../controllers/feature.controller";
+import { PlanFeatureController } from "../controllers/plan-feature.controller";
+import { OrganizationSubscriptionController } from "../controllers/organization-subscription.controller";
+
 import { requireAuth } from '../middlewares/require-auth.middleware';
-import { authorize } from '../middlewares/authorize.middleware';
-import { validateRequest } from '../middlewares/validate-request.middleware';
-import {
-  createPlanSchema,
-  editPlanSchema,
-  createFeatureSchema,
-  editFeatureSchema,
-  setPlanFeatureSchema,
-} from '../validators/subscription.validator';
-import { asyncHandler } from '../../shared/utils/async-handler';
+import { authorize } from "../middlewares/authorize.middleware";
 
 const router = Router();
-const controller = container.resolve<SubscriptionController>(TOKENS.SubscriptionController);
 
-router.use(requireAuth);
+const subscriptionPlanController =
+  container.resolve(SubscriptionPlanController);
+
+const featureController =
+  container.resolve(FeatureController);
+
+const planFeatureController =
+  container.resolve(PlanFeatureController);
+
+const organizationSubscriptionController =
+  container.resolve(OrganizationSubscriptionController);
+
+  /*
+|--------------------------------------------------------------------------
+| Subscription Plan Routes
+|--------------------------------------------------------------------------
+*/
 
 router.post(
-  '/plans',
-  authorize('plan.create'),
-  validateRequest(createPlanSchema),
-  asyncHandler(controller.createPlan)
+  "/plans",
+  requireAuth,
+  authorize("subscription:write"),
+  subscriptionPlanController.createPlan
 );
-router.get('/plans', authorize('plan.view'), asyncHandler(controller.listPlans));
-router.get('/plans/:id', authorize('plan.view'), asyncHandler(controller.getPlan));
+
+router.get(
+  "/plans",
+  requireAuth,
+  authorize("subscription:read"),
+  subscriptionPlanController.listPlans
+);
+
+router.get(
+  "/plans/:id",
+  requireAuth,
+  authorize("subscription:read"),
+  subscriptionPlanController.getPlanById
+);
+
 router.patch(
-  '/plans/:id',
-  authorize('plan.edit'),
-  validateRequest(editPlanSchema),
-  asyncHandler(controller.updatePlan)
+  "/plans/:id",
+  requireAuth,
+  authorize("subscription:write"),
+  subscriptionPlanController.updatePlan
 );
-router.delete('/plans/:id', authorize('plan.delete'), asyncHandler(controller.deletePlan));
 
-router.post(
-  '/plans/:id/features',
-  authorize('plan.edit'),
-  validateRequest(setPlanFeatureSchema),
-  asyncHandler(controller.setPlanFeature)
-);
 router.delete(
-  '/plans/:id/features/:featureId',
-  authorize('plan.edit'),
-  asyncHandler(controller.removePlanFeature)
+  "/plans/:id",
+  requireAuth,
+  authorize("subscription:write"),
+  subscriptionPlanController.deletePlan
+);
+
+/*
+|--------------------------------------------------------------------------
+| Feature Routes
+|--------------------------------------------------------------------------
+*/
+
+router.post(
+  "/features",
+  requireAuth,
+  authorize("subscription:write"),
+  featureController.createFeature
+);
+
+router.get(
+  "/features",
+  requireAuth,
+  authorize("subscription:read"),
+  featureController.listFeatures
+);
+
+router.get(
+  "/features/:id",
+  requireAuth,
+  authorize("subscription:read"),
+  featureController.getFeatureById
+);
+
+router.patch(
+  "/features/:id",
+  requireAuth,
+  authorize("subscription:write"),
+  featureController.updateFeature
+);
+
+router.delete(
+  "/features/:id",
+  requireAuth,
+  authorize("subscription:write"),
+  featureController.deleteFeature
+);
+
+
+router.post(
+  "/plans/:planId/features",
+  requireAuth,
+  authorize("subscription:write"),
+  planFeatureController.addPlanFeature
+);
+
+router.get(
+  "/plans/:planId/features",
+  requireAuth,
+  authorize("subscription:read"),
+  planFeatureController.listPlanFeatures
+);
+
+router.delete(
+  "/plans/:planId/features/:featureId",
+  requireAuth,
+  authorize("subscription:write"),
+  planFeatureController.removePlanFeature
 );
 
 router.post(
-  '/features',
-  authorize('feature.create'),
-  validateRequest(createFeatureSchema),
-  asyncHandler(controller.createFeature)
+  "/organization-subscriptions",
+  requireAuth,
+  authorize("subscription:write"),
+  organizationSubscriptionController.createSubscription
 );
-router.get('/features', authorize('feature.view'), asyncHandler(controller.listFeatures));
-router.get('/features/:id', authorize('feature.view'), asyncHandler(controller.getFeature));
+
+router.get(
+  "/organizations/:organizationId/subscriptions/active",
+  requireAuth,
+  authorize("subscription:read"),
+  organizationSubscriptionController.getActiveSubscription
+);
+
+router.get(
+  "/organizations/:organizationId/subscriptions",
+  requireAuth,
+  authorize("subscription:read"),
+  organizationSubscriptionController.listSubscriptionHistory
+);
+
 router.patch(
-  '/features/:id',
-  authorize('feature.edit'),
-  validateRequest(editFeatureSchema),
-  asyncHandler(controller.updateFeature)
+  "/organization-subscriptions/:id/renew",
+  requireAuth,
+  authorize("subscription:write"),
+  organizationSubscriptionController.renewSubscription
 );
-router.delete('/features/:id', authorize('feature.delete'), asyncHandler(controller.deleteFeature));
+
+router.patch(
+  "/organization-subscriptions/:id/cancel",
+  requireAuth,
+  authorize("subscription:write"),
+  organizationSubscriptionController.cancelSubscription
+);
 
 export default router;

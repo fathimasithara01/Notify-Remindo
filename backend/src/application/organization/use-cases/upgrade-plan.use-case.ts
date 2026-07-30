@@ -15,7 +15,7 @@ export class UpgradePlanUseCase {
   constructor(
     @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
     @inject(TOKENS.SubscriptionPlanRepository) private planRepo: ISubscriptionPlanRepository
-  ) {}
+  ) { }
 
   async execute(data: UpgradePlanDto): Promise<Organization> {
     const organization = await this.orgRepo.findById(data.organizationId);
@@ -35,19 +35,22 @@ export class UpgradePlanUseCase {
     const history = await this.planRepo.listSubscriptionHistory(data.organizationId);
     const activeRecord = history.find((record) => record.status === 'active');
     if (activeRecord) {
-      await this.planRepo.closeSubscriptionRecord(activeRecord.id, 'upgraded');
+      await this.planRepo.closeSubscription(activeRecord.id, 'upgraded');
     }
 
     const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + newPlan.durationDays);
 
-    await this.planRepo.createSubscriptionRecord({
-      organizationId: data.organizationId,
+    await this.planRepo.createSubscription({
+      organizationId: organization.id,
       planId: newPlan.id,
       startDate,
       endDate,
+      priceAmount: newPlan.priceAmount,
+      currency:newPlan.currency,
       status: 'active',
+      paymentReference: undefined,
     });
 
     const updated = await this.orgRepo.changePlan(data.organizationId, data.newPlanId);

@@ -1,39 +1,50 @@
 import {
   FeatureDataType,
-} from "./feature.entity";
+} from "../../domain/entities/feature.entity";
+
 
 export type PlanFeatureValue =
   | string
-  | boolean
-  | number;
-
+  | number
+  | boolean;
 
 export interface PlanFeature {
+
   id: string;
+
+
   planId: string;
+
+
   featureId: string;
+
 
   featureValue: PlanFeatureValue;
 
-  deletedAt: Date | null;
+
   createdAt: Date;
+
+
   updatedAt: Date;
+
 }
-
-
-export type CreatePlanFeatureInput =
-  Omit<
-    PlanFeature,
-    "id" | "createdAt" | "updatedAt" | "deletedAt"
-  >;
-
 
 export interface PlanFeatureWithDefinition extends PlanFeature {
 
   key: string;
 
+
   label: string;
 
+
   dataType: FeatureDataType;
+
+}
+
+export type CreatePlanFeatureInput = Omit<   PlanFeature,   "id"   | "createdAt"   | "updatedAt" >;
+
+export interface UpdatePlanFeatureValueInput {
+
+  featureValue: PlanFeatureValue;
 
 }

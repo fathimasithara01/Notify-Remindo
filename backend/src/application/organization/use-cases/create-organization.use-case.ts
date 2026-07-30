@@ -84,12 +84,15 @@ export class CreateOrganizationUseCase {
         endDate.getDate() + plan.durationDays
       );
 
-      await this.planRepo.createSubscriptionRecord({
+      await this.planRepo.createSubscription({
         organizationId: organization.id,
         planId: plan.id,
         startDate,
         endDate,
+        priceAmount:plan.priceAmount,
+        currency:plan.currency,
         status: 'active',
+        paymentReference :undefined,
       });
     }
 

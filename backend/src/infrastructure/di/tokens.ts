@@ -1,16 +1,3 @@
-import { symbol } from "zod/v4";
-
-/**
- * tsyringe can't resolve TypeScript interfaces at runtime — interfaces
- * disappear after compilation. These tokens are runtime-identifiable
- * stand-ins that we register concrete classes against, and use with
- * @inject() wherever a constructor parameter's type is an interface.
- *
- * Concrete classes (use-cases, controllers) are also registered under
- * their own class reference directly — tsyringe supports that natively
- * via @injectable(), so they don't strictly need a token. They're listed
- * here anyway for consistency and easy discovery.
- */
 export const TOKENS = {
   // Repositories (interfaces)
   UserRepository: Symbol('UserRepository'),
@@ -22,6 +9,8 @@ export const TOKENS = {
   NotificationRepository: Symbol('NotificationRepository'),
   AuditLogRepository: Symbol('AuditLogRepository'),
   OrganizationDocumentRepository: Symbol('OrganizationDocumentRepository'),
+  PlanFeatureRepository: Symbol('PlanFeatureRepository'),
+  OrganizationSubscriptionRepository: Symbol('OrganizationSubscriptionRepository'),
 
   // Services (interfaces)
   HashService: Symbol('HashService'),
@@ -33,7 +22,6 @@ export const TOKENS = {
   RolePermissionCache: Symbol('RolePermissionCache'),
   TokenRevocationRegistry: Symbol('TokenRevocationRegistry'),
   FileStorageService: Symbol('FileStorageService'),
-
 
   // Use-cases (concrete classes, registered for discoverability/consistency)
   LoginAdminUseCase: Symbol('LoginAdminUseCase'),
@@ -55,20 +43,27 @@ export const TOKENS = {
   UpgradePlanUseCase: Symbol('UpgradePlanUseCase'),
   BlockCustomerUseCase: Symbol('BlockCustomerUseCase'),
   AssignSalesmanUseCase: Symbol('AssignSalesmanUseCase'),
-  CreatePlanUseCase: Symbol('CreatePlanUseCase'),
-  EditPlanUseCase: Symbol('EditPlanUseCase'),
   CreateFeatureUseCase: Symbol('CreateFeatureUseCase'),
   ScheduleNotificationUseCase: Symbol('ScheduleNotificationUseCase'),
   SendReminderUseCase: Symbol('SendReminderUseCase'),
   GetBusinessReportUseCase: Symbol('GetBusinessReportUseCase'),
   OrganizationDocumentUseCase: Symbol('OrganizationDocumentUseCase'),
+  UpdateFeatureUseCase: Symbol('UpdateFeatureUseCase'),
+  DeleteFeatureUseCase: Symbol('DeleteFeatureUseCase'),
+  CreateOrganizationSubscriptionUseCase: Symbol('CreateOrganizationSubscriptionUseCase'),
+  RenewOrganizationSubscriptionUseCase: Symbol('RenewOrganizationSubscriptionUseCase'),
+  CancelOrganizationSubscriptionUseCase: Symbol('CancelOrganizationSubscriptionUseCase'),
+  AddPlanFeatureUseCase: Symbol('AddPlanFeatureUseCase'),
+  RemovePlanFeatureUseCase: Symbol('RemovePlanFeatureUseCase'),
+  CreateSubscriptionPlanUseCase: Symbol('CreateSubscriptionPlanUseCase'),
+  UpdateSubscriptionPlanUseCase: Symbol('UpdateSubscriptionPlanUseCase'),
+  DeleteSubscriptionPlanUseCase: Symbol('DeleteSubscriptionPlanUseCase'),
 
   // Controllers
   AuthController: Symbol('AuthController'),
   RoleController: Symbol('RoleController'),
   PermissionController: Symbol('PermissionController'),
   OrganizationController: Symbol('OrganizationController'),
-  SubscriptionController: Symbol('SubscriptionController'),
   NotificationController: Symbol('NotificationController'),
   DashboardController: Symbol('DashboardController'),
   UserController: Symbol('UserController'),

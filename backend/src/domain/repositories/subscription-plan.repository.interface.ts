@@ -1,26 +1,57 @@
-import { SubscriptionPlan, NewSubscriptionPlan } from '../entities/subscription-plan.entity';
-import { PlanFeature, NewPlanFeature, PlanFeatureWithDefinition } from '../entities/plan-feature.entity';
 import {
-  OrganizationSubscription,
-  NewOrganizationSubscription,
-} from '../entities/organization-subscription.entity';
+  SubscriptionPlan,
+  CreateSubscriptionPlanInput,
+  SubscriptionPlanStatus,
+} from "../entities/subscription-plan.entity";
+
+
+export interface SubscriptionPlanListFilters {
+
+  status?: SubscriptionPlanStatus;
+  search?: string;
+  page?: number;
+  limit?: number;
+
+}
+
+
+export interface SubscriptionPlanListResult {
+
+  items: SubscriptionPlan[];
+
+  total: number;
+
+  page: number;
+
+  limit: number;
+
+  totalPages: number;
+
+}
+
+
+export interface UpdateSubscriptionPlanInput {
+
+  name?: string;
+  description?: string;
+  priceAmount?: number;
+  currency?: string;
+  durationDays?: number;
+  userLimit?: number;
+  status?: SubscriptionPlanStatus;
+
+}
+
+
 
 export interface ISubscriptionPlanRepository {
-  create(data: NewSubscriptionPlan): Promise<SubscriptionPlan>;
-  findById(id: string): Promise<SubscriptionPlan | null>;
-  update(id: string, data: Partial<NewSubscriptionPlan>): Promise<SubscriptionPlan | null>;
-  delete(id: string): Promise<boolean>;
-  list(filter?: { status?: 'active' | 'inactive'; search?: string }): Promise<SubscriptionPlan[]>;
+  create(  data: CreateSubscriptionPlanInput): Promise<SubscriptionPlan>;
+  findById( id: string): Promise<SubscriptionPlan | null>;
+  findActivePlans(): Promise<SubscriptionPlan[]>;
 
-  // Plan <-> Feature mapping
-  setFeature(data: NewPlanFeature): Promise<PlanFeature>;
-  removeFeature(planId: string, featureId: string): Promise<boolean>;
-  listFeatures(planId: string): Promise<PlanFeatureWithDefinition[]>;
+  update(  id: string,  data: UpdateSubscriptionPlanInput): Promise<SubscriptionPlan | null>;
+  softDelete( id: string): Promise<boolean>;
+  list(filters?: SubscriptionPlanListFilters): Promise<SubscriptionPlanListResult>;
+  existsByName(name:string):Promise<boolean>;
 
-  createSubscriptionRecord(data: NewOrganizationSubscription): Promise<OrganizationSubscription>;
-  listSubscriptionHistory(organizationId: string): Promise<OrganizationSubscription[]>;
-  closeSubscriptionRecord(
-    id: string,
-    newStatus: 'upgraded' | 'expired' | 'cancelled'
-  ): Promise<void>;
 }

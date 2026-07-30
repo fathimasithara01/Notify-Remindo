@@ -1,4 +1,4 @@
-import { inject, injectable } from "tsyringe";
+import { injectable, inject } from "tsyringe";
 
 import { TOKENS } from "../../../infrastructure/di/tokens";
 
@@ -7,20 +7,28 @@ import {
 } from "../../../domain/repositories/subscription-plan.repository.interface";
 
 import {
+  IPlanFeatureRepository,
+} from "../../../domain/repositories/plan-feature.repository.interface";
+
+import {
   IAuditLogRepository,
 } from "../../../domain/repositories/audit-log.repository.interface";
+
 
 import {
   SubscriptionPlan,
 } from "../../../domain/entities/subscription-plan.entity";
 
-import {
-  DomainError,
-} from "../../../domain/errors/domain.error";
 
 import {
   CreateSubscriptionPlanDto,
 } from "../../dtos/create-subscription-plan.dto";
+
+
+import {
+  DomainError,
+  ConflictError,
+} from "../../../domain/errors/domain.error";
 
 
 
@@ -41,19 +49,26 @@ export class CreateSubscriptionPlanUseCase {
   constructor(
 
     @inject(TOKENS.SubscriptionPlanRepository)
-    private readonly planRepository:
-      ISubscriptionPlanRepository,
+    private readonly planRepository: ISubscriptionPlanRepository,
+
+
+    @inject(TOKENS.PlanFeatureRepository)
+    private readonly planFeatureRepository: IPlanFeatureRepository,
 
 
     @inject(TOKENS.AuditLogRepository)
-    private readonly auditLogRepository:
-      IAuditLogRepository
+    private readonly auditLogRepository: IAuditLogRepository,
 
-  ) {}
-
+  ){}
 
 
-  async execute(  input: CreateSubscriptionPlanInput): Promise<SubscriptionPlan> {
+
+
+  async execute(
+    input: CreateSubscriptionPlanInput
+  ): Promise<SubscriptionPlan> {
+
+
     const {
       data,
       adminId
@@ -61,34 +76,17 @@ export class CreateSubscriptionPlanUseCase {
 
 
 
-    const planName = data.name.trim();
-
-
-
-    if (!planName) {
+    if(data.priceInMinorUnit < 0){
 
       throw new DomainError(
-        "Plan name is required"
+        "Price cannot be negative"
       );
 
     }
 
 
 
-    if (data.priceInMinorUnit <= 0) {
-
-      throw new DomainError(
-        "Price must be greater than zero"
-      );
-
-    }
-
-
-
-    if (
-      data.trialDays !== undefined &&
-      data.trialDays < 0
-    ) {
+    if(data.trialDays !== undefined && data.trialDays < 0){
 
       throw new DomainError(
         "Trial days cannot be negative"
@@ -96,22 +94,6 @@ export class CreateSubscriptionPlanUseCase {
 
     }
 
-
-
-    const existingPlan =
-      await this.planRepository.existsByName(
-        planName
-      );
-
-
-
-    if (existingPlan) {
-
-      throw new DomainError(
-        "Subscription plan already exists"
-      );
-
-    }
 
 
 
@@ -123,7 +105,7 @@ export class CreateSubscriptionPlanUseCase {
 
 
         name:
-          planName,
+          data.name,
 
 
         description:
@@ -137,20 +119,53 @@ export class CreateSubscriptionPlanUseCase {
         currency:
           data.currency,
 
+          status:'active',
 
         billingInterval:
           data.billingInterval,
 
 
         trialDays:
-          data.trialDays ?? 0,
-
-
-        status:
-          data.status ?? "draft",
-
+          data.trialDays,
 
       });
+
+
+
+
+
+
+    if(data.features?.length){
+
+
+      for(const feature of data.features){
+
+
+        await this.planFeatureRepository.create({
+
+          planId:
+            plan.id,
+
+
+          featureId:
+            feature.featureId,
+
+
+          featureValue:
+            feature.featureValue,
+
+
+        });
+
+
+      }
+
+
+    }
+
+
+
+
 
 
 
@@ -171,7 +186,7 @@ export class CreateSubscriptionPlanUseCase {
         plan.id,
 
 
-      metadata: {
+      metadata:{
 
         name:
           plan.name
@@ -182,8 +197,11 @@ export class CreateSubscriptionPlanUseCase {
 
 
 
+
     return plan;
 
+
   }
+
 
 }

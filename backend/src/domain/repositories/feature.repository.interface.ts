@@ -1,10 +1,31 @@
-import { Feature, NewFeature } from '../entities/feature.entity';
+import {
+  Feature,
+  CreateFeatureInput,
+  UpdateFeatureInput,
+  FeatureStatus,
+} from "../entities/feature.entity";
+
+export interface FeatureListFilters {
+  status?: FeatureStatus;
+  search?: string;
+  category?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface FeatureListResult {
+  items: Feature[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 export interface IFeatureRepository {
-  create(data: NewFeature): Promise<Feature>;
+  create(data: CreateFeatureInput): Promise<Feature>;
   findById(id: string): Promise<Feature | null>;
   findByKey(key: string): Promise<Feature | null>;
-  update(id: string, data: Partial<NewFeature>): Promise<Feature | null>;
-  delete(id: string): Promise<boolean>;
-  list(filter?: { status?: 'active' | 'inactive' }): Promise<Feature[]>;
+  update(id: string, data: UpdateFeatureInput): Promise<Feature | null>;
+  softDelete(id: string): Promise<boolean>;
+  list(filters?: FeatureListFilters): Promise<FeatureListResult>;
 }
