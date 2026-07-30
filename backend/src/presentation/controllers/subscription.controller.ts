@@ -9,11 +9,11 @@ import {
 
 import {
   CreateSubscriptionPlanUseCase,
-} from "../../application/subscription/use-cases/create-subscription-plan.use-case";
+} from "../../application/subscription/use-cases/subscription-plan/create-subscription-plan.use-case";
 
 import {
   UpdateSubscriptionPlanUseCase,
-} from "../../application/subscription/use-cases/update-subscription-plan.use-case";
+} from "../../application/subscription/use-cases/subscription-plan/update-subscription-plan.use-case";
 
 import {
   UnauthorizedError,
@@ -29,7 +29,7 @@ import {
 } from "../../shared/utils/pagination";
 
 import { DeleteSubscriptionPlanUseCase }
-  from "../../application/subscription/use-cases/delete-subscription-plan.use-case";
+  from "../../application/subscription/use-cases/subscription-plan/delete-subscription-plan.use-case";
 
 import {
   IPlanFeatureRepository,

@@ -1,19 +1,19 @@
 import { injectable, inject } from "tsyringe";
 
-import { TOKENS } from "../../../infrastructure/di/tokens";
+import { TOKENS } from "../../../../infrastructure/di/tokens";
 
 import {
   ISubscriptionPlanRepository,
-} from "../../../domain/repositories/subscription-plan.repository.interface";
+} from "../../../../domain/repositories/subscription-plan.repository.interface";
 
 import {
   IAuditLogRepository,
-} from "../../../domain/repositories/audit-log.repository.interface";
+} from "../../../../domain/repositories/audit-log.repository.interface";
 
 import {
   NotFoundError,
   DomainError,
-} from "../../../domain/errors/domain.error";
+} from "../../../../domain/errors/domain.error";
 
 
 

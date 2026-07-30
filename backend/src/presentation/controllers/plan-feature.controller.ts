@@ -9,11 +9,11 @@ import {
 
 import {
   AddPlanFeatureUseCase,
-} from "../../application/subscription/use-cases/add-plan-feature.use-case";
+} from "../../application/subscription/use-cases/plan-feature/add-plan-feature.use-case";
 
 import {
   RemovePlanFeatureUseCase,
-} from "../../application/subscription/use-cases/remove-plan-feature.use-case";
+} from "../../application/subscription/use-cases/plan-feature/remove-plan-feature.use-case";
 
 import {
   ApiResponse,

@@ -9,15 +9,15 @@ import {
 
 import {
   CreateOrganizationSubscriptionUseCase,
-} from "../../application/subscription/use-cases/create-organization-subscription.use-case";
+} from "../../application/subscription/use-cases/organization-subscription/create-organization-subscription.use-case";
 
 import {
   RenewOrganizationSubscriptionUseCase,
-} from "../../application/subscription/use-cases/renew-organization-subscription.use-case";
+} from "../../application/subscription/use-cases/organization-subscription/renew-organization-subscription.use-case";
 
 import {
   CancelOrganizationSubscriptionUseCase,
-} from "../../application/subscription/use-cases/cancel-organization-subscription.use-case";
+} from "../../application/subscription/use-cases/organization-subscription/cancel-organization-subscription.use-case";
 
 import {
   ApiResponse,

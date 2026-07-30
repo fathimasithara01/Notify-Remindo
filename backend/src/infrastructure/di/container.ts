@@ -45,7 +45,7 @@ import { DeleteOrganizationUseCase } from '../../application/organization/use-ca
 import { UpgradePlanUseCase } from '../../application/organization/use-cases/upgrade-plan.use-case';
 import { BlockCustomerUseCase } from '../../application/organization/use-cases/block-customer.use-case';
 import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
-import { CreateFeatureUseCase } from '../../application/subscription/use-cases/create-feature.use-case';
+import { CreateFeatureUseCase } from '../../application/subscription/use-cases/feature/create-feature.use-case';
 import { ScheduleNotificationUseCase } from '../../application/notification/use-cases/schedule-notification.use-case';
 import { SendReminderUseCase } from '../../application/notification/use-cases/send-reminder.use-case';
 import { GetBusinessReportUseCase } from '../../application/dashboard/use-cases/get-business-report.use-case';
@@ -64,16 +64,16 @@ import { S3FileStorageService } from '../storage/s3-file-storage.service';
 import { OrganizationDocumentController } from '../../presentation/controllers/organization-document.controller';
 import { PlanFeatureRepository } from '../database/repositories/plan-feature.repository';
 import { OrganizationSubscriptionRepository } from '../database/repositories/organization-subscription.repository';
-import { UpdateFeatureUseCase } from '../../application/subscription/use-cases/update-feature.use-case';
-import { DeleteFeatureUseCase } from '../../application/subscription/use-cases/delete-feature.use-case';
-import { CreateOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/create-organization-subscription.use-case';
-import { RenewOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/renew-organization-subscription.use-case';
-import { CancelOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/cancel-organization-subscription.use-case';
-import { AddPlanFeatureUseCase } from '../../application/subscription/use-cases/add-plan-feature.use-case';
-import { RemovePlanFeatureUseCase } from '../../application/subscription/use-cases/remove-plan-feature.use-case';
-import { CreateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/create-subscription-plan.use-case';
-import { UpdateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/update-subscription-plan.use-case';
-import { DeleteSubscriptionPlanUseCase } from '../../application/subscription/use-cases/delete-subscription-plan.use-case';
+import { UpdateFeatureUseCase } from '../../application/subscription/use-cases/feature/update-feature.use-case';
+import { DeleteFeatureUseCase } from '../../application/subscription/use-cases/feature/delete-feature.use-case';
+import { CreateOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/organization-subscription/create-organization-subscription.use-case';
+import { RenewOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/organization-subscription/renew-organization-subscription.use-case';
+import { CancelOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/organization-subscription/cancel-organization-subscription.use-case';
+import { AddPlanFeatureUseCase } from '../../application/subscription/use-cases/plan-feature/add-plan-feature.use-case';
+import { RemovePlanFeatureUseCase } from '../../application/subscription/use-cases/plan-feature/remove-plan-feature.use-case';
+import { CreateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/create-subscription-plan.use-case';
+import { UpdateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/update-subscription-plan.use-case';
+import { DeleteSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/delete-subscription-plan.use-case';
 
 export function registerDependencies(): void {
   // Repositories

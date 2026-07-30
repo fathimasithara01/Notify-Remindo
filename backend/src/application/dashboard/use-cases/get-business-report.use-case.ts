@@ -29,13 +29,19 @@ export class GetBusinessReportUseCase {
       allOrgsResult,
       activeOrgsResult,
       blockedOrgsResult,
-      activePlans,
+      activePlansResult,
     ] = await Promise.all([
       this.orgRepo.list(),
-      this.orgRepo.list({ status: 'active' }),
-      this.orgRepo.list({ status: 'blocked' }),
-      this.planRepo.list({ status: 'active' }),
+      this.orgRepo.list({ status: "active" }),
+      this.orgRepo.list({ status: "blocked" }),
+      this.planRepo.list({
+        status: "active",
+        page: 1,
+        limit: 1000,
+      }),
     ]);
+
+    const activePlans = activePlansResult.items;
 
     const organizationsByPlan = activePlans.map((plan) => ({
       planId: plan.id,

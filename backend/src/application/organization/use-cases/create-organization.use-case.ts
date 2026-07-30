@@ -8,6 +8,8 @@ import { ISubscriptionPlanRepository } from '../../../domain/repositories/subscr
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
+import { IOrganizationSubscriptionRepository }
+  from "../../../domain/repositories/organization-subscription.repository.interface";
 
 import { INotifierService } from '../../../domain/services/notifier.service.interface';
 
@@ -39,7 +41,9 @@ export class CreateOrganizationUseCase {
 
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
 
-    @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService
+    @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService,
+
+    @inject(TOKENS.OrganizationSubscriptionRepository) private readonly organizationSubscriptionRepository: IOrganizationSubscriptionRepository,
   ) { }
 
   async execute(input: CreateOrganizationInput): Promise<Organization> {
@@ -77,22 +81,35 @@ export class CreateOrganizationUseCase {
     // 6. Create Subscription if plan exists
     if (plan) {
       const startDate = new Date();
-
       const endDate = new Date(startDate);
 
-      endDate.setDate(
-        endDate.getDate() + plan.durationDays
-      );
+      switch (plan.billingInterval) {
+        case "weekly":
+          endDate.setDate(endDate.getDate() + 7);
+          break;
 
-      await this.planRepo.createSubscription({
+        case "monthly":
+          endDate.setMonth(endDate.getMonth() + 1);
+          break;
+
+        case "yearly":
+          endDate.setFullYear(endDate.getFullYear() + 1);
+          break;
+      }
+
+      await this.organizationSubscriptionRepository.create({
         organizationId: organization.id,
         planId: plan.id,
         startDate,
         endDate,
-        priceAmount:plan.priceAmount,
-        currency:plan.currency,
-        status: 'active',
-        paymentReference :undefined,
+        nextBillingDate: endDate,
+        priceInMinorUnit: plan.priceInMinorUnit,
+        currency: plan.currency,
+        billingInterval: plan.billingInterval,
+        paymentProvider: undefined,
+        paymentTransactionId: undefined,
+        autoRenew: false,
+        status: "active",
       });
     }
 

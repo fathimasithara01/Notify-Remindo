@@ -1,32 +1,32 @@
 import { injectable, inject } from "tsyringe";
 
-import { TOKENS } from "../../../infrastructure/di/tokens";
+import { TOKENS } from "../../../../infrastructure/di/tokens";
 
 import {
     IOrganizationSubscriptionRepository,
-} from "../../../domain/repositories/organization-subscription.repository.interface";
+} from "../../../../domain/repositories/organization-subscription.repository.interface";
 
 import {
     ISubscriptionPlanRepository,
-} from "../../../domain/repositories/subscription-plan.repository.interface";
+} from "../../../../domain/repositories/subscription-plan.repository.interface";
 
 import {
     OrganizationSubscription,
-} from "../../../domain/entities/organization-subscription.entity";
+} from "../../../../domain/entities/organization-subscription.entity";
 
 import {
     CreateSubscriptionDto,
-} from "../../dtos/create-subscription.dto";
+} from "../../../dtos/create-subscription.dto";
 
 import {
     DomainError,
     NotFoundError,
     ConflictError,
-} from "../../../domain/errors/domain.error";
+} from "../../../../domain/errors/domain.error";
 
 import {
     IAuditLogRepository,
-} from "../../../domain/repositories/audit-log.repository.interface";
+} from "../../../../domain/repositories/audit-log.repository.interface";
 
 
 

@@ -1,26 +1,26 @@
 import { injectable, inject } from "tsyringe";
 
-import { TOKENS } from "../../../infrastructure/di/tokens";
+import { TOKENS } from "../../../../infrastructure/di/tokens";
 
 import {
   IPlanFeatureRepository,
-} from "../../../domain/repositories/plan-feature.repository.interface";
+} from "../../../../domain/repositories/plan-feature.repository.interface";
 
 import {
   ISubscriptionPlanRepository,
-} from "../../../domain/repositories/subscription-plan.repository.interface";
+} from "../../../../domain/repositories/subscription-plan.repository.interface";
 
 import {
   IFeatureRepository,
-} from "../../../domain/repositories/feature.repository.interface";
+} from "../../../../domain/repositories/feature.repository.interface";
 
 import {
   IAuditLogRepository,
-} from "../../../domain/repositories/audit-log.repository.interface";
+} from "../../../../domain/repositories/audit-log.repository.interface";
 
 import {
   NotFoundError,
-} from "../../../domain/errors/domain.error";
+} from "../../../../domain/errors/domain.error";
 
 
 

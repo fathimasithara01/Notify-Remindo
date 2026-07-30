@@ -9,15 +9,15 @@ import {
 
 import {
   CreateFeatureUseCase,
-} from "../../application/subscription/use-cases/create-feature.use-case";
+} from "../../application/subscription/use-cases/feature/create-feature.use-case";
 
 import {
   UpdateFeatureUseCase,
-} from "../../application/subscription/use-cases/update-feature.use-case";
+} from "../../application/subscription/use-cases/feature/update-feature.use-case";
 
 import {
   DeleteFeatureUseCase,
-} from "../../application/subscription/use-cases/delete-feature.use-case";
+} from "../../application/subscription/use-cases/feature/delete-feature.use-case";
 
 import {
   ApiResponse,

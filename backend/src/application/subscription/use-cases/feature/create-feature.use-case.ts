@@ -1,28 +1,28 @@
 import { injectable, inject } from "tsyringe";
 
-import { TOKENS } from "../../../infrastructure/di/tokens";
+import { TOKENS } from "../../../../infrastructure/di/tokens";
 
 import {
   IFeatureRepository,
-} from "../../../domain/repositories/feature.repository.interface";
+} from "../../../../domain/repositories/feature.repository.interface";
 
 import {
   IAuditLogRepository,
-} from "../../../domain/repositories/audit-log.repository.interface";
+} from "../../../../domain/repositories/audit-log.repository.interface";
 
 import {
   Feature,
   FeatureStatus,
-} from "../../../domain/entities/feature.entity";
+} from "../../../../domain/entities/feature.entity";
 
 import {
   ConflictError,
   DomainError,
-} from "../../../domain/errors/domain.error";
+} from "../../../../domain/errors/domain.error";
 
 import {
   CreateFeatureDto,
-} from "../../dtos/create-feature.dto";
+} from "../../../dtos/create-feature.dto";
 
 export interface CreateFeatureInput {
   data: CreateFeatureDto;

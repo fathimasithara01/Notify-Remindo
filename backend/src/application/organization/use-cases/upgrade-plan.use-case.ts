@@ -4,6 +4,7 @@ import { IOrganizationRepository } from '../../../domain/repositories/organizati
 import { ISubscriptionPlanRepository } from '../../../domain/repositories/subscription-plan.repository.interface';
 import { Organization } from '../../../domain/entities/organization.entity';
 import { DomainError, NotFoundError } from '../../../domain/errors/domain.error';
+import { IOrganizationSubscriptionRepository } from "../../../domain/repositories/organization-subscription.repository.interface";
 
 export interface UpgradePlanDto {
   organizationId: string;
@@ -14,7 +15,7 @@ export interface UpgradePlanDto {
 export class UpgradePlanUseCase {
   constructor(
     @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
-    @inject(TOKENS.SubscriptionPlanRepository) private planRepo: ISubscriptionPlanRepository
+    @inject(TOKENS.OrganizationSubscriptionRepository) private readonly organizationSubscriptionRepository: IOrganizationSubscriptionRepository,
   ) { }
 
   async execute(data: UpgradePlanDto): Promise<Organization> {
@@ -23,7 +24,7 @@ export class UpgradePlanUseCase {
       throw new NotFoundError('Organization not found');
     }
 
-    const newPlan = await this.planRepo.findById(data.newPlanId);
+    const newPlan = await this.organizationSubscriptionRepository.findById(data.newPlanId);
     if (!newPlan || newPlan.status !== 'active') {
       throw new DomainError('Selected subscription plan is not available');
     }
@@ -32,27 +33,57 @@ export class UpgradePlanUseCase {
       throw new DomainError('Organization is already on this plan');
     }
 
-    const history = await this.planRepo.listSubscriptionHistory(data.organizationId);
-    const activeRecord = history.find((record) => record.status === 'active');
-    if (activeRecord) {
-      await this.planRepo.closeSubscription(activeRecord.id, 'upgraded');
+    const activeSubscription = await this.organizationSubscriptionRepository.findActiveSubscription(data.organizationId);
+    if (activeSubscription) {
+      await this.organizationSubscriptionRepository.updateStatus(
+        activeSubscription.id,
+        {
+          status: "upgraded",
+        }
+      );
     }
 
     const startDate = new Date();
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + newPlan.durationDays);
 
-    await this.planRepo.createSubscription({
+    switch (newPlan.billingInterval) {
+      case "weekly":
+        endDate.setDate(endDate.getDate() + 7);
+        break;
+
+      case "monthly":
+        endDate.setMonth(endDate.getMonth() + 1);
+        break;
+
+      case "yearly":
+        endDate.setFullYear(endDate.getFullYear() + 1);
+        break;
+    }
+
+    await this.organizationSubscriptionRepository.create({
       organizationId: organization.id,
       planId: newPlan.id,
+
       startDate,
       endDate,
-      priceAmount: newPlan.priceAmount,
-      currency:newPlan.currency,
-      status: 'active',
-      paymentReference: undefined,
-    });
+      nextBillingDate: endDate,
 
+      priceInMinorUnit: newPlan.priceInMinorUnit,
+
+      currency: newPlan.currency,
+
+      billingInterval: newPlan.billingInterval,
+
+      paymentProvider: undefined,
+
+      paymentTransactionId: undefined,
+
+      autoRenew: false,
+
+      status: "active",
+
+    });
+    
     const updated = await this.orgRepo.changePlan(data.organizationId, data.newPlanId);
     if (!updated) {
       throw new NotFoundError('Organization not found');
