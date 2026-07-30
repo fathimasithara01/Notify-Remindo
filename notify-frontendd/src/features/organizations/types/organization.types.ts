@@ -63,7 +63,7 @@ export interface CreateOrganizationPayload {
   businessPhone: string;
   address: string;
 
-  planId?: string;
+  currentPlanId?: string;
   salesmanId?: string;
 
   documents?: OrganizationDocument[];
@@ -88,7 +88,7 @@ export interface EditOrganizationPayload {
 export interface OrganizationListFilters {
   status?: OrganizationStatus;
   salesmanId?: string;
-  planId?: string;
+  currentPlanId?: string;
   search?: string;
   page?: number;
   limit?: number;

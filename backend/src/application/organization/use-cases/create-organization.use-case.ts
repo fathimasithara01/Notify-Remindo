@@ -73,8 +73,8 @@ export class CreateOrganizationUseCase {
       businessEmail: data.businessEmail,
       businessPhone: data.businessPhone,
       address: data.address,
-      currentPlanId: data.planId ?? null,
-      salesmanId: data.salesmanId ?? null,
+      currentPlanId: data.planId || null,
+      salesmanId: data.salesmanId || null,
       documents: data.documents,
     });
 

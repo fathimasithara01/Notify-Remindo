@@ -212,8 +212,6 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   }
 
 
-
-
   private toDomain(
     doc: SubscriptionPlanDocument
   ): SubscriptionPlan {
@@ -221,7 +219,6 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
 
     return {
       id: doc._id.toString(),
-      organizationId: doc.organizationId.toString(),
       name: doc.name,
       description: doc.description,
       priceInMinorUnit: doc.priceInMinorUnit,

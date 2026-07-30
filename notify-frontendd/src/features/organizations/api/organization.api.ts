@@ -29,7 +29,7 @@ export const organizationApi = {
         {
             status: filters?.status,
             salesmanId: filters?.salesmanId,
-            planId: filters?.planId,
+            planId: filters?.currentPlanId,
             search: filters?.search,
             page: filters?.page?.toString(),
             limit: filters?.limit?.toString(),

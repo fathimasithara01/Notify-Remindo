@@ -19,7 +19,6 @@ export type BillingInterval =
 
 export interface SubscriptionPlan {
   id: string;
-  organizationId: string;
 
   name: string;
   description?: string;

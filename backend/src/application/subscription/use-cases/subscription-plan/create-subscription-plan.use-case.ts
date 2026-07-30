@@ -99,11 +99,6 @@ export class CreateSubscriptionPlanUseCase {
 
     const plan =
       await this.planRepository.create({
-
-        organizationId:
-          data.organizationId,
-
-
         name:
           data.name,
 
@@ -129,11 +124,6 @@ export class CreateSubscriptionPlanUseCase {
           data.trialDays,
 
       });
-
-
-
-
-
 
     if(data.features?.length){
 

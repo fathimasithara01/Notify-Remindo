@@ -10,7 +10,7 @@ export interface Organization {
 
   status: OrganizationStatus;
   
-  currentPlanId: string | null;
+  currentPlanId?: string | null;
   salesmanId?: string | null; 
   documents?: {
     fileName: string;
