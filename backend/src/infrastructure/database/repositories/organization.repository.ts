@@ -14,7 +14,9 @@ export class OrganizationRepository implements IOrganizationRepository {
     return this.toDomain(doc);
   }
 
+  // aggregate() use cheyyunnath complex data processing cheyyan aanu. Data group, count, sum, filter, sort etc. cheyyunnu.
   async findById(id: string): Promise<OrganizationDetails | null> {
+
     const [doc] = await OrganizationModel.aggregate([
       // 1. Find organization
       {
@@ -146,10 +148,8 @@ export class OrganizationRepository implements IOrganizationRepository {
       businessPhone: doc.businessPhone,
       address: doc.address,
       status: doc.status,
-      currentPlanId:
-        doc.currentPlanId?.toString() ?? null,
-      salesmanId:
-        doc.salesmanId?.toString() ?? null,
+      currentPlanId: doc.currentPlanId?.toString() ?? null,
+      salesmanId: doc.salesmanId?.toString() ?? null,
       documents: doc.documents ?? [],
       deletedAt: doc.deletedAt ?? null,
       createdAt: doc.createdAt,
@@ -202,9 +202,7 @@ export class OrganizationRepository implements IOrganizationRepository {
 
     const skip = (page - 1) * limit;
 
-    const match: Record<string, unknown> = {
-      deletedAt: null,
-    };
+    const match: Record<string, unknown> = { deletedAt: null };
 
     if (filters.status) {
       match.status = filters.status;

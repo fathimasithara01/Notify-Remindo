@@ -34,7 +34,7 @@ export class OrganizationDocumentUseCase {
 
     @inject(TOKENS.FileStorageService)
     private readonly fileStorageService: IFileStorageService,
-  ) {}
+  ) { }
 
   /**
    * Upload organization document
@@ -42,36 +42,27 @@ export class OrganizationDocumentUseCase {
    * 1. Upload actual file to S3
    * 2. Save S3 metadata in MongoDB
    */
-  async upload(
-    input: UploadOrganizationDocumentInput
-  ): Promise<OrganizationDocument> {
-    const uploadedFile =
-      await this.fileStorageService.upload(
-        input.file,
-        input.fileName,
-        input.mimeType,
-        `organizations/${input.organizationId}/documents`,
-      );
+  async upload(input: UploadOrganizationDocumentInput): Promise<OrganizationDocument> {
+    const uploadedFile = await this.fileStorageService.upload(
+      input.file,
+      input.fileName,
+      input.mimeType,
+      `organizations/${input.organizationId}/documents`,
+    );
 
     try {
-      const document =
-        await this.documentRepository.create({
-          organizationId: input.organizationId,
-
-          fileName: input.fileName,
-
-          fileUrl: uploadedFile.fileUrl,
-
-          fileKey: uploadedFile.fileKey,
-
-          mimeType: input.mimeType,
-
-          fileSize: input.fileSize,
-
-          uploadedBy: input.uploadedBy,
-        });
+      const document = await this.documentRepository.create({
+        organizationId: input.organizationId,
+        fileName: input.fileName,
+        fileUrl: uploadedFile.fileUrl,
+        fileKey: uploadedFile.fileKey,
+        mimeType: input.mimeType,
+        fileSize: input.fileSize,
+        uploadedBy: input.uploadedBy,
+      });
 
       return document;
+  
     } catch (error) {
       // If MongoDB save fails after S3 upload,
       // remove the orphan file from S3.

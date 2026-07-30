@@ -1,6 +1,5 @@
 export interface OrganizationDocument {
     id: string;
-
     organizationId: string;
 
     fileName: string;

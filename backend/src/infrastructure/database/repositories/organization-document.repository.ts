@@ -14,8 +14,7 @@ import {
 } from '../models/organization-document.model';
 
 @injectable()
-export class OrganizationDocumentRepository
-    implements IOrganizationDocumentRepository {
+export class OrganizationDocumentRepository implements IOrganizationDocumentRepository {
 
     async create(data: NewOrganizationDocument): Promise<OrganizationDocument> {
         const doc = await OrganizationDocumentModel.create({
@@ -41,7 +40,7 @@ export class OrganizationDocumentRepository
             organizationId,
             deletedAt: null,
         }).sort({
-            createdAt: -1,
+            createdAt: -1, // Descending (Newest → Oldest)
         });
 
         return docs.map((doc) => this.toDomain(doc));

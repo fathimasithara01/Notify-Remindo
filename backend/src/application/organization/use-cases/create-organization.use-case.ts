@@ -29,23 +29,17 @@ export interface CreateOrganizationInput {
 @injectable()
 export class CreateOrganizationUseCase {
   constructor(
-    @inject(TOKENS.OrganizationRepository)
-    private orgRepo: IOrganizationRepository,
+    @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
 
-    @inject(TOKENS.SubscriptionPlanRepository)
-    private planRepo: ISubscriptionPlanRepository,
+    @inject(TOKENS.SubscriptionPlanRepository) private planRepo: ISubscriptionPlanRepository,
 
-    @inject(TOKENS.UserRepository)
-    private userRepo: IUserRepository,
+    @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
 
-    @inject(TOKENS.RoleRepository)
-    private roleRepo: IRoleRepository,
+    @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
 
-    @inject(TOKENS.AuditLogRepository)
-    private auditLogRepo: IAuditLogRepository,
+    @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
 
-    @inject(TOKENS.EmailNotifierService)
-    private emailNotifier: INotifierService
+    @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService
   ) { }
 
   async execute(input: CreateOrganizationInput): Promise<Organization> {
@@ -79,16 +73,6 @@ export class CreateOrganizationUseCase {
       salesmanId: data.salesmanId ?? null,
       documents: data.documents,
     });
-
-    // // 5. Create Primary Contact Person
-    // const contactPerson = await this.orgRepo.addContactPerson(
-    //   organization.id,
-    //   {
-    //     name: data.admin.name,
-    //     contactPhone: data.admin.phone,
-    //     contactEmail: data.admin.email,
-    //   }
-    // );
 
     // 6. Create Subscription if plan exists
     if (plan) {
