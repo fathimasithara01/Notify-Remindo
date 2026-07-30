@@ -1,8 +1,8 @@
 'use client';
-
+import { ShieldCheck } from "lucide-react";
 import { useOrganization } from '../hooks/useOrganization';
 import { useUpgradePlan } from '../hooks/useOrganizationMutations';
-import { usePlans } from '@/features/subscriptions/hooks/usePlans';
+import { useSubscriptionPlans } from "@/features/subscription/hooks/use-subscription-plans";
 
 import { ContactPersonList } from './ContactPersonList';
 import { AddContactPersonDialog } from './AddContactPersonDialog';
@@ -61,7 +61,13 @@ export function OrganizationDetail({
     useOrganization(id);
 
   const { data: plans } =
-    usePlans('active');
+    useSubscriptionPlans({
+      page: 1,
+      limit: 100,
+      status: "active",
+    });
+
+
 
   const upgradeMutation =
     useUpgradePlan(id);
@@ -199,7 +205,7 @@ export function OrganizationDetail({
               />
 
               <Info
-                icon={<Badge />}
+                icon={<ShieldCheck size={18} />}
                 label="Status"
                 value={org.admin.status}
               />
@@ -241,8 +247,13 @@ export function OrganizationDetail({
               </p>
 
               <p className="text-sm text-muted-foreground">
-                {currentPlan?.userLimit}
-                users
+                <p className="text-sm text-muted-foreground">
+                  {currentPlan &&
+                    new Intl.NumberFormat("en-IN", {
+                      style: "currency",
+                      currency: currentPlan.currency,
+                    }).format(currentPlan.priceInMinorUnit / 100)}
+                </p>
               </p>
 
             </div>

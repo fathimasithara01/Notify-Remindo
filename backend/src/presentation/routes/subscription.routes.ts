@@ -24,13 +24,8 @@ const organizationSubscriptionController =
   container.resolve(OrganizationSubscriptionController);
 
 
-// ===============================
-// Subscription Plan Management
-// ===============================
-
-// Create Plan
 router.post(
-  "/plans",
+  "/",
   requireAuth,
   authorize("plan.create"),
   subscriptionPlanController.createPlan
@@ -39,7 +34,7 @@ router.post(
 
 // List Plans
 router.get(
-  "/plans",
+  "/",
   requireAuth,
   authorize("plan.view"),
   subscriptionPlanController.listPlans
@@ -48,7 +43,7 @@ router.get(
 
 // Get Single Plan
 router.get(
-  "/plans/:id",
+  "/:id",
   requireAuth,
   authorize("plan.view"),
   subscriptionPlanController.getPlanById
@@ -57,7 +52,7 @@ router.get(
 
 // Update Plan
 router.patch(
-  "/plans/:id",
+  "/:id",
   requireAuth,
   authorize("plan.edit"),
   subscriptionPlanController.updatePlan
@@ -66,7 +61,7 @@ router.patch(
 
 // Delete Plan
 router.delete(
-  "/plans/:id",
+  "/:id",
   requireAuth,
   authorize("plan.delete"),
   subscriptionPlanController.deletePlan

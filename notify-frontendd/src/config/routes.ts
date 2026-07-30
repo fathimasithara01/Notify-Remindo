@@ -12,8 +12,9 @@ export const ROUTES = {
   },
   permissions: '/super-admin/permissions',
   subscriptions: {
-    list: '/super-admin/subscriptions',
-    features: '/super-admin/subscriptions/features',
+    plans: "/super-admin/subscription-plans",
+    features: "/super-admin/subscription-features",
+    planFeatures: "/super-admin/plan-features",
   },
   notifications: '/super-admin/notifications',
   users: {

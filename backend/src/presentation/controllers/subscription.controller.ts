@@ -39,85 +39,34 @@ import {
 export class SubscriptionPlanController {
 
   constructor(
-
-    @inject(TOKENS.SubscriptionPlanRepository)
-    private readonly subscriptionPlanRepository:
-      ISubscriptionPlanRepository,
-
-    @inject(TOKENS.CreateSubscriptionPlanUseCase)
-    private readonly createSubscriptionPlanUseCase:
-      CreateSubscriptionPlanUseCase,
-
-    @inject(TOKENS.UpdateSubscriptionPlanUseCase)
-    private readonly updateSubscriptionPlanUseCase:
-      UpdateSubscriptionPlanUseCase,
-
-
-    @inject(TOKENS.PlanFeatureRepository)
-    private readonly planFeatureRepository: IPlanFeatureRepository,
-
-    @inject(TOKENS.DeleteSubscriptionPlanUseCase)
-    private readonly deleteSubscriptionPlanUseCase:
-      DeleteSubscriptionPlanUseCase,
-
+    @inject(TOKENS.SubscriptionPlanRepository) private readonly subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TOKENS.CreateSubscriptionPlanUseCase) private readonly createSubscriptionPlanUseCase: CreateSubscriptionPlanUseCase,
+    @inject(TOKENS.UpdateSubscriptionPlanUseCase) private readonly updateSubscriptionPlanUseCase: UpdateSubscriptionPlanUseCase,
+    @inject(TOKENS.PlanFeatureRepository) private readonly planFeatureRepository: IPlanFeatureRepository,
+    @inject(TOKENS.DeleteSubscriptionPlanUseCase) private readonly deleteSubscriptionPlanUseCase: DeleteSubscriptionPlanUseCase,
   ) { }
 
-
-
-  createPlan = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
-
+  createPlan = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
       throw new UnauthorizedError();
     }
 
     const plan = await this.createSubscriptionPlanUseCase.execute({
-
-      adminId:
-        req.user.userId,
-
-      data:
-        req.body,
-
+      adminId: req.user.userId,
+      data: req.body,
     });
 
-    ApiResponse.created(
-      res,
-      plan,
-      "Subscription plan created successfully"
-    );
-
+    ApiResponse.created( res, plan, "Subscription plan created successfully");
   };
 
+  listPlans = async (  req: Request,  res: Response): Promise<void> => {
+    const pagination =  parsePagination(    req.query as Record<string, unknown>  );
 
-
-  listPlans = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
-
-    const pagination =
-      parsePagination(
-        req.query as Record<string, unknown>
-      );
-
-    const result =
-      await this.subscriptionPlanRepository.list({
-
-        status:
-          req.query.status as any,
-
-        search:
-          req.query.search as string | undefined,
-
-        page:
-          pagination.page,
-
-        limit:
-          pagination.limit,
-
+    const result =      await this.subscriptionPlanRepository.list({
+        status: req.query.status as any,
+        search: req.query.search as string | undefined,
+        page: pagination.page,
+        limit:pagination.limit,
       });
 
     ApiResponse.success(
@@ -129,17 +78,8 @@ export class SubscriptionPlanController {
 
   };
 
-
-
-  getPlanById = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
-
-    const plan =
-      await this.subscriptionPlanRepository.findById(
-        req.params.id
-      );
+  getPlanById = async ( req: Request,res: Response): Promise<void> => {
+    const plan =  await this.subscriptionPlanRepository.findById(  req.params.id);
 
     if (!plan) {
       throw new NotFoundError(
@@ -147,10 +87,7 @@ export class SubscriptionPlanController {
       );
     }
 
-    const features =
-      await this.planFeatureRepository.listByPlan(
-        plan.id
-      );
+    const features =  await this.planFeatureRepository.listByPlan(    plan.id  );
 
     ApiResponse.success(
       res,

@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 
 import { useCreateOrganization } from '../hooks/useOrganizationMutations';
-import { usePlans } from '@/features/subscriptions/hooks/usePlans';
+import { useSubscriptionPlans } from '@/features/subscription/hooks/use-subscription-plans';
 import {
   createOrganizationSchema,
   CreateOrganizationFormValues,
@@ -50,7 +50,11 @@ export function OrganizationForm() {
   const {
     data: plansData,
     isLoading: plansLoading,
-  } = usePlans('active');
+  } = useSubscriptionPlans({
+    page: 1,
+    limit: 100,
+    status: "active",
+  });
 
   const form = useForm<CreateOrganizationFormValues>({
     resolver: zodResolver(createOrganizationSchema),
@@ -356,8 +360,13 @@ export function OrganizationForm() {
                             key={plan.id}
                             value={plan.id}
                           >
-                            {plan.name} — {plan.userLimit} users /{' '}
-                            {plan.durationDays} days
+                            {plan.name} —{" "}
+                            {new Intl.NumberFormat("en-IN", {
+                              style: "currency",
+                              currency: plan.currency,
+                            }).format(plan.priceInMinorUnit / 100)}
+                            {" • "}
+                            {plan.billingInterval}
                           </SelectItem>
                         ))}
                       </SelectContent>

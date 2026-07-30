@@ -19,9 +19,7 @@ export const organizationDocumentApi = {
     );
   },
 
-  /**
-   * Get all documents of an organization
-   */
+  
   list: (
     organizationId: string,
   ) =>

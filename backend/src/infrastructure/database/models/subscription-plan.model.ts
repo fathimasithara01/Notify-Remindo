@@ -11,9 +11,6 @@ import {
 export interface SubscriptionPlanDocument extends Document {
 
 
-  organizationId: Types.ObjectId;
-
-
   name: string;
 
 
@@ -58,19 +55,6 @@ const subscriptionPlanSchema =
   new Schema<SubscriptionPlanDocument>(
 
     {
-
-
-      organizationId: {
-
-        type: Schema.Types.ObjectId,
-
-        required: true,
-
-        index: true,
-
-      },
-
-
 
       name: {
 
@@ -204,8 +188,7 @@ const subscriptionPlanSchema =
 
 
 subscriptionPlanSchema.index({
-  organizationId: 1,
-  name: 1,
+    name: 1,
   deletedAt: 1,
 });
 

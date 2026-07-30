@@ -18,7 +18,7 @@ router.use('/roles', roleRoutes);
 router.use('/permissions', permissionRoutes);
 router.use('/organizations', organizationRoutes);
 router.use('/organizations',organizationDocuments)
-router.use('/subscriptions', subscriptionRoutes);
+router.use('/subscription-plans', subscriptionRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/users', userRoutes);

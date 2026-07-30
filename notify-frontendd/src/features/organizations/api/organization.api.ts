@@ -35,27 +35,7 @@ export const organizationApi = {
             limit: filters?.limit?.toString(),
         }
     ),
-
-    /**
-     * Get single organization
-     *
-     * Returns:
-     * - organization details
-     * - organization admin
-     * - contact persons
-     */
     getOne: (id: string) => apiClient.get<Organization & { contactPersons: ContactPerson[] }>(`/organizations/${id}`),
-
-    /**
-     * Create organization
-     *
-     * Creates:
-     * - Organization
-     * - Initial Organization Admin User
-     * - Organization Admin Role assignment
-     * - Subscription (if plan selected)
-     * - Invitation email
-     */
     create: (payload: CreateOrganizationPayload) => apiClient.post<Organization>('/organizations', payload),
 
     /**

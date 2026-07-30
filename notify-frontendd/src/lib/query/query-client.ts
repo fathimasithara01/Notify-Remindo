@@ -13,10 +13,13 @@ export function createQueryClient(): QueryClient {
                 refetchOnWindowFocus: false, // User browser tab-il ninnu vere tab-il poyi, pinne thirichu vannal automatically API call cheyyilla.
 
                 refetchOnReconnect: true, //Internet connection poyi, pinne reconnect aayal stale queries refresh cheyyan TanStack Query try cheyyum.
+                 networkMode:"online", //If the browser is offline, React Query will wait instead of immediately failing.
             },
 
             mutations: {
                 retry: 0, //POST/PATCH/DELETE automatic retry illa
+                networkMode:"online",
+
             },
         },
     });
