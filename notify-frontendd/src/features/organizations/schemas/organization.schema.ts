@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-//  Create Organization  is created together with its initial Organization Admin user.
-
 export const createOrganizationSchema = z.object({
     name: z.string().trim().min(1, 'Organization name is required'),
 
@@ -49,17 +47,8 @@ export const createOrganizationSchema = z.object({
     }),
 });
 
-export type CreateOrganizationFormValues = z.infer<
-    typeof createOrganizationSchema
->;
+export type CreateOrganizationFormValues = z.infer<typeof createOrganizationSchema>;
 
-
-/**
- * Edit Organization
- *
- * Organization Admin details are NOT edited here.
- * Admin user should be managed separately.
- */
 export const editOrganizationSchema = z.object({
     name: z
         .string()
@@ -84,21 +73,8 @@ export const editOrganizationSchema = z.object({
         .optional(),
 });
 
-export type EditOrganizationFormValues = z.infer<
-    typeof editOrganizationSchema
->;
+export type EditOrganizationFormValues = z.infer<typeof editOrganizationSchema>;
 
-
-/**
- * Contact Person
- *
- * Used when adding additional contact persons
- * after organization creation.
- *
- * Note:
- * Initial Organization Admin is NOT created
- * through this schema.
- */
 export const contactPersonSchema = z.object({
     name: z
         .string()
@@ -121,6 +97,4 @@ export const contactPersonSchema = z.object({
         .or(z.literal('')),
 });
 
-export type ContactPersonFormValues = z.infer<
-    typeof contactPersonSchema
->;
+export type ContactPersonFormValues = z.infer<typeof contactPersonSchema>;

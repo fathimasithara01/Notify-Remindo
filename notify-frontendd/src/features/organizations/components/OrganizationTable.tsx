@@ -52,20 +52,17 @@ export function OrganizationTable() {
 
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
 
-  const { data, isLoading, isFetching,} = useOrganizations({
+  const { data, isLoading, isFetching, } = useOrganizations({
     page,
     limit: DEFAULT_PAGE_SIZE,
     search,
   });
 
   const blockMutation = useBlockOrganization();
-  const unblockMutation =    useUnblockOrganization();
-  const deleteMutation =  useDeleteOrganization();
+  const unblockMutation = useUnblockOrganization();
+  const deleteMutation = useDeleteOrganization();
 
-  const handleSearch = (value: string) => {
-    setSearch(value);
-    setPage(1);
-  };
+  const handleSearch = (value: string) => { setSearch(value); setPage(1) };
 
   if (isLoading) {
     return <LoadingState />;
@@ -151,11 +148,7 @@ export function OrganizationTable() {
                       <TableCell className="font-medium">
 
                         <Link
-                          href={
-                            ROUTES.organizations.detail(
-                              org.id
-                            )
-                          }
+                          href={ROUTES.organizations.detail(org.id)}
                           className="hover:underline"
                         >
                           {org.name}

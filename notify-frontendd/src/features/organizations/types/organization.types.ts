@@ -47,9 +47,8 @@ export interface Organization {
     uploadedAt: Date;
   }[];
 
-  /**
- * Primary Organization Admin. Can be null if the organization currently has no active/invited Organization Admin.
- */
+  //  Primary Organization Admin. Can be null if the organization currently has no active/invited Organization Admin.
+
   admin: OrganizationAdmin | null;
 
   deletedAt?: Date | null;
@@ -69,9 +68,8 @@ export interface CreateOrganizationPayload {
 
   documents?: OrganizationDocument[];
 
-  /**
-   * Initial Organization Admin. This user receives the invitation email and becomes the Organization Admin.
-   */
+  //  Initial Organization Admin. This user receives the invitation email and becomes the Organization Admin.
+
   admin: {
     name: string;
     email: string;

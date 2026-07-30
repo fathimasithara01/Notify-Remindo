@@ -10,11 +10,8 @@ export const queryKeys = {
   organizations: {
     all: () => ['organizations'] as const,
 
-    // Base key for all organization list queries
-    lists: () =>
-      ['organizations', 'list'] as const,
+    lists: () => ['organizations', 'list'] as const,
 
-    // Specific organization list with filters
     list: (
       filters?: {
         page?: number;
@@ -25,9 +22,7 @@ export const queryKeys = {
         search?: string;
       }
     ) =>
-      [
-        'organizations',
-        'list',
+      ['organizations', 'list',
         {
           page: filters?.page ?? 1,
           limit: filters?.limit ?? 10,
@@ -39,8 +34,7 @@ export const queryKeys = {
       ] as const,
 
     // Base key for all organization detail queries
-    details: () =>
-      ['organizations', 'detail'] as const,
+    details: () =>  ['organizations', 'detail'] as const,
 
     // Specific organization detail
     detail: (id: string) =>
@@ -50,8 +44,8 @@ export const queryKeys = {
         id,
       ] as const,
 
-      contacts: (id: string) => ['organizations', id, 'contacts'] as const,
-      documents: (id: string) =>['organizations', id, 'documents'] as const,
+    contacts: (id: string) => ['organizations', id, 'contacts'] as const,
+    documents: (id: string) => ['organizations', id, 'documents'] as const,
   },
 
   roles: {

@@ -56,11 +56,7 @@ export const organizationApi = {
      * - Subscription (if plan selected)
      * - Invitation email
      */
-    create: (payload: CreateOrganizationPayload) =>
-        apiClient.post<Organization>(
-            '/organizations',
-            payload
-        ),
+    create: (payload: CreateOrganizationPayload) => apiClient.post<Organization>('/organizations', payload),
 
     /**
      * Update organization details
@@ -74,50 +70,13 @@ export const organizationApi = {
             payload
         ),
 
-    /**
-     * Soft delete organization
-     */
-    delete: (id: string) =>
-        apiClient.delete<null>(
-            `/organizations/${id}`
-        ),
+    delete: (id: string) => apiClient.delete<null>(`/organizations/${id}`),
+    block: (id: string, reason?: string) => apiClient.post<Organization>(`/organizations/${id}/block`, { reason }),
+    unblock: (id: string) => apiClient.post<Organization>(`/organizations/${id}/unblock`),
 
-    /**
-     * Block organization
-     */
-    block: (
-        id: string,
-        reason?: string
-    ) =>
-        apiClient.post<Organization>(
-            `/organizations/${id}/block`,
-            { reason }
-        ),
+    upgradePlan: (id: string, newPlanId: string) => apiClient.post<Organization>(`/organizations/${id}/upgrade-plan`, { newPlanId }),
 
-    /**
-     * Unblock organization
-     */
-    unblock: (id: string) =>
-        apiClient.post<Organization>(
-            `/organizations/${id}/unblock`
-        ),
-
-    /**
-     * Upgrade organization subscription plan
-     */
-    upgradePlan: (
-        id: string,
-        newPlanId: string
-    ) =>
-        apiClient.post<Organization>(
-            `/organizations/${id}/upgrade-plan`,
-            { newPlanId }
-        ),
-
-    listContactPersons: (id: string) =>
-        apiClient.get<ContactPerson[]>(
-            `/organizations/${id}/contacts`
-        ),
+    listContactPersons: (id: string) => apiClient.get<ContactPerson[]>(`/organizations/${id}/contacts`),
 
     addContactPerson: (
         id: string,

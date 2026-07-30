@@ -7,10 +7,7 @@ import { queryKeys } from '@/lib/query/query-keys';
 export function useContactPersons(organizationId: string) {
   return useQuery({
     queryKey: queryKeys.organizations.contacts(organizationId),
-
-    queryFn: () =>
-      organizationApi.listContactPersons(organizationId),
-
+    queryFn: () => organizationApi.listContactPersons(organizationId),
     enabled: Boolean(organizationId),
   });
 }
