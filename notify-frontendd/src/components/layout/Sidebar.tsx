@@ -2,10 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  ChevronDown,
-  LogOut,
-} from "lucide-react";
+import { useState } from "react";
 
 import {
   LayoutDashboard,
@@ -17,19 +14,17 @@ import {
   Users,
   Mail,
   ScrollText,
+  ChevronDown,
+  LogOut,
 } from "lucide-react";
-
-import { useState } from "react";
 
 import { useAuth } from "@/providers/AuthProvider";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 
 import { ROUTES } from "@/config/routes";
-
 import { APP_NAME } from "@/constants/app";
 
 import { cn } from "@/lib/utils/utils";
-
 import { Button } from "@/components/ui/button";
 
 interface SidebarItemProps {
@@ -52,16 +47,29 @@ function SidebarItem({
   return (
     <Link
       href={href}
+      aria-current={
+        isActive ? "page" : undefined
+      }
       className={cn(
-        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+        "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+
         isActive
-          ? "bg-primary text-primary-foreground"
+          ? "bg-primary text-primary-foreground shadow-sm"
           : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
       )}
     >
-      <Icon className="h-4 w-4 shrink-0" />
+      <Icon
+        className={cn(
+          "h-4 w-4 shrink-0",
 
-      <span>{label}</span>
+          !isActive &&
+            "text-muted-foreground group-hover:text-accent-foreground"
+        )}
+      />
+
+      <span className="truncate">
+        {label}
+      </span>
     </Link>
   );
 }
@@ -73,18 +81,24 @@ export function Sidebar() {
 
   const logout = useLogout();
 
+  /*
+   * -------------------------------------------------------
+   * Subscription navigation state
+   * -------------------------------------------------------
+   */
+
+  const subscriptionRoutes = [
+    ROUTES.subscriptions.plans,
+    ROUTES.subscriptions.features,
+    ROUTES.subscriptions.planFeatures,
+    ROUTES.subscriptions.organizationSubscriptions,
+  ];
+
   const subscriptionActive =
-    pathname.startsWith(
-      "/super-admin/subscription-plans"
-    ) ||
-    pathname.startsWith(
-      "/super-admin/subscription-features"
-    ) ||
-    pathname.startsWith(
-      "/super-admin/plan-features"
-    ) ||
-    pathname.startsWith(
-      "/super-admin/organization-subscriptions"
+    subscriptionRoutes.some(
+      (route) =>
+        pathname === route ||
+        pathname.startsWith(`${route}/`)
     );
 
   const [
@@ -92,71 +106,156 @@ export function Sidebar() {
     setSubscriptionOpen,
   ] = useState(subscriptionActive);
 
+  /*
+   * -------------------------------------------------------
+   * Sidebar
+   * -------------------------------------------------------
+   */
+
   return (
-    <aside className="flex h-screen w-64 flex-col border-r bg-card">
-      {/* Logo */}
+    <aside
+      className="
+        flex
+        h-screen
+        w-64
+        shrink-0
+        flex-col
+        border-r
+        bg-card
+      "
+    >
+      {/* ================================================= */}
+      {/* BRAND */}
+      {/* ================================================= */}
 
-      <div className="border-b px-6 py-5">
-        <h1 className="text-lg font-semibold">
-          {APP_NAME}
-        </h1>
+      <div
+        className="
+          flex
+          h-16
+          shrink-0
+          items-center
+          border-b
+          px-5
+        "
+      >
+        <Link
+          href={ROUTES.dashboard}
+          className="flex items-center gap-3"
+        >
+          {/* Logo */}
 
-        <p className="text-xs text-muted-foreground">
-          Super Admin
-        </p>
+          <div
+            className="
+              flex
+              h-9
+              w-9
+              shrink-0
+              items-center
+              justify-center
+              rounded-lg
+              bg-primary
+              text-sm
+              font-bold
+              text-primary-foreground
+            "
+          >
+            {APP_NAME
+              .charAt(0)
+              .toUpperCase()}
+          </div>
+
+          {/* Application name */}
+
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">
+              {APP_NAME}
+            </p>
+
+            <p className="text-xs text-muted-foreground">
+              Super Admin
+            </p>
+          </div>
+        </Link>
       </div>
 
-      {/* Navigation */}
+      {/* ================================================= */}
+      {/* NAVIGATION */}
+      {/* ================================================= */}
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {/* Dashboard */}
+      <nav
+        className="
+          flex-1
+          overflow-y-auto
+          px-3
+          py-4
+        "
+      >
+        {/* ================================================= */}
+        {/* OVERVIEW */}
+        {/* ================================================= */}
 
-        <SidebarItem
-          href={ROUTES.dashboard}
-          label="Dashboard"
-          icon={LayoutDashboard}
-          pathname={pathname}
-        />
+        <SidebarSection title="Overview">
+          <SidebarItem
+            href={ROUTES.dashboard}
+            label="Dashboard"
+            icon={LayoutDashboard}
+            pathname={pathname}
+          />
 
-        {/* Organizations */}
+          <SidebarItem
+            href={ROUTES.organizations.list}
+            label="Organizations"
+            icon={Building2}
+            pathname={pathname}
+          />
+        </SidebarSection>
 
-        <SidebarItem
-          href={ROUTES.organizations.list}
-          label="Organizations"
-          icon={Building2}
-          pathname={pathname}
-        />
+        {/* ================================================= */}
+        {/* ADMINISTRATION */}
+        {/* ================================================= */}
 
-        {/* Roles */}
+        <SidebarSection title="Administration">
+          <SidebarItem
+            href={ROUTES.roles.list}
+            label="Roles"
+            icon={ShieldCheck}
+            pathname={pathname}
+          />
 
-        <SidebarItem
-          href={ROUTES.roles.list}
-          label="Roles"
-          icon={ShieldCheck}
-          pathname={pathname}
-        />
+          <SidebarItem
+            href={ROUTES.permissions}
+            label="Permissions"
+            icon={KeyRound}
+            pathname={pathname}
+          />
 
-        {/* Permissions */}
+          <SidebarItem
+            href={ROUTES.users.list}
+            label="Admin Users"
+            icon={Users}
+            pathname={pathname}
+          />
+        </SidebarSection>
 
-        <SidebarItem
-          href={ROUTES.permissions}
-          label="Permissions"
-          icon={KeyRound}
-          pathname={pathname}
-        />
+        {/* ================================================= */}
+        {/* SUBSCRIPTIONS */}
+        {/* ================================================= */}
 
-        {/* Subscription Management */}
-
-        <div className="pt-2">
+        <div className="mt-7">
           <button
             type="button"
+            aria-expanded={
+              subscriptionOpen
+            }
             onClick={() =>
               setSubscriptionOpen(
-                (previous) => !previous
+                (previous) =>
+                  !previous
               )
             }
             className={cn(
-              "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+
               subscriptionActive
                 ? "text-foreground"
                 : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
@@ -172,7 +271,8 @@ export function Sidebar() {
 
             <ChevronDown
               className={cn(
-                "h-4 w-4 transition-transform",
+                "h-4 w-4 transition-transform duration-200",
+
                 subscriptionOpen &&
                   "rotate-180"
               )}
@@ -180,7 +280,15 @@ export function Sidebar() {
           </button>
 
           {subscriptionOpen && (
-            <div className="ml-4 mt-1 space-y-1 border-l pl-3">
+            <div
+              className="
+                ml-3
+                mt-1
+                space-y-1
+                border-l
+                pl-3
+              "
+            >
               <SidebarItem
                 href={
                   ROUTES.subscriptions.plans
@@ -201,8 +309,7 @@ export function Sidebar() {
 
               <SidebarItem
                 href={
-                  ROUTES.subscriptions
-                    .planFeatures
+                  ROUTES.subscriptions.planFeatures
                 }
                 label="Plan Features"
                 icon={CreditCard}
@@ -222,48 +329,55 @@ export function Sidebar() {
           )}
         </div>
 
-        {/* Notifications */}
+        {/* ================================================= */}
+        {/* PLATFORM */}
+        {/* ================================================= */}
 
-        <SidebarItem
-          href={ROUTES.notifications}
-          label="Notifications"
-          icon={Bell}
-          pathname={pathname}
-        />
+        <SidebarSection title="Platform">
+          <SidebarItem
+            href={ROUTES.notifications}
+            label="Notifications"
+            icon={Bell}
+            pathname={pathname}
+          />
 
-        {/* Admin Users */}
+          <SidebarItem
+            href={ROUTES.invites}
+            label="Invites"
+            icon={Mail}
+            pathname={pathname}
+          />
 
-        <SidebarItem
-          href={ROUTES.users.list}
-          label="Admin Users"
-          icon={Users}
-          pathname={pathname}
-        />
-
-        {/* Invites */}
-
-        <SidebarItem
-          href={ROUTES.invites}
-          label="Invites"
-          icon={Mail}
-          pathname={pathname}
-        />
-
-        {/* Audit Log */}
-
-        <SidebarItem
-          href={ROUTES.audit}
-          label="Audit Log"
-          icon={ScrollText}
-          pathname={pathname}
-        />
+          <SidebarItem
+            href={ROUTES.audit}
+            label="Audit Log"
+            icon={ScrollText}
+            pathname={pathname}
+          />
+        </SidebarSection>
       </nav>
 
-      {/* User / Logout */}
+      {/* ================================================= */}
+      {/* USER FOOTER */}
+      {/* ================================================= */}
 
-      <div className="border-t px-3 py-4">
+      <div
+        className="
+          shrink-0
+          border-t
+          p-3
+        "
+      >
         {user && (
-          <div className="mb-3 px-3">
+          <div
+            className="
+              mb-2
+              rounded-lg
+              bg-muted/50
+              px-3
+              py-2.5
+            "
+          >
             <p className="truncate text-sm font-medium">
               {user.name}
             </p>
@@ -275,12 +389,14 @@ export function Sidebar() {
         )}
 
         <Button
+          type="button"
           variant="ghost"
           className="
             w-full
             justify-start
             gap-3
             text-muted-foreground
+            hover:text-destructive
           "
           onClick={() =>
             logout.mutate()
@@ -289,11 +405,49 @@ export function Sidebar() {
         >
           <LogOut className="h-4 w-4" />
 
-          {logout.isPending
-            ? "Logging out..."
-            : "Log out"}
+          <span>
+            {logout.isPending
+              ? "Logging out..."
+              : "Log out"}
+          </span>
         </Button>
       </div>
     </aside>
+  );
+}
+
+/*
+ * =========================================================
+ * Sidebar Section
+ * =========================================================
+ */
+
+function SidebarSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="mb-7">
+      <div className="mb-3 px-3">
+        <p
+          className="
+            text-[11px]
+            font-semibold
+            uppercase
+            tracking-wider
+            text-muted-foreground
+          "
+        >
+          {title}
+        </p>
+      </div>
+
+      <div className="space-y-1">
+        {children}
+      </div>
+    </section>
   );
 }

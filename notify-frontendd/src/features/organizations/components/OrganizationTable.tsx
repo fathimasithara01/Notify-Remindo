@@ -1,24 +1,26 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-
+import { useState } from "react";
+import Link from "next/link";
 import {
-  useOrganizations,
-} from '../hooks/useOrganizations';
+  Pencil,
+  Trash2,
+  Ban,
+  CheckCircle2,
+} from "lucide-react";
+
+import { useOrganizations } from "../hooks/useOrganizations";
 
 import {
   useBlockOrganization,
   useUnblockOrganization,
   useDeleteOrganization,
-} from '../hooks/useOrganizationMutations';
+} from "../hooks/useOrganizationMutations";
 
-import {
-  Organization,
-} from '../types/organization.types';
+import { Organization } from "../types/organization.types";
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 import {
   Table,
@@ -27,32 +29,30 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 
-import { LoadingState } from '@/components/common/LoadingState';
-import { EmptyState } from '@/components/common/EmptyState';
-import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-import { Pagination } from '@/components/common/Pagination';
-import { SearchInput } from '@/components/common/SearchInput';
+import { LoadingState } from "@/components/common/LoadingState";
+import { EmptyState } from "@/components/common/EmptyState";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { Pagination } from "@/components/common/Pagination";
+import { SearchInput } from "@/components/common/SearchInput";
 
-import { EditOrganizationDialog } from './EditOrganizationDialog';
+import { EditOrganizationDialog } from "./EditOrganizationDialog";
 
-import {
-  Pencil,
-  Trash2,
-} from 'lucide-react';
-
-import { ROUTES } from '@/config/routes';
-import { DEFAULT_PAGE_SIZE } from '@/constants/app';
-
+import { ROUTES } from "@/config/routes";
+import { DEFAULT_PAGE_SIZE } from "@/constants/app";
 
 export function OrganizationTable() {
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
+  const [editingOrg, setEditingOrg] =
+    useState<Organization | null>(null);
 
-  const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
-
-  const { data, isLoading, isFetching, } = useOrganizations({
+  const {
+    data,
+    isLoading,
+    isFetching,
+  } = useOrganizations({
     page,
     limit: DEFAULT_PAGE_SIZE,
     search,
@@ -62,70 +62,100 @@ export function OrganizationTable() {
   const unblockMutation = useUnblockOrganization();
   const deleteMutation = useDeleteOrganization();
 
-  const handleSearch = (value: string) => { setSearch(value); setPage(1) };
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   if (isLoading) {
     return <LoadingState />;
   }
 
+  const organizations = data?.items ?? [];
+
   return (
     <div className="space-y-4">
 
-      {/* Search */}
-      <SearchInput
-        placeholder="Search organizations..."
-        onSearch={handleSearch}
-      />
+      {/* ========================= */}
+      {/* SEARCH */}
+      {/* ========================= */}
 
-      {/* Loading next page / filter */}
-      {isFetching && !isLoading && (
-        <div className="text-sm text-muted-foreground">
-          Updating organizations...
-        </div>
-      )}
+      <div className="flex items-center justify-between gap-4">
 
-      {/* Empty State */}
-      {!data?.items?.length ? (
+        <SearchInput
+          placeholder="Search organizations..."
+          onSearch={handleSearch}
+        />
+
+        {isFetching && (
+          <span className="text-sm text-muted-foreground">
+            Updating...
+          </span>
+        )}
+
+      </div>
+
+      {/* ========================= */}
+      {/* EMPTY STATE */}
+      {/* ========================= */}
+
+      {organizations.length === 0 ? (
         <EmptyState
-          title="No organizations found"
+          title={
+            search
+              ? "No organizations found"
+              : "No organizations yet"
+          }
         />
       ) : (
 
-        <div className="rounded-md border bg-card">
+        <div className="overflow-hidden rounded-lg border bg-card">
 
-          <Table>
+          {/* Mobile horizontal scroll */}
 
-            <TableHeader>
-              <TableRow>
+          <div className="overflow-x-auto">
 
-                <TableHead className="font-semibold">
-                  Organization Name
-                </TableHead>
+            <Table>
 
-                <TableHead className="font-semibold">
-                  Admin Email
-                </TableHead>
+              {/* ========================= */}
+              {/* HEADER */}
+              {/* ========================= */}
 
-                <TableHead className="font-semibold">
-                  Admin Phone
-                </TableHead>
+              <TableHeader>
 
-                <TableHead className="font-semibold">
-                  Status
-                </TableHead>
+                <TableRow>
 
-                <TableHead className="text-right font-semibold">
-                  Actions
-                </TableHead>
+                  <TableHead className="min-w-[220px] font-semibold">
+                    Organization
+                  </TableHead>
 
-              </TableRow>
-            </TableHeader>
+                  <TableHead className="min-w-[220px] font-semibold">
+                    Admin Email
+                  </TableHead>
 
+                  <TableHead className="min-w-[150px] font-semibold">
+                    Phone
+                  </TableHead>
 
-            <TableBody>
+                  <TableHead className="min-w-[100px] font-semibold">
+                    Status
+                  </TableHead>
 
-              {data.items.map(
-                (org) => {
+                  <TableHead className="min-w-[180px] text-right font-semibold">
+                    Actions
+                  </TableHead>
+
+                </TableRow>
+
+              </TableHeader>
+
+              {/* ========================= */}
+              {/* BODY */}
+              {/* ========================= */}
+
+              <TableBody>
+
+                {organizations.map((org) => {
 
                   const isBlocking =
                     blockMutation.isPending &&
@@ -139,44 +169,62 @@ export function OrganizationTable() {
                     deleteMutation.isPending &&
                     deleteMutation.variables === org.id;
 
+                  const isUpdating =
+                    isBlocking ||
+                    isUnblocking ||
+                    isDeleting;
 
                   return (
 
-                    <TableRow key={org.id}>
+                    <TableRow
+                      key={org.id}
+                      className="transition-colors hover:bg-muted/50"
+                    >
 
-                      {/* Organization Name */}
-                      <TableCell className="font-medium">
+                      {/* ========================= */}
+                      {/* ORGANIZATION */}
+                      {/* ========================= */}
+
+                      <TableCell>
 
                         <Link
-                          href={ROUTES.organizations.detail(org.id)}
-                          className="hover:underline"
+                          href={ROUTES.organizations.detail(
+                            org.id
+                          )}
+                          className="font-medium hover:text-primary hover:underline"
                         >
                           {org.name}
                         </Link>
 
                       </TableCell>
 
+                      {/* ========================= */}
+                      {/* EMAIL */}
+                      {/* ========================= */}
 
-                      {/* Organization Admin Email */}
-                      <TableCell>
-                        {org.admin?.email ?? '—'}
+                      <TableCell className="text-muted-foreground">
+                        {org.admin?.email ?? "—"}
                       </TableCell>
 
+                      {/* ========================= */}
+                      {/* PHONE */}
+                      {/* ========================= */}
 
-                      {/* Organization Admin Phone */}
-                      <TableCell>
-                        {org.admin?.phone ?? '—'}
+                      <TableCell className="text-muted-foreground">
+                        {org.admin?.phone ?? "—"}
                       </TableCell>
 
+                      {/* ========================= */}
+                      {/* STATUS */}
+                      {/* ========================= */}
 
-                      {/* Organization Status */}
                       <TableCell>
 
                         <Badge
                           variant={
-                            org.status === 'active'
-                              ? 'default'
-                              : 'destructive'
+                            org.status === "active"
+                              ? "default"
+                              : "destructive"
                           }
                         >
                           {org.status}
@@ -184,90 +232,115 @@ export function OrganizationTable() {
 
                       </TableCell>
 
+                      {/* ========================= */}
+                      {/* ACTIONS */}
+                      {/* ========================= */}
 
-                      {/* Actions */}
-                      <TableCell className="text-right">
+                      <TableCell>
 
                         <div className="flex justify-end gap-1">
 
-                          {/* Edit */}
+                          {/* EDIT */}
+
                           <Button
+                            type="button"
                             variant="ghost"
-                            size="sm"
+                            size="icon"
+                            aria-label={`Edit ${org.name}`}
+                            disabled={isUpdating}
                             onClick={() =>
                               setEditingOrg(org)
-                            }
-                            disabled={
-                              isDeleting
                             }
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
 
+                          {/* BLOCK */}
 
-                          {/* Block / Unblock */}
-                          {org.status === 'active' ? (
+                          {org.status === "active" ? (
 
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
+                            <ConfirmDialog
+                              trigger={
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label={`Block ${org.name}`}
+                                  disabled={isUpdating}
+                                  className="text-orange-600 hover:text-orange-600"
+                                >
+                                  <Ban className="h-4 w-4" />
+                                </Button>
+                              }
+
+                              title="Block organization?"
+
+                              description={
+                                `"${org.name}" will no longer be able to access the platform.`
+                              }
+
+                              onConfirm={() =>
                                 blockMutation.mutate({
                                   id: org.id,
                                 })
                               }
-                              disabled={
-                                isBlocking ||
-                                isDeleting
-                              }
-                            >
-                              {isBlocking
-                                ? 'Blocking...'
-                                : 'Block'}
-                            </Button>
+
+                              isPending={isBlocking}
+                            />
 
                           ) : (
 
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
+                            <ConfirmDialog
+                              trigger={
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label={`Unblock ${org.name}`}
+                                  disabled={isUpdating}
+                                  className="text-green-600 hover:text-green-600"
+                                >
+                                  <CheckCircle2 className="h-4 w-4" />
+                                </Button>
+                              }
+
+                              title="Unblock organization?"
+
+                              description={
+                                `"${org.name}" will regain access to the platform.`
+                              }
+
+                              onConfirm={() =>
                                 unblockMutation.mutate(
                                   org.id
                                 )
                               }
-                              disabled={
-                                isUnblocking ||
-                                isDeleting
-                              }
-                            >
-                              {isUnblocking
-                                ? 'Unblocking...'
-                                : 'Unblock'}
-                            </Button>
+
+                              isPending={isUnblocking}
+                            />
 
                           )}
 
+                          {/* DELETE */}
 
-                          {/* Delete */}
                           <ConfirmDialog
                             trigger={
                               <Button
+                                type="button"
                                 variant="ghost"
-                                size="sm"
-                                className="text-destructive hover:text-destructive"
-                                disabled={
-                                  isDeleting
-                                }
+                                size="icon"
+                                aria-label={`Delete ${org.name}`}
+                                disabled={isUpdating}
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             }
 
-                            title="Delete this organization?"
+                            title="Delete organization?"
 
                             description={
-                              `"${org.name}" will be removed from active listings.`
+                              `"${org.name}" will be removed from active listings. This action cannot be easily undone.`
                             }
 
                             onConfirm={() =>
@@ -276,9 +349,7 @@ export function OrganizationTable() {
                               )
                             }
 
-                            isPending={
-                              isDeleting
-                            }
+                            isPending={isDeleting}
                           />
 
                         </div>
@@ -288,27 +359,36 @@ export function OrganizationTable() {
                     </TableRow>
 
                   );
-                }
-              )}
+                })}
 
-            </TableBody>
+              </TableBody>
 
-          </Table>
+            </Table>
 
+          </div>
 
-          {/* Pagination */}
-          {data.meta && (
-            <Pagination
-              meta={data.meta}
-              onPageChange={setPage}
-            />
+          {/* ========================= */}
+          {/* PAGINATION */}
+          {/* ========================= */}
+
+          {data?.meta && (
+            <div className="border-t">
+
+              <Pagination
+                meta={data.meta}
+                onPageChange={setPage}
+              />
+
+            </div>
           )}
 
         </div>
       )}
 
+      {/* ========================= */}
+      {/* EDIT DIALOG */}
+      {/* ========================= */}
 
-      {/* Edit Organization */}
       <EditOrganizationDialog
         organization={editingOrg}
         open={Boolean(editingOrg)}

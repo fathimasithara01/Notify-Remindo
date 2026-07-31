@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from 'next/link';
+import { useState } from "react";
+import Link from "next/link";
 
 import {
   Table,
@@ -58,8 +58,7 @@ import {
   SubscriptionPlanPagination,
 } from "./subscription-plan-pagination";
 
-import { ROUTES } from '@/config/routes';
-
+import { ROUTES } from "@/config/routes";
 
 interface SubscriptionPlanTableProps {
   onEdit?: (
@@ -73,9 +72,7 @@ export function SubscriptionPlanTable({
   onEdit,
   onCreate,
 }: SubscriptionPlanTableProps) {
-
-  const [page, setPage] =
-    useState(1);
+  const [page, setPage] = useState(1);
 
   const [filters, setFilters] =
     useState<SubscriptionPlanFilters>({
@@ -84,9 +81,11 @@ export function SubscriptionPlanTable({
     });
 
   const [selectedPlan, setSelectedPlan] =
-    useState<SubscriptionPlan | null>(
-      null
-    );
+    useState<SubscriptionPlan | null>(null);
+
+  /* ================================================= */
+  /* FETCH PLANS */
+  /* ================================================= */
 
   const {
     data,
@@ -94,34 +93,39 @@ export function SubscriptionPlanTable({
     isFetching,
     refetch,
   } = useSubscriptionPlans({
-
     page,
-
     limit: 10,
-
     search:
       filters.search || undefined,
-
     status:
       filters.status === "all"
         ? undefined
         : filters.status,
-
   });
+
+  /* ================================================= */
+  /* DELETE */
+  /* ================================================= */
 
   const deleteMutation =
     useDeleteSubscriptionPlan();
 
-  const plans = useMemo(
-    () => data?.items ?? [],
-    [data]
-  );
+  const plans =
+    data?.items ?? [];
+
+  /* ================================================= */
+  /* INITIAL LOADING */
+  /* ================================================= */
 
   if (isLoading) {
     return (
       <SubscriptionPlanSkeleton />
     );
   }
+
+  /* ================================================= */
+  /* EMPTY STATE */
+  /* ================================================= */
 
   if (!plans.length) {
     return (
@@ -133,37 +137,34 @@ export function SubscriptionPlanTable({
     );
   }
 
-  return (
+  /* ================================================= */
+  /* RENDER */
+  /* ================================================= */
 
+  return (
     <div className="space-y-6">
 
+      {/* ================================================= */}
+      {/* TOOLBAR */}
+      {/* ================================================= */}
+
       <SubscriptionPlanToolbar
-
         filters={filters}
-
-        total={
-          data?.total ?? 0
-        }
-
-        isRefreshing={
-          isFetching
-        }
-
+        total={data?.total ?? 0}
+        isRefreshing={isFetching}
         onFiltersChange={(value) => {
-
           setPage(1);
-
           setFilters(value);
-
         }}
-
         onRefresh={refetch}
-
         onCreate={() =>
           onCreate?.()
         }
-
       />
+
+      {/* ================================================= */}
+      {/* TABLE */}
+      {/* ================================================= */}
 
       <Card>
 
@@ -172,6 +173,7 @@ export function SubscriptionPlanTable({
           <div className="overflow-x-auto">
 
             <Table>
+
               <TableHeader>
 
                 <TableRow>
@@ -206,157 +208,140 @@ export function SubscriptionPlanTable({
 
               <TableBody>
 
-                {plans.map((plan) => (
+                {plans.map((plan) => {
 
-                  <TableRow
-                    key={plan.id}
-                    className="
-                      transition-colors
-                      hover:bg-muted/40
-                    "
-                  >
+                  const isDeleting =
+                    deleteMutation.isPending &&
+                    deleteMutation.variables ===
+                    plan.id;
 
-                    {/* Plan */}
+                  return (
+                    <TableRow
+                      key={plan.id}
+                      className="transition-colors hover:bg-muted/40"
+                    >
 
-                    <TableCell>
+                      {/* ================================================= */}
+                      {/* PLAN */}
+                      {/* ================================================= */}
 
-                      <div className="space-y-1">           
+                      <TableCell>
 
-                       <Link
-                          href={ROUTES.subscriptions.plans}
-                          className="hover:underline"
-                        >
+                        <div className="space-y-1">
+
+                          <Link
+                            href={ROUTES.subscriptions.detail(
+                              plan.id
+                            )}
+                            className="font-medium hover:underline"
+                          >
                             {plan.name}
-                        </Link>
+                          </Link>
 
-                        <p
-                          className="
-                            line-clamp-2
-                            text-sm
-                            text-muted-foreground
-                          "
-                        >
+                          <p className="line-clamp-2 text-sm text-muted-foreground">
+                            {plan.description ||
+                              "No description provided"}
+                          </p>
 
-                          {plan.description ||
-                            "No description provided"}
+                        </div>
 
-                        </p>
+                      </TableCell>
 
-                      </div>
+                      {/* ================================================= */}
+                      {/* PRICE */}
+                      {/* ================================================= */}
 
-                    </TableCell>
+                      <TableCell>
 
-                    {/* Price */}
+                        <span className="font-medium">
 
-                    <TableCell>
+                          {new Intl.NumberFormat(
+                            "en-IN",
+                            {
+                              style: "currency",
+                              currency:
+                                plan.currency,
+                            }
+                          ).format(
+                            plan.priceInMinorUnit /
+                            100
+                          )}
 
-                      <span className="font-medium">
+                        </span>
 
-                        {new Intl.NumberFormat(
-                          "en-IN",
-                          {
-                            style: "currency",
-                            currency: plan.currency,
-                          }
-                        ).format(
-                          plan.priceInMinorUnit / 100
+                      </TableCell>
+
+                      {/* ================================================= */}
+                      {/* BILLING */}
+                      {/* ================================================= */}
+
+                      <TableCell>
+
+                        <span className="inline-flex rounded-full border bg-muted px-3 py-1 text-xs font-medium capitalize">
+
+                          {plan.billingInterval}
+
+                        </span>
+
+                      </TableCell>
+
+                      {/* ================================================= */}
+                      {/* TRIAL */}
+                      {/* ================================================= */}
+
+                      <TableCell>
+
+                        {plan.trialDays &&
+                          plan.trialDays > 0 ? (
+                          <span className="text-sm font-medium">
+                            {plan.trialDays} days
+                          </span>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">
+                            —
+                          </span>
                         )}
 
-                      </span>
+                      </TableCell>
 
-                    </TableCell>
+                      {/* ================================================= */}
+                      {/* STATUS */}
+                      {/* ================================================= */}
 
-                    {/* Billing */}
+                      <TableCell>
 
-                    <TableCell>
+                        <SubscriptionPlanStatusBadge
+                          status={plan.status}
+                        />
 
-                      <span
-                        className="
-                          rounded-full
-                          border
-                          bg-muted
-                          px-3
-                          py-1
-                          text-xs
-                          font-medium
-                          capitalize
-                        "
-                      >
+                      </TableCell>
 
-                        {plan.billingInterval}
+                      {/* ================================================= */}
+                      {/* ACTIONS */}
+                      {/* ================================================= */}
 
-                      </span>
+                      <TableCell className="text-right">
 
-                    </TableCell>
+                        <SubscriptionPlanRowActions
+                          plan={plan}
+                          isDeleting={isDeleting}
+                          onEdit={(selectedPlan) =>
+                            onEdit?.(
+                              selectedPlan
+                            )
+                          }
+                          onDelete={(selectedPlan) =>
+                            setSelectedPlan(
+                              selectedPlan
+                            )
+                          }
+                        />
 
-                    {/* Trial */}
+                      </TableCell>
 
-                    <TableCell>
-
-                      {plan.trialDays && plan.trialDays > 0 ? (
-
-                        <span
-                          className="
-                            text-sm
-                            font-medium
-                          "
-                        >
-                          {plan.trialDays} days
-                        </span>
-
-                      ) : (
-
-                        <span
-                          className="
-                            text-sm
-                            text-muted-foreground
-                          "
-                        >
-                          —
-                        </span>
-
-                      )}
-
-                    </TableCell>
-
-                    {/* Status */}
-
-                    <TableCell>
-
-                      <SubscriptionPlanStatusBadge
-                        status={plan.status}
-                      />
-
-                    </TableCell>
-
-                    {/* Actions */}
-
-                    <TableCell className="text-right">
-
-                      <SubscriptionPlanRowActions
-
-                        plan={plan}
-
-                        isDeleting={
-                          deleteMutation.isPending &&
-                          deleteMutation.variables === plan.id
-                        }
-
-                        onEdit={(plan) =>
-                          onEdit?.(plan)
-                        }
-
-                        onDelete={(plan) =>
-                          setSelectedPlan(plan)
-                        }
-
-                      />
-
-                    </TableCell>
-
-                  </TableRow>
-
-                ))}
+                    </TableRow>
+                  );
+                })}
 
               </TableBody>
 
@@ -368,36 +353,53 @@ export function SubscriptionPlanTable({
 
       </Card>
 
+      {/* ================================================= */}
+      {/* DELETE CONFIRMATION */}
+      {/* ================================================= */}
+
       <DeleteSubscriptionPlanDialog
-        open={!!selectedPlan}
+        open={Boolean(selectedPlan)}
         plan={selectedPlan}
-        loading={deleteMutation.isPending}
+        loading={
+          deleteMutation.isPending
+        }
         onOpenChange={(open) => {
           if (!open) {
             setSelectedPlan(null);
           }
         }}
         onConfirm={() => {
-          if (!selectedPlan) return;
 
-          deleteMutation.mutate(selectedPlan.id, {
-            onSuccess: () => {
-              setSelectedPlan(null);
-            },
-          });
+          if (!selectedPlan) {
+            return;
+          }
+
+          deleteMutation.mutate(
+            selectedPlan.id,
+            {
+              onSuccess: () => {
+                setSelectedPlan(null);
+              },
+            }
+          );
         }}
       />
 
-      {data && data.totalPages > 1 && (
-        <SubscriptionPlanPagination
-          currentPage={page}
-          totalPages={data.totalPages}
-          onPageChange={setPage}
-        />
-      )}
+      {/* ================================================= */}
+      {/* PAGINATION */}
+      {/* ================================================= */}
+
+      {data &&
+        data.totalPages > 1 && (
+          <SubscriptionPlanPagination
+            currentPage={page}
+            totalPages={
+              data.totalPages
+            }
+            onPageChange={setPage}
+          />
+        )}
 
     </div>
-
   );
-
 }

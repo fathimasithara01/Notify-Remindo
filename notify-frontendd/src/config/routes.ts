@@ -22,7 +22,7 @@ export const ROUTES = {
       "/super-admin/subscription-plans/plan-features",
 
     organizationSubscriptions:
-      "/super-admin/organization-subscriptions",
+      "/super-admin/subscription-plans/organization-subscriptions",
 
     detail: (id: string) =>
       `/super-admin/subscription-plans/${id}`,

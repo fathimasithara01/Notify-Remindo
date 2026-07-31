@@ -1,18 +1,27 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Building2,
+  Loader2,
+  Mail,
+  MapPin,
+  Phone,
+} from "lucide-react";
 
-import { useUpdateOrganization } from '../hooks/useOrganizationMutations';
+import { useUpdateOrganization } from "../hooks/useOrganizationMutations";
+
 import {
   editOrganizationSchema,
   EditOrganizationFormValues,
-} from '../schemas/organization.schema';
-import { Organization } from '../types/organization.types';
+} from "../schemas/organization.schema";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Organization } from "../types/organization.types";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import {
   Dialog,
@@ -21,7 +30,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 
 import {
   Form,
@@ -30,7 +39,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface EditOrganizationDialogProps {
   organization: Organization | null;
@@ -43,68 +54,103 @@ export function EditOrganizationDialog({
   open,
   onOpenChange,
 }: EditOrganizationDialogProps) {
-  const organizationId = organization?.id ?? '';
+  const organizationId =
+    organization?.id ?? "";
 
-  const updateMutation = useUpdateOrganization(organizationId);
+  const updateMutation =
+    useUpdateOrganization(organizationId);
 
-  const form = useForm<EditOrganizationFormValues>({
-    resolver: zodResolver(editOrganizationSchema),
+  const form =
+    useForm<EditOrganizationFormValues>({
+      resolver: zodResolver(
+        editOrganizationSchema
+      ),
 
-    defaultValues: {
-      name: '',
-      businessEmail: '',
-      businessPhone: '',
-      address: '',
-    },
-  });
+      defaultValues: {
+        name: "",
+        businessEmail: "",
+        businessPhone: "",
+        address: "",
+      },
 
-  /**
-   * Reset form whenever selected organization changes.
-   */
+      mode: "onBlur",
+    });
+
+  /* ================================================= */
+  /* RESET FORM WHEN ORGANIZATION CHANGES */
+  /* ================================================= */
+
   useEffect(() => {
     if (!organization) {
       form.reset({
-        name: '',
-        businessEmail: '',
-        businessPhone: '',
-        address: '',
+        name: "",
+        businessEmail: "",
+        businessPhone: "",
+        address: "",
       });
 
       return;
     }
 
     form.reset({
-      name: organization.name,
-      businessEmail: organization.businessEmail,
-      businessPhone: organization.businessPhone,
-      address: organization.address ?? '',
+      name: organization.name ?? "",
+      businessEmail:
+        organization.businessEmail ?? "",
+      businessPhone:
+        organization.businessPhone ?? "",
+      address:
+        organization.address ?? "",
     });
   }, [organization, form]);
 
-  /**
-   * Submit organization changes.
-   */
-  const onSubmit = (values: EditOrganizationFormValues) => {
+  /* ================================================= */
+  /* SUBMIT */
+  /* ================================================= */
+
+  const onSubmit = (
+    values: EditOrganizationFormValues
+  ) => {
     if (!organizationId) {
       return;
     }
 
     updateMutation.mutate(values, {
       onSuccess: () => {
+        form.reset(values);
         onOpenChange(false);
       },
     });
   };
 
-  /**
-   * Prevent closing the dialog while saving.
-   */
-  const handleOpenChange = (nextOpen: boolean) => {
-    if (updateMutation.isPending && !nextOpen) {
+  /* ================================================= */
+  /* DIALOG OPEN / CLOSE */
+  /* ================================================= */
+
+  const handleOpenChange = (
+    nextOpen: boolean
+  ) => {
+    if (
+      updateMutation.isPending &&
+      !nextOpen
+    ) {
       return;
     }
 
     onOpenChange(nextOpen);
+  };
+
+  /* ================================================= */
+  /* CANCEL */
+  /* ================================================= */
+
+  const handleCancel = () => {
+    if (updateMutation.isPending) {
+      return;
+    }
+
+    form.reset();
+
+    onOpenChange(false);
   };
 
   return (
@@ -112,153 +158,277 @@ export function EditOrganizationDialog({
       open={open}
       onOpenChange={handleOpenChange}
     >
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>
-            Edit Organization
-          </DialogTitle>
+      <DialogContent className="sm:max-w-[620px]">
 
-          <DialogDescription>
-            Update the organization&apos;s business information.
-          </DialogDescription>
+        {/* ================================================= */}
+        {/* HEADER */}
+        {/* ================================================= */}
+
+        <DialogHeader>
+
+          <div className="flex items-center gap-3">
+
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+              <Building2 className="h-4 w-4 text-primary" />
+            </div>
+
+            <div>
+
+              <DialogTitle>
+                Edit Organization
+              </DialogTitle>
+
+              <DialogDescription>
+                Update the organization&apos;s business
+                and contact information.
+              </DialogDescription>
+
+            </div>
+
+          </div>
+
         </DialogHeader>
 
+        {/* ================================================= */}
+        {/* ERROR */}
+        {/* ================================================= */}
+
+        {updateMutation.isError && (
+          <Alert variant="destructive">
+            <AlertDescription>
+              {updateMutation.error instanceof Error
+                ? updateMutation.error.message
+                : "Unable to update organization. Please try again."}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* ================================================= */}
+        {/* FORM */}
+        {/* ================================================= */}
+
         <Form {...form}>
+
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(
+              onSubmit
+            )}
             className="space-y-6"
           >
-            {/* ============================= */}
+
+            {/* ================================================= */}
             {/* BUSINESS INFORMATION */}
-            {/* ============================= */}
+            {/* ================================================= */}
 
             <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium">
+
+              <div className="border-b pb-3">
+
+                <h3 className="text-sm font-semibold">
                   Business Information
                 </h3>
 
-                <p className="text-xs text-muted-foreground">
-                  Update the organization&apos;s basic business information.
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Update the organization&apos;s basic
+                  business information.
                 </p>
+
               </div>
+
+              {/* Organization Name */}
 
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
+
                     <FormLabel>
                       Organization Name
                     </FormLabel>
 
                     <FormControl>
-                      <Input
-                        placeholder="Enter organization name"
-                        {...field}
-                      />
+
+                      <div className="relative">
+
+                        <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
+                        <Input
+                          {...field}
+                          disabled={
+                            updateMutation.isPending
+                          }
+                          className="pl-9"
+                          placeholder="Enter organization name"
+                          autoComplete="organization"
+                        />
+
+                      </div>
+
                     </FormControl>
 
                     <FormMessage />
+
                   </FormItem>
                 )}
               />
+
+              {/* Address */}
 
               <FormField
                 control={form.control}
                 name="address"
                 render={({ field }) => (
                   <FormItem>
+
                     <FormLabel>
                       Business Address
                     </FormLabel>
 
                     <FormControl>
-                      <Input
-                        placeholder="Enter business address"
-                        {...field}
-                      />
+
+                      <div className="relative">
+
+                        <MapPin className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+
+                        <Input
+                          {...field}
+                          disabled={
+                            updateMutation.isPending
+                          }
+                          className="pl-9"
+                          placeholder="Enter business address"
+                          autoComplete="street-address"
+                        />
+
+                      </div>
+
                     </FormControl>
 
                     <FormMessage />
+
                   </FormItem>
                 )}
               />
+
             </div>
 
-            {/* ============================= */}
+            {/* ================================================= */}
             {/* BUSINESS CONTACT */}
-            {/* ============================= */}
+            {/* ================================================= */}
 
             <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium">
+
+              <div className="border-b pb-3">
+
+                <h3 className="text-sm font-semibold">
                   Business Contact
                 </h3>
 
-                <p className="text-xs text-muted-foreground">
-                  These details are used for official organization
-                  communication.
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Contact information used for official
+                  organization communication.
                 </p>
+
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
+
+                {/* Email */}
+
                 <FormField
                   control={form.control}
                   name="businessEmail"
                   render={({ field }) => (
                     <FormItem>
+
                       <FormLabel>
                         Business Email
                       </FormLabel>
 
                       <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="info@company.com"
-                          {...field}
-                        />
+
+                        <div className="relative">
+
+                          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
+                          <Input
+                            {...field}
+                            type="email"
+                            disabled={
+                              updateMutation.isPending
+                            }
+                            className="pl-9"
+                            placeholder="info@company.com"
+                            autoComplete="email"
+                          />
+
+                        </div>
+
                       </FormControl>
 
                       <FormMessage />
+
                     </FormItem>
                   )}
                 />
+
+                {/* Phone */}
 
                 <FormField
                   control={form.control}
                   name="businessPhone"
                   render={({ field }) => (
                     <FormItem>
+
                       <FormLabel>
                         Business Phone
                       </FormLabel>
 
                       <FormControl>
-                        <Input
-                          type="tel"
-                          placeholder="+1 555 123 4567"
-                          {...field}
-                        />
+
+                        <div className="relative">
+
+                          <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
+                          <Input
+                            {...field}
+                            type="tel"
+                            disabled={
+                              updateMutation.isPending
+                            }
+                            className="pl-9"
+                            placeholder="+91 9876543210"
+                            autoComplete="tel"
+                          />
+
+                        </div>
+
                       </FormControl>
 
                       <FormMessage />
+
                     </FormItem>
                   )}
                 />
+
               </div>
+
             </div>
 
-            {/* ============================= */}
+            {/* ================================================= */}
             {/* ACTIONS */}
-            {/* ============================= */}
+            {/* ================================================= */}
 
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0">
+
               <Button
                 type="button"
                 variant="outline"
-                disabled={updateMutation.isPending}
-                onClick={() => onOpenChange(false)}
+                disabled={
+                  updateMutation.isPending
+                }
+                onClick={handleCancel}
               >
                 Cancel
               </Button>
@@ -267,16 +437,28 @@ export function EditOrganizationDialog({
                 type="submit"
                 disabled={
                   updateMutation.isPending ||
-                  !organizationId
+                  !organizationId ||
+                  !form.formState.isDirty
                 }
               >
-                {updateMutation.isPending
-                  ? 'Saving Changes...'
-                  : 'Save Changes'}
+
+                {updateMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving Changes...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+
               </Button>
+
             </DialogFooter>
+
           </form>
+
         </Form>
+
       </DialogContent>
     </Dialog>
   );
