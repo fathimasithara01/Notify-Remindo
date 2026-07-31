@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 
 import { useCreateOrganization } from '../hooks/useOrganizationMutations';
-import { useSubscriptionPlans } from '@/features/subscription/hooks/use-subscription-plans';
+import { useSubscriptionPlans } from '@/features/subscription/hooks/plans/use-subscription-plans';
 import {
   createOrganizationSchema,
   CreateOrganizationFormValues,

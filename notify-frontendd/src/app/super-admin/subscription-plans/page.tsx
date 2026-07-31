@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 
 import {
   SubscriptionPlanTable,
-} from "@/features/subscription/components/subscription-plan-table";
+} from "@/features/subscription/components/plans/subscription-plan-table";
 
 import {
   SubscriptionPlanDialog,
-} from "@/features/subscription/components/subscription-plan-dialog";
+} from "@/features/subscription/components/plans/subscription-plan-dialog";
 
 import {
   SubscriptionPlan,

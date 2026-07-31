@@ -2,7 +2,7 @@
 import { ShieldCheck } from "lucide-react";
 import { useOrganization } from '../hooks/useOrganization';
 import { useUpgradePlan } from '../hooks/useOrganizationMutations';
-import { useSubscriptionPlans } from "@/features/subscription/hooks/use-subscription-plans";
+import { useSubscriptionPlans } from "@/features/subscription/hooks/plans/use-subscription-plans";
 
 import { ContactPersonList } from './ContactPersonList';
 import { AddContactPersonDialog } from './AddContactPersonDialog';

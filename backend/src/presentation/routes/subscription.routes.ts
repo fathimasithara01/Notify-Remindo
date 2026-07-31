@@ -20,7 +20,6 @@ router.get("/:id", requireAuth, authorize("plan.view"), subscriptionPlanControll
 router.patch("/:id", requireAuth, authorize("plan.edit"), subscriptionPlanController.updatePlan);
 router.delete("/:id",requireAuth,authorize("plan.delete"),subscriptionPlanController.deletePlan);
 
-
 router.post("/features",requireAuth,authorize("plan.create"),featureController.createFeature);
 router.get( "/features",  requireAuth, authorize("plan.view"), featureController.listFeatures);
 router.get("/features/:id",requireAuth,authorize("plan.view"), featureController.getFeatureById);
@@ -30,7 +29,6 @@ router.delete("/features/:id", requireAuth, authorize("plan.delete"), featureCon
 router.post("/plans/:planId/features",requireAuth,authorize("plan.edit"),planFeatureController.addPlanFeature);
 router.get( "/plans/:planId/features", requireAuth, authorize("plan.view"), planFeatureController.listPlanFeatures);
 router.delete( "/plans/:planId/features/:featureId", requireAuth,  authorize("plan.edit"),  planFeatureController.removePlanFeature);
-
 
 router.post( "/organization-subscriptions", requireAuth, authorize("subscription.create"), organizationSubscriptionController.createSubscription);
 router.get( "/organizations/:organizationId/subscriptions/active",requireAuth,authorize("subscription.view"),organizationSubscriptionController.getActiveSubscription);

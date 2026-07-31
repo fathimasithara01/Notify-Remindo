@@ -87,55 +87,54 @@ export const queryKeys = {
   },
 
   subscriptions: {
-
     all: () =>
-      ['subscriptions'] as const,
-
+      ["subscriptions"] as const,
 
     plans: {
-
       all: () =>
         [
-          'subscriptions',
-          'plans',
+          "subscriptions",
+          "plans",
         ] as const,
-
 
       list: (
         filters?: {
           page?: number;
           limit?: number;
-          status?: 'active' | 'inactive' | 'draft';
+          status?:
+          | "active"
+          | "inactive"
+          | "draft";
           search?: string;
         }
       ) =>
         [
-          'subscriptions',
-          'plans',
-          'list',
+          "subscriptions",
+          "plans",
+          "list",
           {
             page: filters?.page ?? 1,
             limit: filters?.limit ?? 10,
             status: filters?.status ?? null,
-            search: filters?.search ?? '',
+            search: filters?.search ?? "",
           },
         ] as const,
 
-
       detail: (id: string) =>
         [
-          'subscriptions',
-          'plans',
-          'detail',
+          "subscriptions",
+          "plans",
+          "detail",
           id,
         ] as const,
-
     },
 
-
     features: {
-
-      all: () => ["features"] as const,
+      all: () =>
+        [
+          "subscriptions",
+          "features",
+        ] as const,
 
       list: (
         filters?: {
@@ -146,6 +145,7 @@ export const queryKeys = {
         }
       ) =>
         [
+          "subscriptions",
           "features",
           "list",
           {
@@ -158,52 +158,65 @@ export const queryKeys = {
 
       detail: (id: string) =>
         [
+          "subscriptions",
           "features",
           "detail",
           id,
         ] as const,
     },
 
-
     planFeatures: {
-
       all: () =>
         [
-          'subscriptions',
-          'plan-features',
+          "subscriptions",
+          "plan-features",
         ] as const,
-
 
       byPlan: (planId: string) =>
         [
-          'subscriptions',
-          'plan-features',
+          "subscriptions",
+          "plan-features",
           planId,
         ] as const,
-
     },
 
-
     organizationSubscriptions: {
-
       all: () =>
         [
-          'subscriptions',
-          'organization-subscriptions',
+          "subscriptions",
+          "organization-subscriptions",
         ] as const,
 
-
-      byOrganization: (
+      active: (
         organizationId: string
       ) =>
         [
-          'subscriptions',
-          'organization-subscriptions',
+          "subscriptions",
+          "organization-subscriptions",
+          "active",
           organizationId,
         ] as const,
 
+      byOrganization: (
+        organizationId: string,
+        filters?: {
+          page?: number;
+          limit?: number;
+          status?: string;
+        }
+      ) =>
+        [
+          "subscriptions",
+          "organization-subscriptions",
+          organizationId,
+          {
+            page: filters?.page ?? 1,
+            limit: filters?.limit ?? 10,
+            status:
+              filters?.status ?? "all",
+          },
+        ] as const,
     },
-
   },
 
   notifications: {
