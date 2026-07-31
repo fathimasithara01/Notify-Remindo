@@ -52,7 +52,7 @@ interface SubscriptionPlanFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
 }
-
+  
 export function SubscriptionPlanForm({ plan, onSuccess, onCancel }: SubscriptionPlanFormProps) {
   const isEdit = Boolean(plan);
   const createMutation = useCreateSubscriptionPlan();
@@ -174,7 +174,7 @@ export function SubscriptionPlanForm({ plan, onSuccess, onCancel }: Subscription
           />
 
           <FormField
-            control={form.control}
+            control={form.control} //react-hook-form use cheyyunnathaanu.
             name="description"
             render={({ field }) => (
 
@@ -225,22 +225,28 @@ export function SubscriptionPlanForm({ plan, onSuccess, onCancel }: Subscription
                   <Input
                     type="number"
                     min={0}
-                    placeholder="99900"
+                    placeholder="2000"
                     disabled={isPending}
-                    value={field.value === 0 ? "" : field.value}
-                    onChange={(e) => {
+                    value={
+                      field.value === 0
+                        ? ""
+                        : field.value / 100
+                    }
+                    onChange={(e) => {  //User input cheyyumbol e.target.value string aayi kittum.
                       const value = e.target.value;
 
-                      field.onChange(
-                        value === "" ? undefined : Number(value)
-                      );
+                      if (value === "") {
+                        field.onChange(0);
+                        return;
+                      }
+                      field.onChange(Number(value) * 100);
+
                     }}
                   />
                 </FormControl>
 
                 <FormDescription>
-                  Enter the amount in the smallest currency unit
-                  (example: ₹999 = 99900 paise).
+                  Enter the plan price in INR (example: ₹999)
                 </FormDescription>
 
                 <FormMessage />
@@ -380,7 +386,7 @@ export function SubscriptionPlanForm({ plan, onSuccess, onCancel }: Subscription
                     min={0}
                     placeholder="0"
                     disabled={isPending}
-                    value={field.value ?? "" }
+                    value={field.value ?? ""}
                     onChange={(e) =>
                       field.onChange(
                         e.target.value === ""
@@ -420,7 +426,7 @@ export function SubscriptionPlanForm({ plan, onSuccess, onCancel }: Subscription
 
               <Select
                 value={field.value}
-                onValueChange={field.onChange}
+                onValueChange={field.onChange} //User vere option select cheyyumbol field.onChange call cheyyum.
                 disabled={isPending}
               >
 

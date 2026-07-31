@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from 'next/link';
 
 import {
   Table,
@@ -56,6 +57,9 @@ import {
 import {
   SubscriptionPlanPagination,
 } from "./subscription-plan-pagination";
+
+import { ROUTES } from '@/config/routes';
+
 
 interface SubscriptionPlanTableProps {
   onEdit?: (
@@ -172,27 +176,27 @@ export function SubscriptionPlanTable({
 
                 <TableRow>
 
-                  <TableHead className="w-[35%]">
+                  <TableHead className="w-[35%] font-semibold">
                     Plan
                   </TableHead>
 
-                  <TableHead>
+                  <TableHead className="font-semibold">
                     Price
                   </TableHead>
 
-                  <TableHead>
+                  <TableHead className="font-semibold">
                     Billing
                   </TableHead>
 
-                  <TableHead>
+                  <TableHead className="font-semibold">
                     Trial
                   </TableHead>
 
-                  <TableHead>
+                  <TableHead className="font-semibold">
                     Status
                   </TableHead>
 
-                  <TableHead className="text-right">
+                  <TableHead className="text-right font-semibold">
                     Actions
                   </TableHead>
 
@@ -216,13 +220,14 @@ export function SubscriptionPlanTable({
 
                     <TableCell>
 
-                      <div className="space-y-1">
+                      <div className="space-y-1">           
 
-                        <p className="font-semibold">
-
-                          {plan.name}
-
-                        </p>
+                       <Link
+                          href={ROUTES.subscriptions.plans}
+                          className="hover:underline"
+                        >
+                            {plan.name}
+                        </Link>
 
                         <p
                           className="
