@@ -9,42 +9,17 @@ import {
   FeatureStatus,
 } from "../../../domain/entities/feature.entity";
 
-
-
 export interface FeatureDocument extends Document {
-
-
   key: string;
-
-
   label: string;
-
-
   description?: string;
-
-
-
   category?: string;
-
-
-
   dataType: FeatureDataType;
-
-
-
   displayOrder?: number;
-
-
-
   status: FeatureStatus;
-
-deletedAt: Date | null;
-
+  deletedAt: Date | null;
   createdAt: Date;
-
-
   updatedAt: Date;
-
 }
 
 

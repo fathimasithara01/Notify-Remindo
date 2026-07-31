@@ -47,117 +47,62 @@ export class SubscriptionPlanController {
   ) { }
 
   createPlan = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) {
-      throw new UnauthorizedError();
-    }
+    if (!req.user) throw new UnauthorizedError();
 
     const plan = await this.createSubscriptionPlanUseCase.execute({
       adminId: req.user.userId,
       data: req.body,
     });
 
-    ApiResponse.created( res, plan, "Subscription plan created successfully");
+    ApiResponse.created(res, plan, "Subscription plan created successfully");
   };
 
-  listPlans = async (  req: Request,  res: Response): Promise<void> => {
-    const pagination =  parsePagination(    req.query as Record<string, unknown>  );
+  listPlans = async (req: Request, res: Response): Promise<void> => {
+    const pagination = parsePagination(req.query as Record<string, unknown>);
 
-    const result =      await this.subscriptionPlanRepository.list({
-        status: req.query.status as any,
-        search: req.query.search as string | undefined,
-        page: pagination.page,
-        limit:pagination.limit,
-      });
+    const result = await this.subscriptionPlanRepository.list({
+      status: req.query.status as any,
+      search: req.query.search as string | undefined,
+      page: pagination.page,
+      limit: pagination.limit,
+    });
 
-    ApiResponse.success(
-      res,
-      result,
-      200,
-      "Subscription plans fetched successfully"
-    );
-
+    ApiResponse.success(res, result, 200, "Subscription plans fetched successfully");
   };
 
-  getPlanById = async ( req: Request,res: Response): Promise<void> => {
-    const plan =  await this.subscriptionPlanRepository.findById(  req.params.id);
+  getPlanById = async (req: Request, res: Response): Promise<void> => {
+    const plan = await this.subscriptionPlanRepository.findById(req.params.id);
 
-    if (!plan) {
-      throw new NotFoundError(
-        "Subscription plan not found"
-      );
-    }
+    if (!plan) throw new NotFoundError("Subscription plan not found");
 
-    const features =  await this.planFeatureRepository.listByPlan(    plan.id  );
+    const features = await this.planFeatureRepository.listByPlan(plan.id);
 
-    ApiResponse.success(
-      res,
-      {
-        ...plan,
-        features,
-      },
-      200,
-      "Subscription plan fetched successfully"
-    );
-
+    ApiResponse.success(res, { ...plan, features, }, 200, "Subscription plan fetched successfully");
   };
 
 
-  updatePlan = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
+  updatePlan = async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) throw new UnauthorizedError();
 
-    if (!req.user) {
-      throw new UnauthorizedError();
-    }
+    const updatedPlan = await this.updateSubscriptionPlanUseCase.execute({
+      planId: req.params.id,
+      adminId: req.user.userId,
+      data: req.body,
+    });
 
-    const updatedPlan =
-      await this.updateSubscriptionPlanUseCase.execute({
-
-        planId: req.params.id,
-
-        adminId: req.user.userId,
-
-        data: req.body,
-
-      });
-
-    ApiResponse.success(
-      res,
-      updatedPlan,
-      200,
-      "Subscription plan updated successfully"
-    );
-
+    ApiResponse.success(res, updatedPlan, 200, "Subscription plan updated successfully");
   };
 
-  deletePlan = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
-
+  deletePlan = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
       throw new UnauthorizedError();
     }
 
     await this.deleteSubscriptionPlanUseCase.execute({
-
-      planId:
-        req.params.id,
-
-      adminId:
-        req.user.userId,
-
+      planId: req.params.id,
+      adminId: req.user.userId,
     });
 
-    ApiResponse.success(
-      res,
-      null,
-      200,
-      "Subscription plan deleted successfully"
-    );
-
+    ApiResponse.success(res, null, 200, "Subscription plan deleted successfully");
   };
-
-
 }

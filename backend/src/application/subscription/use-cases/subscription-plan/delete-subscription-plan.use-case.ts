@@ -15,58 +15,24 @@ import {
   DomainError,
 } from "../../../../domain/errors/domain.error";
 
-
-
 export interface DeleteSubscriptionPlanInput {
-
   planId: string;
-
   adminId: string;
-
 }
-
-
 
 @injectable()
 export class DeleteSubscriptionPlanUseCase {
-
   constructor(
+    @inject(TOKENS.SubscriptionPlanRepository) private readonly subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TOKENS.AuditLogRepository) private readonly auditLogRepository: IAuditLogRepository,
+  ) { }
 
-    @inject(TOKENS.SubscriptionPlanRepository)
-    private readonly subscriptionPlanRepository:
-      ISubscriptionPlanRepository,
+  async execute(input: DeleteSubscriptionPlanInput): Promise<void> {
+    const { planId, adminId, } = input;
 
-    @inject(TOKENS.AuditLogRepository)
-    private readonly auditLogRepository:
-      IAuditLogRepository,
+    const existingPlan = await this.subscriptionPlanRepository.findById(planId);
 
-  ) {}
-
-
-
-  async execute(
-    input: DeleteSubscriptionPlanInput
-  ): Promise<void> {
-
-    const {
-      planId,
-      adminId,
-    } = input;
-
-
-
-    const existingPlan =
-      await this.subscriptionPlanRepository.findById(
-        planId
-      );
-
-    if (!existingPlan) {
-
-      throw new NotFoundError(
-        "Subscription plan not found"
-      );
-
-    }
+    if (!existingPlan) throw new NotFoundError("Subscription plan not found");
 
 
 
@@ -88,48 +54,18 @@ export class DeleteSubscriptionPlanUseCase {
      * }
      */
 
-
-
-    const deleted =
-      await this.subscriptionPlanRepository.softDelete(
-        planId
-      );
-
-    if (!deleted) {
-
-      throw new DomainError(
-        "Failed to delete subscription plan"
-      );
-
-    }
-
-
+    const deleted = await this.subscriptionPlanRepository.softDelete(planId);
+    if (!deleted) throw new DomainError("Failed to delete subscription plan");
 
     await this.auditLogRepository.create({
-
       adminId,
-
-      action:
-        "DELETE_SUBSCRIPTION_PLAN",
-
-      targetType:
-        "SubscriptionPlan",
-
-      targetId:
-        planId,
-
+      action: "DELETE_SUBSCRIPTION_PLAN",
+      targetType: "SubscriptionPlan",
+      targetId: planId,
       metadata: {
-
-        name:
-          existingPlan.name,
-
-        status:
-          existingPlan.status,
-
+        name: existingPlan.name,
+        status: existingPlan.status,
       },
-
     });
-
   }
-
 }

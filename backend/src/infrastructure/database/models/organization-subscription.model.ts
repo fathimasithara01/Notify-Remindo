@@ -14,70 +14,23 @@ import {
   BillingInterval,
 } from "../../../domain/entities/subscription-plan.entity";
 
-
-
-export interface OrganizationSubscriptionDocument
-  extends Document {
-
-
+export interface OrganizationSubscriptionDocument extends Document {
   organizationId: Types.ObjectId;
-
-
   planId: Types.ObjectId;
-
-
-
   startDate: Date;
-
-
-
   endDate: Date;
-
-
-
   nextBillingDate?: Date | null;
-
-
-
   priceInMinorUnit: number;
-
-
-
   currency: Currency;
-
-
-
   billingInterval: BillingInterval;
-
-
-
   paymentProvider?: string;
-
-
-
   paymentTransactionId?: string;
-
-
-
   autoRenew: boolean;
-
-
-
   status: OrganizationSubscriptionStatus;
-
-
-
   cancelledAt?: Date | null;
-
-
-
   createdAt: Date;
-
-
   updatedAt: Date;
-
 }
-
 
 
 const organizationSubscriptionSchema =

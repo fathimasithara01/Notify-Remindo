@@ -53,105 +53,53 @@ interface SubscriptionPlanFormProps {
   onCancel?: () => void;
 }
 
-export function SubscriptionPlanForm({
-  plan,
-  onSuccess,
-  onCancel,
-}: SubscriptionPlanFormProps) {
-
+export function SubscriptionPlanForm({ plan, onSuccess, onCancel }: SubscriptionPlanFormProps) {
   const isEdit = Boolean(plan);
+  const createMutation = useCreateSubscriptionPlan();
+  const updateMutation = useUpdateSubscriptionPlan();
 
-  const createMutation =
-    useCreateSubscriptionPlan();
+  const form = useForm<CreateSubscriptionPlanFormData>({
+    resolver: zodResolver(createSubscriptionPlanSchema),
 
-  const updateMutation =
-    useUpdateSubscriptionPlan();
-
-  const form =
-    useForm<CreateSubscriptionPlanFormData>({
-
-      resolver: zodResolver(
-        createSubscriptionPlanSchema
-      ),
-
-      defaultValues: {
-
-        name: "",
-
-        description: "",
-
-        priceInMinorUnit: 0,
-
-        currency: "INR",
-
-        billingInterval: "monthly",
-
-        trialDays: 0,
-
-        status: "draft",
-
-      },
-
-    });
+    defaultValues: {
+      name: "",
+      description: "",
+      priceInMinorUnit: 0,
+      currency: "INR",
+      billingInterval: "monthly",
+      trialDays: undefined,
+      status: "draft",
+    },
+  });
 
   useEffect(() => {
-
     if (!plan) {
-
       form.reset({
-
         name: "",
-
         description: "",
-
         priceInMinorUnit: 0,
-
         currency: "INR",
-
         billingInterval: "monthly",
-
-        trialDays: 0,
-
+        trialDays: undefined,
         status: "draft",
-
       });
-
       return;
-
     }
 
     form.reset({
-
       name: plan.name,
-
       description: plan.description ?? "",
-
-      priceInMinorUnit:
-        plan.priceInMinorUnit,
-
+      priceInMinorUnit: plan.priceInMinorUnit,
       currency: plan.currency,
-
-      billingInterval:
-        plan.billingInterval,
-
-      trialDays:
-        plan.trialDays ?? 0,
-
-      status:
-        plan.status,
-
+      billingInterval: plan.billingInterval,
+      trialDays: plan.trialDays ?? 0,
+      status: plan.status,
     });
-
   }, [plan, form]);
 
-  const onSubmit = (
-    data: CreateSubscriptionPlanFormData
-  ) => {
-
+  const onSubmit = (data: CreateSubscriptionPlanFormData) => {
     if (isEdit && plan) {
-
       updateMutation.mutate(
-
         {
           id: plan.id,
           data,
@@ -162,35 +110,22 @@ export function SubscriptionPlanForm({
             onSuccess?.();
           },
         }
-
       );
-
       return;
-
     }
 
     createMutation.mutate(
-
       data,
-
       {
-
         onSuccess: () => {
-
           form.reset();
-
           onSuccess?.();
-
         },
-
       }
-
     );
-
   };
 
-  const isPending =
-    createMutation.isPending ||
+  const isPending = createMutation.isPending ||
     updateMutation.isPending;
 
   return (
@@ -281,30 +216,26 @@ export function SubscriptionPlanForm({
             control={form.control}
             name="priceInMinorUnit"
             render={({ field }) => (
-
               <FormItem>
-
                 <FormLabel>
                   Price
                 </FormLabel>
 
                 <FormControl>
-
                   <Input
                     type="number"
                     min={0}
                     placeholder="99900"
                     disabled={isPending}
-                    value={field.value}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === ""
-                          ? 0
-                          : Number(e.target.value)
-                      )
-                    }
-                  />
+                    value={field.value === 0 ? "" : field.value}
+                    onChange={(e) => {
+                      const value = e.target.value;
 
+                      field.onChange(
+                        value === "" ? undefined : Number(value)
+                      );
+                    }}
+                  />
                 </FormControl>
 
                 <FormDescription>
@@ -313,9 +244,7 @@ export function SubscriptionPlanForm({
                 </FormDescription>
 
                 <FormMessage />
-
               </FormItem>
-
             )}
           />
 
@@ -451,11 +380,11 @@ export function SubscriptionPlanForm({
                     min={0}
                     placeholder="0"
                     disabled={isPending}
-                    value={field.value ?? 0}
+                    value={field.value ?? "" }
                     onChange={(e) =>
                       field.onChange(
                         e.target.value === ""
-                          ? 0
+                          ? undefined
                           : Number(e.target.value)
                       )
                     }

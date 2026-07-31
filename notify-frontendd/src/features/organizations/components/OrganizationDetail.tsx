@@ -247,13 +247,12 @@ export function OrganizationDetail({
               </p>
 
               <p className="text-sm text-muted-foreground">
-                <p className="text-sm text-muted-foreground">
                   {currentPlan &&
                     new Intl.NumberFormat("en-IN", {
                       style: "currency",
                       currency: currentPlan.currency,
                     }).format(currentPlan.priceInMinorUnit / 100)}
-                </p>
+                
               </p>
 
             </div>
