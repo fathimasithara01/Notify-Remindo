@@ -1,23 +1,22 @@
-// src/app/admin/subscription-plans/page.tsx
-
 "use client";
 
 import { useState } from "react";
 
+import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
-// import {
-//   SubscriptionPlanTable,
-// } from "@/features/subscription/components/subscription-plan-table";
+import {
+  SubscriptionPlanTable,
+} from "@/features/subscription/components/subscription-plan-table";
 
-import { SubscriptionPlanTable} from "@/features/subscription/components/subscription-plan-table" 
-import {SubscriptionPlanDialog} from "@/features/subscription/components/subscription-plan-dialog";
+import {
+  SubscriptionPlanDialog,
+} from "@/features/subscription/components/subscription-plan-dialog";
 
 import {
   SubscriptionPlan,
 } from "@/features/subscription/types/subscription-plan.types";
-
-
 
 export default function SubscriptionPlansPage() {
 
@@ -25,9 +24,9 @@ export default function SubscriptionPlansPage() {
     useState(false);
 
   const [selectedPlan, setSelectedPlan] =
-    useState<SubscriptionPlan>();
-
-
+    useState<
+      SubscriptionPlan | undefined
+    >();
 
   const handleCreate = () => {
 
@@ -36,8 +35,6 @@ export default function SubscriptionPlansPage() {
     setOpen(true);
 
   };
-
-
 
   const handleEdit = (
     plan: SubscriptionPlan
@@ -49,22 +46,26 @@ export default function SubscriptionPlansPage() {
 
   };
 
-
-
   return (
 
-    <div className="space-y-6 p-6">
+    <div className="space-y-8">
 
-      <div className="flex items-center justify-between">
+      {/* Header */}
+
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
         <div>
 
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-3xl font-bold tracking-tight">
             Subscription Plans
           </h1>
 
           <p className="text-muted-foreground">
-            Create, update and manage subscription plans.
+
+            Manage pricing, billing intervals,
+            and subscription plans available
+            to organizations.
+
           </p>
 
         </div>
@@ -72,23 +73,35 @@ export default function SubscriptionPlansPage() {
         <Button
           onClick={handleCreate}
         >
-          Add Plan
+
+          <Plus className="mr-2 h-4 w-4" />
+
+          Create Plan
+
         </Button>
 
       </div>
 
-
+      {/* Table */}
 
       <SubscriptionPlanTable
+
+        onCreate={handleCreate}
+
         onEdit={handleEdit}
+
       />
 
-
+      {/* Dialog */}
 
       <SubscriptionPlanDialog
+
         open={open}
+
         onOpenChange={setOpen}
+
         plan={selectedPlan}
+
       />
 
     </div>

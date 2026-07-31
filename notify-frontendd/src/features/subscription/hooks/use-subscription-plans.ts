@@ -1,8 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-    subscriptionPlanApi,
-    SubscriptionPlanListParams,
-} from "../api/subscription-plan.api";
+import { subscriptionPlanApi, SubscriptionPlanListParams } from "../api/subscription-plan.api";
 import { queryKeys } from "@/lib/query/query-keys";
 
 

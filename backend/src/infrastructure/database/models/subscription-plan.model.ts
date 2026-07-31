@@ -9,77 +9,32 @@ import {
 
 
 export interface SubscriptionPlanDocument extends Document {
-
-
   name: string;
-
-
   description?: string;
-
-
-
   priceInMinorUnit: number;
-
-
-
   currency: Currency;
-
-
-
   billingInterval: BillingInterval;
-
-
-
   trialDays?: number;
-
-
-
   status: SubscriptionPlanStatus;
-
-
-
   deletedAt: Date | null;
-
-
-
   createdAt: Date;
-
-
   updatedAt: Date;
-
 }
 
-
-
-const subscriptionPlanSchema =
-  new Schema<SubscriptionPlanDocument>(
-
+const subscriptionPlanSchema =new Schema<SubscriptionPlanDocument>(
     {
-
       name: {
-
         type: String,
-
         required: true,
-
         trim: true,
-
         minlength: 2,
-
         maxlength: 100,
-
       },
 
-
-
       description: {
-
         type: String,
-
         trim: true,
-
         maxlength: 500,
-
       },
 
 

@@ -11,7 +11,7 @@ export const createSubscriptionPlanSchema = z.object({
     .max(500, "Description cannot exceed 500 characters")
     .optional(),
 
-  priceInMinorUnit: z.coerce
+  priceInMinorUnit: z.coerce //coerce ennal input vere type aanelum required type-lekku convert cheyyan try cheyyum. HTML <input> value always string aayittaan varunnath. z.coerce.number() athine number aakki convert cheyyum.
     .number()
     .min(0, "Price cannot be negative"),
 
@@ -42,11 +42,8 @@ export const createSubscriptionPlanSchema = z.object({
 
 });
 
-export const updateSubscriptionPlanSchema =
-  createSubscriptionPlanSchema.partial();
+export const updateSubscriptionPlanSchema = createSubscriptionPlanSchema.partial();
 
-export type CreateSubscriptionPlanFormData =
-  z.infer<typeof createSubscriptionPlanSchema>;
+export type CreateSubscriptionPlanFormData = z.infer<typeof createSubscriptionPlanSchema>;
 
-export type UpdateSubscriptionPlanFormData =
-  z.infer<typeof updateSubscriptionPlanSchema>;
+export type UpdateSubscriptionPlanFormData = z.infer<typeof updateSubscriptionPlanSchema>;

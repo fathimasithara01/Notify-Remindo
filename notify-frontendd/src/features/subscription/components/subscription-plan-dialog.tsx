@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -22,29 +23,58 @@ export function SubscriptionPlanDialog({
   onOpenChange,
   plan,
 }: SubscriptionPlanDialogProps) {
-  const isEdit = !!plan;
+
+  const isEdit = Boolean(plan);
 
   return (
+
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
     >
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
-          <DialogTitle>
+
+      <DialogContent
+        className="
+          max-h-[90vh]
+          overflow-y-auto
+          sm:max-w-2xl
+        "
+      >
+
+        <DialogHeader className="space-y-2">
+
+          <DialogTitle className="text-xl">
+
             {isEdit
               ? "Edit Subscription Plan"
               : "Create Subscription Plan"}
+
           </DialogTitle>
+
+          <DialogDescription>
+
+            {isEdit
+              ? "Update pricing, billing interval, status, and other plan settings."
+              : "Create a new subscription plan that organizations can subscribe to."}
+
+          </DialogDescription>
+
         </DialogHeader>
 
-        <SubscriptionPlanForm
-          plan={plan}
-          onSuccess={() => {
-            onOpenChange(false);
-          }}
-        />
+        <div className="pt-4">
+
+          <SubscriptionPlanForm
+            plan={plan}
+            onSuccess={() => onOpenChange(false)}
+            onCancel={() => onOpenChange(false)}
+          />
+
+        </div>
+
       </DialogContent>
+
     </Dialog>
+
   );
+
 }

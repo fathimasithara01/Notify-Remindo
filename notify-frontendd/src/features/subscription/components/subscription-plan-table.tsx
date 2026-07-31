@@ -1,13 +1,6 @@
-// src/features/subscription/components/subscription-plan-table.tsx
-
-
 "use client";
 
-
-import {
-  Button,
-} from "@/components/ui/button";
-
+import { useMemo, useState } from "react";
 
 import {
   Table,
@@ -18,360 +11,385 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
 
 import {
   useSubscriptionPlans,
 } from "../hooks/use-subscription-plans";
 
-
 import {
   useDeleteSubscriptionPlan,
 } from "../hooks/use-delete-subscription-plan";
-
 
 import {
   SubscriptionPlan,
 } from "../types/subscription-plan.types";
 
+import {
+  SubscriptionPlanToolbar,
+  SubscriptionPlanFilters,
+} from "./subscription-plan-toolbar";
 
+import {
+  SubscriptionPlanSkeleton,
+} from "./subscription-plan-skeleton";
 
+import {
+  SubscriptionPlanEmpty,
+} from "./subscription-plan-empty";
+
+import {
+  SubscriptionPlanStatusBadge,
+} from "./subscription-plan-status-badge";
+
+import {
+  SubscriptionPlanRowActions,
+} from "./subscription-plan-row-actions";
+
+import {
+  DeleteSubscriptionPlanDialog,
+} from "./delete-subscription-plan-dialog";
+
+import {
+  SubscriptionPlanPagination,
+} from "./subscription-plan-pagination";
 
 interface SubscriptionPlanTableProps {
+  onEdit?: (
+    plan: SubscriptionPlan
+  ) => void;
 
-
-  onEdit?:
-    (
-      plan: SubscriptionPlan
-    ) => void;
-
-
+  onCreate?: () => void;
 }
-
-
-
-
 
 export function SubscriptionPlanTable({
   onEdit,
+  onCreate,
 }: SubscriptionPlanTableProps) {
 
+  const [page, setPage] =
+    useState(1);
 
+  const [filters, setFilters] =
+    useState<SubscriptionPlanFilters>({
+      search: "",
+      status: "all",
+    });
+
+  const [selectedPlan, setSelectedPlan] =
+    useState<SubscriptionPlan | null>(
+      null
+    );
 
   const {
     data,
     isLoading,
-  } =
-    useSubscriptionPlans({
+    isFetching,
+    refetch,
+  } = useSubscriptionPlans({
 
-      page:1,
+    page,
 
-      limit:10,
+    limit: 10,
 
-    });
+    search:
+      filters.search || undefined,
 
+    status:
+      filters.status === "all"
+        ? undefined
+        : filters.status,
 
-
-
+  });
 
   const deleteMutation =
     useDeleteSubscriptionPlan();
 
+  const plans = useMemo(
+    () => data?.items ?? [],
+    [data]
+  );
 
-
-
-
-
-  if(isLoading){
-
+  if (isLoading) {
     return (
-
-      <div>
-        Loading subscription plans...
-      </div>
-
+      <SubscriptionPlanSkeleton />
     );
-
   }
 
-
-
-
-
-
-  const plans =
-    data?.items ?? [];
-
-
-
-
-
-
+  if (!plans.length) {
+    return (
+      <SubscriptionPlanEmpty
+        onCreate={() =>
+          onCreate?.()
+        }
+      />
+    );
+  }
 
   return (
 
-    <div
-      className="
-        rounded-md
-        border
-      "
-    >
+    <div className="space-y-6">
 
+      <SubscriptionPlanToolbar
 
-      <Table>
+        filters={filters}
 
+        total={
+          data?.total ?? 0
+        }
 
-        <TableHeader>
+        isRefreshing={
+          isFetching
+        }
 
-          <TableRow>
+        onFiltersChange={(value) => {
 
+          setPage(1);
 
-            <TableHead>
-              Name
-            </TableHead>
+          setFilters(value);
 
+        }}
 
-            <TableHead>
-              Price
-            </TableHead>
+        onRefresh={refetch}
 
+        onCreate={() =>
+          onCreate?.()
+        }
 
-            <TableHead>
-              Billing
-            </TableHead>
+      />
 
+      <Card>
 
-            <TableHead>
-              Status
-            </TableHead>
+        <CardContent className="p-0">
 
+          <div className="overflow-x-auto">
 
-            <TableHead
-              className="text-right"
-            >
-              Actions
-            </TableHead>
+            <Table>
+              <TableHeader>
 
+                <TableRow>
 
-          </TableRow>
+                  <TableHead className="w-[35%]">
+                    Plan
+                  </TableHead>
 
+                  <TableHead>
+                    Price
+                  </TableHead>
 
-        </TableHeader>
+                  <TableHead>
+                    Billing
+                  </TableHead>
 
+                  <TableHead>
+                    Trial
+                  </TableHead>
 
+                  <TableHead>
+                    Status
+                  </TableHead>
 
-
-
-        <TableBody>
-
-
-
-          {
-            plans.map(
-              (plan)=>(
-
-
-                <TableRow
-                  key={plan.id}
-                >
-
-
-                  <TableCell>
-
-                    <div>
-
-                      <p className="font-medium">
-
-                        {plan.name}
-
-                      </p>
-
-
-                      {
-                        plan.description &&
-                        (
-
-                          <p
-                            className="
-                              text-sm
-                              text-muted-foreground
-                            "
-                          >
-                            {plan.description}
-                          </p>
-
-                        )
-                      }
-
-
-                    </div>
-
-
-                  </TableCell>
-
-
-
-
-
-
-                  <TableCell>
-
-
-                    {plan.currency}
-
-                    {" "}
-
-                    {
-                      (
-                        plan.priceInMinorUnit /
-                        100
-                      ).toFixed(2)
-                    }
-
-
-                  </TableCell>
-
-
-
-
-
-
-                  <TableCell>
-
-                    {plan.billingInterval}
-
-                  </TableCell>
-
-
-
-
-
-
-                  <TableCell>
-
-                    {plan.status}
-
-                  </TableCell>
-
-
-
-
-
-
-                  <TableCell
-                    className="text-right"
-                  >
-
-
-
-                    <div
-                      className="
-                        flex
-                        justify-end
-                        gap-2
-                      "
-                    >
-
-
-                      <Button
-
-                        variant="outline"
-
-                        size="sm"
-
-                        onClick={() =>
-                          onEdit?.(plan)
-                        }
-
-                      >
-
-                        Edit
-
-                      </Button>
-
-
-
-
-
-                      <Button
-
-                        variant="destructive"
-
-                        size="sm"
-
-                        disabled={
-                          deleteMutation.isPending
-                        }
-
-
-                        onClick={() =>
-                          deleteMutation.mutate(
-                            plan.id
-                          )
-                        }
-
-                      >
-
-                        {
-                          deleteMutation.isPending
-                            ? "Deleting..."
-                            : "Delete"
-                        }
-
-
-                      </Button>
-
-
-
-                    </div>
-
-
-
-                  </TableCell>
-
-
+                  <TableHead className="text-right">
+                    Actions
+                  </TableHead>
 
                 </TableRow>
 
+              </TableHeader>
 
-              )
+              <TableBody>
 
-            )
+                {plans.map((plan) => (
+
+                  <TableRow
+                    key={plan.id}
+                    className="
+                      transition-colors
+                      hover:bg-muted/40
+                    "
+                  >
+
+                    {/* Plan */}
+
+                    <TableCell>
+
+                      <div className="space-y-1">
+
+                        <p className="font-semibold">
+
+                          {plan.name}
+
+                        </p>
+
+                        <p
+                          className="
+                            line-clamp-2
+                            text-sm
+                            text-muted-foreground
+                          "
+                        >
+
+                          {plan.description ||
+                            "No description provided"}
+
+                        </p>
+
+                      </div>
+
+                    </TableCell>
+
+                    {/* Price */}
+
+                    <TableCell>
+
+                      <span className="font-medium">
+
+                        {new Intl.NumberFormat(
+                          "en-IN",
+                          {
+                            style: "currency",
+                            currency: plan.currency,
+                          }
+                        ).format(
+                          plan.priceInMinorUnit / 100
+                        )}
+
+                      </span>
+
+                    </TableCell>
+
+                    {/* Billing */}
+
+                    <TableCell>
+
+                      <span
+                        className="
+                          rounded-full
+                          border
+                          bg-muted
+                          px-3
+                          py-1
+                          text-xs
+                          font-medium
+                          capitalize
+                        "
+                      >
+
+                        {plan.billingInterval}
+
+                      </span>
+
+                    </TableCell>
+
+                    {/* Trial */}
+
+                    <TableCell>
+
+                      {plan.trialDays && plan.trialDays > 0 ? (
+
+                        <span
+                          className="
+                            text-sm
+                            font-medium
+                          "
+                        >
+                          {plan.trialDays} days
+                        </span>
+
+                      ) : (
+
+                        <span
+                          className="
+                            text-sm
+                            text-muted-foreground
+                          "
+                        >
+                          —
+                        </span>
+
+                      )}
+
+                    </TableCell>
+
+                    {/* Status */}
+
+                    <TableCell>
+
+                      <SubscriptionPlanStatusBadge
+                        status={plan.status}
+                      />
+
+                    </TableCell>
+
+                    {/* Actions */}
+
+                    <TableCell className="text-right">
+
+                      <SubscriptionPlanRowActions
+
+                        plan={plan}
+
+                        isDeleting={
+                          deleteMutation.isPending &&
+                          deleteMutation.variables === plan.id
+                        }
+
+                        onEdit={(plan) =>
+                          onEdit?.(plan)
+                        }
+
+                        onDelete={(plan) =>
+                          setSelectedPlan(plan)
+                        }
+
+                      />
+
+                    </TableCell>
+
+                  </TableRow>
+
+                ))}
+
+              </TableBody>
+
+            </Table>
+
+          </div>
+
+        </CardContent>
+
+      </Card>
+
+      <DeleteSubscriptionPlanDialog
+        open={!!selectedPlan}
+        plan={selectedPlan}
+        loading={deleteMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedPlan(null);
           }
+        }}
+        onConfirm={() => {
+          if (!selectedPlan) return;
 
+          deleteMutation.mutate(selectedPlan.id, {
+            onSuccess: () => {
+              setSelectedPlan(null);
+            },
+          });
+        }}
+      />
 
-
-
-
-          {
-            plans.length === 0 &&
-            (
-
-              <TableRow>
-
-                <TableCell
-                  colSpan={5}
-                  className="text-center"
-                >
-
-                  No subscription plans found
-
-                </TableCell>
-
-
-              </TableRow>
-
-            )
-          }
-
-
-
-
-
-        </TableBody>
-
-
-      </Table>
-
+      {data && data.totalPages > 1 && (
+        <SubscriptionPlanPagination
+          currentPage={page}
+          totalPages={data.totalPages}
+          onPageChange={setPage}
+        />
+      )}
 
     </div>
 
