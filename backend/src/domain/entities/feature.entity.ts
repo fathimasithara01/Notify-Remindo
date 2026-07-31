@@ -13,7 +13,8 @@ export type FeatureDataType =
 
 export interface Feature {
   id: string;
-  key: string;
+
+  key: string; //System internal identifier.
   label: string;
 
   description?: string;
@@ -41,3 +42,32 @@ export type CreateFeatureInput =
     Feature,
     "id" | "createdAt" | "updatedAt" | "deletedAt"
   >;
+
+
+  // [
+  // {
+  //   id: "1",
+  //   key: "max_users",
+  //   label: "Maximum Users",
+  //   description: "Maximum users allowed",
+  //   category: "Users",
+  //   dataType: "number",
+  //   status: "active"
+  // },
+  // {
+  //   id: "2",
+  //   key: "api_access",
+  //   label: "API Access",
+  //   category: "Integrations",
+  //   dataType: "boolean",
+  //   status: "active"
+  // },
+  // {
+  //   id: "3",
+  //   key: "storage_limit",
+  //   label: "Storage Limit",
+  //   category: "Storage",
+  //   dataType: "number",
+  //   status: "active"
+  // }
+// ]

@@ -155,8 +155,4 @@ subscriptionPlanSchema.index({
 
 
 
-export const SubscriptionPlanModel =
-  model<SubscriptionPlanDocument>(
-    "SubscriptionPlan",
-    subscriptionPlanSchema
-  );
+export const SubscriptionPlanModel = model<SubscriptionPlanDocument>(   "SubscriptionPlan",   subscriptionPlanSchema );

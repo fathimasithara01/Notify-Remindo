@@ -135,38 +135,33 @@ export const queryKeys = {
 
     features: {
 
-      all: () =>
-        [
-          'subscriptions',
-          'features',
-        ] as const,
-
+      all: () => ["features"] as const,
 
       list: (
         filters?: {
-          status?: 'active' | 'inactive';
           page?: number;
+          limit?: number;
+          status?: "active" | "inactive";
+          search?: string;
         }
       ) =>
         [
-          'subscriptions',
-          'features',
-          'list',
+          "features",
+          "list",
           {
-            status: filters?.status ?? null,
             page: filters?.page ?? 1,
+            limit: filters?.limit ?? 10,
+            status: filters?.status ?? null,
+            search: filters?.search ?? "",
           },
         ] as const,
 
-
       detail: (id: string) =>
         [
-          'subscriptions',
-          'features',
-          'detail',
+          "features",
+          "detail",
           id,
         ] as const,
-
     },
 
 
