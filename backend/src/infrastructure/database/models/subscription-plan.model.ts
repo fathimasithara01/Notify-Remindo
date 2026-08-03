@@ -6,8 +6,6 @@ import {
   BillingInterval,
 } from "../../../domain/entities/subscription-plan.entity";
 
-
-
 export interface SubscriptionPlanDocument extends Document {
   name: string;
   description?: string;
