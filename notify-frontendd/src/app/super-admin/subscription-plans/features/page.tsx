@@ -91,9 +91,9 @@ export default function FeaturesPage() {
 
     setStatus(
       value as
-        | "all"
-        | "active"
-        | "inactive"
+      | "all"
+      | "active"
+      | "inactive"
     );
 
   };

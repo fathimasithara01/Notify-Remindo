@@ -44,7 +44,8 @@ export class ResendInviteUseCase {
     await this.userRepo.update(orgAdminUser .id, { inviteToken, inviteTokenExpiresAt });
 
     const inviteUrl = `${env.FRONTEND_URL}/accept-invite/${inviteToken}`;
-    const content = inviteEmailTemplate({
+    
+    const email  = inviteEmailTemplate({
       orgName: organization.name,
       inviteUrl,
       ttlHours: INVITE_TOKEN_TTL_HOURS,
@@ -53,9 +54,9 @@ export class ResendInviteUseCase {
 
     await this.emailNotifier.send({
       to: orgAdminUser .email,
-      subject: content.subject,
-      message: content.text,
-      html: content.html,
+      subject: email.subject,
+      message: email.text,
+      html: email.html,
     });
 
     await this.auditLogRepo.create({
@@ -63,7 +64,11 @@ export class ResendInviteUseCase {
       action: 'RESEND_INVITE',
       targetType: 'Organization',
       targetId: organization.id,
-      metadata: { userEmail: orgAdminUser.email },
+       metadata: {
+        organizationId: organization.id,
+        userId: orgAdminUser.id,
+        email: orgAdminUser.email,
+      },
     });
   }
 }

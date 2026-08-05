@@ -8,7 +8,7 @@ import notificationRoutes from './notification.routes';
 import dashboardRoutes from './dashboard.routes';
 import userRoutes from './user.routes';
 import auditLogRoutes from './audit-log.routes';
-import inviteRoutes from './invite.routes';
+// import inviteRoutes from './invite.routes';
 import organizationDocuments from './organization-document.routes'
 
 const router = Router();
@@ -23,7 +23,7 @@ router.use('/notifications', notificationRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/users', userRoutes);
 router.use('/audit-logs', auditLogRoutes);
-router.use('/invites', inviteRoutes);
+// router.use('/invites', inviteRoutes);
 
 export default router;
 

@@ -22,6 +22,17 @@ const PERMISSIONS: Array<{ name: string; module: string; description: string }> 
   },
 
   {
+    name: 'organization.resend_invite',
+    module: 'organization',
+    description: 'Resend organization admin invitation',
+  },
+
+  {
+    name: "organization.cancel_invite",
+    module: "organization",
+    description: "Cancel a pending organization admin invitation",
+  },
+  {
     name: 'organization.upgrade_plan',
     module: 'organization',
     description: 'Upgrade an organization\'s subscription plan',

@@ -132,6 +132,25 @@ export class UserRepository implements IUserRepository {
       });
   }
 
+  async cancelInvite(userId: string): Promise<boolean> {
+    const result = await UserModel.findOneAndUpdate(
+      {
+        _id: userId,
+        status: "invited",
+        deletedAt: null,
+      },
+      {
+        $set: {
+          status: "inactive",
+          inviteToken: null,
+          inviteTokenExpiresAt: null,
+        },
+      }
+    );
+
+    return result !== null;
+  }
+
   async findOneByOrganizationAndStatus(
     organizationId: string,
     status: "invited" | "active" | "inactive"

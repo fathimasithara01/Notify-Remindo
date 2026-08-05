@@ -14,12 +14,13 @@ import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError, NotFoundError } from '../../domain/errors/domain.error';
 import { parsePaginationParams } from '../../shared/utils/pagination';
 import { SetOrganizationAdminPasswordUseCase } from '../../application/organization/use-cases/set-organization-admin-password.use-case';
+import { ResendInviteUseCase } from '../../application/organization/use-cases/resend-invite.use-case';
+import { CancelInviteUseCase } from '../../application/organization/use-cases/Cancel-invite-use-case';
 
 @injectable()
 export class OrganizationController {
   constructor(
     @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
-    @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.CreateOrganizationUseCase) private createOrgUseCase: CreateOrganizationUseCase,
     @inject(TOKENS.EditOrganizationUseCase) private editOrgUseCase: EditOrganizationUseCase,
@@ -27,7 +28,9 @@ export class OrganizationController {
     @inject(TOKENS.UpgradePlanUseCase) private upgradePlanUseCase: UpgradePlanUseCase,
     @inject(TOKENS.BlockCustomerUseCase) private blockCustomerUseCase: BlockCustomerUseCase,
     @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase,
-    @inject(TOKENS.SetOrganizationAdminPasswordUseCase) private setOrganizationAdminPasswordUseCase: SetOrganizationAdminPasswordUseCase
+    @inject(TOKENS.SetOrganizationAdminPasswordUseCase) private setOrganizationAdminPasswordUseCase: SetOrganizationAdminPasswordUseCase,
+    @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: ResendInviteUseCase,
+    @inject(TOKENS.CancelInviteUseCase) private cancelInviteUseCase: CancelInviteUseCase,
   ) { }
 
   create = async (req: Request, res: Response): Promise<void> => {
@@ -51,7 +54,6 @@ export class OrganizationController {
       page: pagination.page,
       limit: pagination.limit,
     });
-
 
     ApiResponse.success(res, result);
   };
@@ -89,6 +91,42 @@ export class OrganizationController {
     ApiResponse.success(res, null, 200, 'Organization admin password updated');
   };
 
+  resendInvite = async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+      throw new UnauthorizedError();
+    }
+
+    await this.resendInviteUseCase.execute({
+      organizationId: req.params.id,
+      adminId: req.user.userId,
+    });
+
+    ApiResponse.success(
+      res,
+      null,
+      200,
+      'Invitation email resent successfully'
+    );
+  };
+
+  cancelInvite = async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+      throw new UnauthorizedError();
+    }
+
+    await this.cancelInviteUseCase.execute({
+      organizationId: req.params.id,
+      adminId: req.user.userId,
+    });
+
+    ApiResponse.success(
+      res,
+      null,
+      200,
+      "Invitation cancelled successfully"
+    );
+  };
+
   delete = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
 
@@ -115,6 +153,7 @@ export class OrganizationController {
     if (!organization) throw new NotFoundError('Organization not found');
     ApiResponse.success(res, organization, 200, 'Organization unblocked');
   };
+
 
   upgradePlan = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.upgradePlanUseCase.execute({

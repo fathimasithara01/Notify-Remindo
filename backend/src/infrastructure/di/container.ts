@@ -74,6 +74,7 @@ import { DeleteSubscriptionPlanUseCase } from '../../application/subscription/us
 import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout-from-alldevice';
 import { OrganizationSubscriptionRepository } from '../database/repositories/organization-subscription.repository';
 import { SetOrganizationAdminPasswordUseCase } from '../../application/organization/use-cases/set-organization-admin-password.use-case';
+import { CancelInviteUseCase } from '../../application/organization/use-cases/Cancel-invite-use-case';
 
 export function registerDependencies(): void {
   // Repositories
@@ -141,6 +142,7 @@ export function registerDependencies(): void {
   container.register(TOKENS.DeleteSubscriptionPlanUseCase, DeleteSubscriptionPlanUseCase);
   container.register(TOKENS.LogoutAllDevicesUseCase, LogoutAllDevicesUseCase);
   container.register(TOKENS.SetOrganizationAdminPasswordUseCase, SetOrganizationAdminPasswordUseCase);
+  container.register(TOKENS.CancelInviteUseCase, CancelInviteUseCase);
 
   // Controllers
   container.registerSingleton(TOKENS.AuthController, AuthController);

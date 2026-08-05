@@ -243,6 +243,52 @@ export function useResetAdminPassword() {
   });
 }
 
+export function useResendInvite() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (organizationId: string) =>
+      organizationApi.resendInvite(organizationId),
+
+    onSuccess: (_, organizationId) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.organizations.all(),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.organizations.detail(organizationId),
+      });
+
+      toast.success("Invitation resent successfully");
+    },
+
+    onError,
+  });
+}
+
+export function useCancelInvite() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (organizationId: string) =>
+      organizationApi.cancelInvite(organizationId),
+
+    onSuccess: (_, organizationId) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.organizations.all(),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.organizations.detail(organizationId),
+      });
+
+      toast.success("Invitation cancelled successfully");
+    },
+
+    onError,
+  });
+}
+
 export function useUpgradePlan(
   organizationId: string
 ) {

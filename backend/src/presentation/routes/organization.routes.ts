@@ -50,6 +50,9 @@ router.post(
   asyncHandler(controller.setAdminPassword)
 );
 
+router.post('/resend', authorize('organization.resend_invite'), asyncHandler(controller.resendInvite));
+router.post('/:id/cancel-invite', authorize('organization.cancel_invite'), asyncHandler(controller.cancelInvite));
+
 router.post(
   '/:id/upgrade-plan',
   authorize('organization.upgrade_plan'),
