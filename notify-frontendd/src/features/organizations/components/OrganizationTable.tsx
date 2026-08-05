@@ -75,11 +75,6 @@ export function OrganizationTable() {
 
   return (
     <div className="space-y-4">
-
-      {/* ========================= */}
-      {/* SEARCH */}
-      {/* ========================= */}
-
       <div className="flex items-center justify-between gap-4">
 
         <SearchInput
@@ -94,10 +89,6 @@ export function OrganizationTable() {
         )}
 
       </div>
-
-      {/* ========================= */}
-      {/* EMPTY STATE */}
-      {/* ========================= */}
 
       {organizations.length === 0 ? (
         <EmptyState
@@ -117,10 +108,7 @@ export function OrganizationTable() {
 
             <Table>
 
-              {/* ========================= */}
-              {/* HEADER */}
-              {/* ========================= */}
-
+        
               <TableHeader>
 
                 <TableRow>
@@ -137,6 +125,11 @@ export function OrganizationTable() {
                     Phone
                   </TableHead>
 
+                  <TableHead className="min-w-[100px] font-semibold">
+                    Plan Name
+                  </TableHead>
+
+                  
                   <TableHead className="min-w-[100px] font-semibold">
                     Status
                   </TableHead>
@@ -198,25 +191,17 @@ export function OrganizationTable() {
 
                       </TableCell>
 
-                      {/* ========================= */}
-                      {/* EMAIL */}
-                      {/* ========================= */}
-
                       <TableCell className="text-muted-foreground">
                         {org.admin?.email ?? "—"}
                       </TableCell>
-
-                      {/* ========================= */}
-                      {/* PHONE */}
-                      {/* ========================= */}
 
                       <TableCell className="text-muted-foreground">
                         {org.admin?.phone ?? "—"}
                       </TableCell>
 
-                      {/* ========================= */}
-                      {/* STATUS */}
-                      {/* ========================= */}
+                       <TableCell className="text-muted-foreground">
+                        {org?.currentPlanName ?? "—"}
+                      </TableCell>
 
                       <TableCell>
 

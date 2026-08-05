@@ -312,7 +312,23 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
 
-      // 10. Sort latest organizations first
+      // 10. Lookup current subscription plan
+      {
+        $lookup: {
+          from: 'subscriptionplans',
+          localField: 'currentPlanId',
+          foreignField: '_id',
+          as: 'plan',
+        },
+      },
+      {
+        $unwind: {
+          path: '$plan',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // 11. Sort latest organizations first
       {
         $sort: {
           createdAt: -1,
@@ -338,6 +354,7 @@ export class OrganizationRepository implements IOrganizationRepository {
                 address: 1,
                 status: 1,
                 currentPlanId: 1,
+                 currentPlanName: '$plan.name',
                 salesmanId: 1,
                 documents: 1,
                 deletedAt: 1,
@@ -376,6 +393,7 @@ export class OrganizationRepository implements IOrganizationRepository {
         status: doc.status,
         currentPlanId: doc.currentPlanId?.toString() ?? null,
         salesmanId: doc.salesmanId?.toString() ?? null,
+        currentPlanName: doc.currentPlanName ?? null,
         documents: doc.documents,
         deletedAt: doc.deletedAt ?? null,
         createdAt: doc.createdAt,

@@ -36,6 +36,7 @@ export interface Organization {
   status: OrganizationStatus;
 
   currentPlanId?: string | null;
+   currentPlanName: string | null;
   salesmanId?: string | null;
 
   documents?: {
