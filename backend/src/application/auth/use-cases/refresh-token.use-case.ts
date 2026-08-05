@@ -41,7 +41,7 @@ export class RefreshTokenUseCase {
 
     const newPayload = {
       userId: user.id,
-      roleIds: activeRoles.map((r) => r.id),
+      roleIds: activeRoles.map((r) => r.roleId),
       roleSlugs: activeRoles.map((r) => r.role.slug),
       organizationId: user.organizationId,
       tokenVersion: user.tokenVersion,

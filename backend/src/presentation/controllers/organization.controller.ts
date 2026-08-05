@@ -13,7 +13,7 @@ import { AssignSalesmanUseCase } from '../../application/organization/use-cases/
 import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError, NotFoundError } from '../../domain/errors/domain.error';
 import { parsePaginationParams } from '../../shared/utils/pagination';
-import { SetOrganizationAdminPasswordUseCase } from '../../application/user/use-cases/set-organization-admin-password.use-case';
+import { SetOrganizationAdminPasswordUseCase } from '../../application/organization/use-cases/set-organization-admin-password.use-case';
 
 @injectable()
 export class OrganizationController {

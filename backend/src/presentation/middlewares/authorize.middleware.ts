@@ -27,6 +27,9 @@ export function authorize(requiredPermission: string) {
         if (!role) {
           const fetched = await roleRepo.findWithPermissions(roleId);
 
+          console.log('Fetched role:', fetched);
+
+
           if (!fetched) continue;
           cache.set(roleId, fetched);
 

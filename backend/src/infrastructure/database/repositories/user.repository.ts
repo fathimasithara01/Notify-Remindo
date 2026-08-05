@@ -142,44 +142,65 @@ export class UserRepository implements IUserRepository {
 
   async findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null> {
 
-    const orgAdminRole = await RoleModel.findOne({
-      slug: 'orgadmin',
-      deletedAt: null,
-    }).select('_id').lean();
-
-    if (!orgAdminRole) {
-      return null;
-    }
-
-    const userRole = await UserRoleModel.findOne({
-      roleId: orgAdminRole._id,
-    }).select('userId').lean();
-
-    if (!userRole) {
-      return null;
-    }
-
-    const user = await UserModel.findOne({
-      _id: userRole.userId,
-      organizationId,
-      status: {
-        $in: ['active', 'invited'],
+    const result = await UserRoleModel.aggregate([
+      {
+        $match: {}
       },
-      deletedAt: null,
-    })
-      .select('_id name email phone status')
-      .lean();
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $match: {
+          'user.organizationId': new Types.ObjectId(organizationId),
+          'user.deletedAt': null,
+          'user.status': {
+            $in: ['active', 'invited']
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'roles',
+          localField: 'roleId',
+          foreignField: '_id',
+          as: 'role'
+        }
+      },
+      {
+        $unwind: '$role'
+      },
+      {
+        $match: {
+          'role.slug': 'orgadmin'
+        }
+      },
+      {
+        $project: {
+          id: '$user._id',
+          name: '$user.name',
+          email: '$user.email',
+          phone: '$user.phone',
+          status: '$user.status'
+        }
+      }
+    ]);
 
-    if (!user) {
-      return null;
-    }
+    if (!result.length) return null;
 
     return {
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      phone: user.phone ?? null,
-      status: user.status,
+      id: result[0].id.toString(),
+      name: result[0].name,
+      email: result[0].email,
+      phone: result[0].phone ?? null,
+      status: result[0].status
     };
   }
 

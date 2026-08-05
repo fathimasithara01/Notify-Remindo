@@ -73,7 +73,7 @@ import { UpdateSubscriptionPlanUseCase } from '../../application/subscription/us
 import { DeleteSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/delete-subscription-plan.use-case';
 import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout-from-alldevice';
 import { OrganizationSubscriptionRepository } from '../database/repositories/organization-subscription.repository';
-import { SetOrganizationAdminPasswordUseCase } from '../../application/user/use-cases/set-organization-admin-password.use-case';
+import { SetOrganizationAdminPasswordUseCase } from '../../application/organization/use-cases/set-organization-admin-password.use-case';
 
 export function registerDependencies(): void {
   // Repositories
