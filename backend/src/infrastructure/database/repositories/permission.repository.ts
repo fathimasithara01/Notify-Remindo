@@ -2,6 +2,7 @@ import { injectable } from 'tsyringe';
 import { Types } from 'mongoose';
 import { IPermissionRepository } from '../../../domain/repositories/permission.repository.interface';
 import { Permission, NewPermission } from '../../../domain/entities/permission.entity';
+import { RolePermissionAssignment } from '../../../domain/entities/role-permission.entity';
 import { PermissionModel, PermissionDocument } from '../models/permission.model';
 import { RolePermissionModel } from '../models/role-permission.model';
 
@@ -70,11 +71,28 @@ export class PermissionRepository implements IPermissionRepository {
     });
   }
 
-  async listByRole(roleId: string): Promise<Permission[]> {
+  async listByRole(roleId: string): Promise<RolePermissionAssignment[]> {
     const links = await RolePermissionModel.find({ roleId });
     const permissionIds = links.map((link) => link.permissionId);
-    const docs = await PermissionModel.find({ _id: { $in: permissionIds } });
-    return docs.map((doc) => this.toDomain(doc));
+    const permissionDocs = await PermissionModel.find({ _id: { $in: permissionIds } });
+
+    // Map for O(1) lookup — also lets us silently skip a link whose
+    // permission was deleted, instead of returning a broken row with
+    // `permission: undefined` that crashes the frontend.
+    const permissionById = new Map(permissionDocs.map((doc) => [doc._id.toString(), doc]));
+
+    return links
+      .filter((link) => permissionById.has(link.permissionId.toString()))
+      .map((link) => {
+        const permissionDoc = permissionById.get(link.permissionId.toString())!;
+        return {
+          id: link._id.toString(),          // the assignment (RolePermission) id
+          roleId: link.roleId.toString(),
+          permissionId: permissionDoc._id.toString(),
+          createdAt: link.createdAt,
+          permission: this.toDomain(permissionDoc),
+        };
+      });
   }
 
   private toDomain(doc: PermissionDocument): Permission {

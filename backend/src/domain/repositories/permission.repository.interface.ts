@@ -1,4 +1,5 @@
 import { Permission, NewPermission } from '../entities/permission.entity';
+import { RolePermissionAssignment } from '../entities/role-permission.entity';
 
 export interface IPermissionRepository {
   create(data: NewPermission): Promise<Permission>;
@@ -10,5 +11,5 @@ export interface IPermissionRepository {
 
   assignToRole(roleId: string, permissionIds: string[]): Promise<void>;
   removeFromRole(roleId: string, permissionIds: string[]): Promise<void>;
-  listByRole(roleId: string): Promise<Permission[]>;
+  listByRole(roleId: string): Promise<RolePermissionAssignment[]>;
 }
