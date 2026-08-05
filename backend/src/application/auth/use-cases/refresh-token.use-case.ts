@@ -34,7 +34,7 @@ export class RefreshTokenUseCase {
     }
 
     const roles = await this.userRepo.listRoles(user.id);
-    const activeRoles = roles.filter((r) => r.status === 'active');
+    const activeRoles = roles.filter((r) => r.role.status === 'active');
     if (activeRoles.length === 0) {
       throw new UnauthorizedError('No active role assigned');
     }
@@ -42,7 +42,7 @@ export class RefreshTokenUseCase {
     const newPayload = {
       userId: user.id,
       roleIds: activeRoles.map((r) => r.id),
-      roleSlugs: activeRoles.map((r) => r.slug),
+      roleSlugs: activeRoles.map((r) => r.role.slug),
       organizationId: user.organizationId,
       tokenVersion: user.tokenVersion,
     };

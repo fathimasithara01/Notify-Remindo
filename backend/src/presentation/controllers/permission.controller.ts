@@ -4,7 +4,7 @@ import { TOKENS } from '../../infrastructure/di/tokens';
 import { IPermissionRepository } from '../../domain/repositories/permission.repository.interface';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError } from '../../domain/errors/domain.error';
-import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
+import {  paginationMeta, parsePaginationParams } from '../../shared/utils/pagination';
 
 @injectable()
 export class PermissionController {
@@ -14,7 +14,7 @@ export class PermissionController {
 
   list = async (req: Request, res: Response): Promise<void> => {
     const { module, search } = req.query;
-    const pagination = parsePagination(req.query as Record<string, unknown>);
+    const pagination = parsePaginationParams(req.query as Record<string, unknown>);
     const permissions = await this.permissionRepo.list({
       module: module as string | undefined,
       search: search as string | undefined,

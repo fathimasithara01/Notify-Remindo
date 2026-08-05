@@ -8,7 +8,7 @@ import { EditRoleUseCase } from '../../application/role/use-cases/edit-role.use-
 import { DeleteRoleUseCase } from '../../application/role/use-cases/delete-role.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError, UnauthorizedError } from '../../domain/errors/domain.error';
-import { parsePagination, buildPaginationMeta } from '../../shared/utils/pagination';
+import {  parsePaginationParams  } from '../../shared/utils/pagination';
 import { RolePermissionCache } from '../../infrastructure/cache/role-permission-cache';
 import { container } from '../../infrastructure/di/container';
 
@@ -30,7 +30,7 @@ export class RoleController {
   list = async (req: Request, res: Response): Promise<void> => {
     const { search, status } = req.query;
 
-    const pagination = parsePagination(
+    const pagination = parsePaginationParams(
       req.query as Record<string, unknown>
     );
 
@@ -40,10 +40,7 @@ export class RoleController {
       ...pagination,
     });
 
-    ApiResponse.success(res, {
-      items: result.items,
-      meta: buildPaginationMeta(result.total, pagination),
-    });
+    ApiResponse.success(res,result)
   };
 
   getOne = async (req: Request, res: Response): Promise<void> => {

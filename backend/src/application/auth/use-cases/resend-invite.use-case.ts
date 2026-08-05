@@ -23,8 +23,10 @@ export class ResendInviteUseCase {
             throw new NotFoundError('Organization not found');
         }
 
-        const orgUsers = await this.userRepo.list({ organizationId });
-        const orgAdminUser = orgUsers.find((u) => u.status === 'invited');
+        const orgAdminUser = await this.userRepo.findOneByOrganizationAndStatus(
+            organizationId,
+            'invited'
+        );
 
         if (!orgAdminUser) {
             throw new DomainError(

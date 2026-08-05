@@ -36,7 +36,7 @@ export class LoginAdminUseCase {
     }
 
     const roles = await this.userRepo.listRoles(user.id);
-    const activeRoles = roles.filter((r) => r.status === 'active');
+    const activeRoles = roles.filter((r) => r.role.status === 'active');
     if (activeRoles.length === 0) {
       throw new UnauthorizedError('No active role assigned. Contact an administrator.');
     }
@@ -44,7 +44,7 @@ export class LoginAdminUseCase {
     const payload = {
       userId: user.id,
       roleIds: activeRoles.map((r) => r.id),
-      roleSlugs: activeRoles.map((r) => r.slug),
+      roleSlugs: activeRoles.map((r) => r.role.slug),
       organizationId: user.organizationId,
       tokenVersion: user.tokenVersion,
     };
@@ -56,7 +56,7 @@ export class LoginAdminUseCase {
         id: user.id,
         name: user.name,
         email: user.email,
-        roles: activeRoles.map((r) => r.slug),
+        roles: activeRoles.map((r) => r.role.slug),
       },
     };
   }

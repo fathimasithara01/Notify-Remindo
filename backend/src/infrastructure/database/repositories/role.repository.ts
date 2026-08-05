@@ -4,7 +4,7 @@ import { Role, NewRole, RoleWithPermissions } from '../../../domain/entities/rol
 import { RoleModel, RoleDocument } from '../models/role.model';
 import { RolePermissionModel } from '../models/role-permission.model';
 import { PermissionModel } from '../models/permission.model';
-import { getPaginationOffset, PaginatedResult } from '../../../shared/utils/pagination';
+import { getOffset, PaginatedResult, paginationMeta } from '../../../shared/utils/pagination';
 
 @injectable()
 export class RoleRepository implements IRoleRepository {
@@ -63,7 +63,7 @@ export class RoleRepository implements IRoleRepository {
     ];
   }
 
-  const skip = getPaginationOffset({
+  const skip = getOffset({
     page: filter.page,
     limit: filter.limit,
   });
@@ -79,7 +79,7 @@ export class RoleRepository implements IRoleRepository {
 
   return {
     items: docs.map((doc) => this.toDomain(doc)),
-    total,
+      meta: paginationMeta(total, { page: filter.page, limit: filter.limit }),
   };
 }
 

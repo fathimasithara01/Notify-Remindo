@@ -10,6 +10,8 @@ export interface DeleteOrganizationInput {
   adminId: string;
 }
 
+const DEACTIVATION_BATCH_SIZE = 100;
+
 @injectable()
 export class DeleteOrganizationUseCase {
   constructor(
@@ -24,9 +26,25 @@ export class DeleteOrganizationUseCase {
       throw new NotFoundError('Organization not found');
     }
 
-    const orgUsers = await this.userRepo.list({ organizationId: input.organizationId });
-    for (const user of orgUsers) {
-      await this.userRepo.update(user.id, { status: 'inactive' });
+    let deactivatedCount = 0;
+    let page = 1;
+
+    // Paginate through all users in the org — don't assume they fit on one page
+    while (true) {
+      const { items: orgUsers, meta } = await this.userRepo.list({
+        organizationId: input.organizationId,
+        page,
+        limit: DEACTIVATION_BATCH_SIZE,
+      });
+
+      for (const user of orgUsers) {
+        await this.userRepo.update(user.id, { status: 'inactive' });
+      }
+
+      deactivatedCount += orgUsers.length;
+
+      if (page >= meta.totalPages) break;
+      page++;
     }
 
     await this.auditLogRepo.create({
@@ -34,7 +52,7 @@ export class DeleteOrganizationUseCase {
       action: 'DELETE_ORGANIZATION',
       targetType: 'Organization',
       targetId: input.organizationId,
-      metadata: { deactivatedUserCount: orgUsers.length },
+      metadata: { deactivatedUserCount: deactivatedCount },
     });
   }
 }

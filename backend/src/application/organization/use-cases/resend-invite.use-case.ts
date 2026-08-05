@@ -23,7 +23,7 @@ export class ResendInviteUseCase {
     @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService
-  ) {}
+  ) { }
 
   async execute(input: ResendInviteInput): Promise<void> {
     const organization = await this.orgRepo.findById(input.organizationId);
@@ -31,10 +31,8 @@ export class ResendInviteUseCase {
       throw new NotFoundError('Organization not found');
     }
 
-    const orgUsers = await this.userRepo.list({ organizationId: input.organizationId });
-    const orgAdminUser = orgUsers.find((u) => u.status === 'invited');
-
-    if (!orgAdminUser) {
+    const orgAdminUser  = await this.userRepo.findOneByOrganizationAndStatus(input.organizationId, 'invited');
+    if (!orgAdminUser ) {
       throw new DomainError(
         'No pending invite found for this organization — the admin account may already be active.'
       );
@@ -43,7 +41,7 @@ export class ResendInviteUseCase {
     const inviteToken = crypto.randomBytes(32).toString('hex');
     const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
 
-    await this.userRepo.update(orgAdminUser.id, { inviteToken, inviteTokenExpiresAt });
+    await this.userRepo.update(orgAdminUser .id, { inviteToken, inviteTokenExpiresAt });
 
     const inviteUrl = `${env.FRONTEND_URL}/accept-invite/${inviteToken}`;
     const content = inviteEmailTemplate({
@@ -54,7 +52,7 @@ export class ResendInviteUseCase {
     });
 
     await this.emailNotifier.send({
-      to: orgAdminUser.email,
+      to: orgAdminUser .email,
       subject: content.subject,
       message: content.text,
       html: content.html,

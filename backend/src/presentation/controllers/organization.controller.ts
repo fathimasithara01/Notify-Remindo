@@ -12,7 +12,7 @@ import { BlockCustomerUseCase } from '../../application/organization/use-cases/b
 import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError, NotFoundError } from '../../domain/errors/domain.error';
-import { parsePagination, buildPaginationMeta } from '../../shared/utils/pagination';
+import { parsePaginationParams } from '../../shared/utils/pagination';
 
 
 @injectable()
@@ -40,7 +40,7 @@ export class OrganizationController {
 
   list = async (req: Request, res: Response): Promise<void> => {
     const { status, salesmanId, planId, search } = req.query;
-    const pagination = parsePagination(req.query as Record<string, unknown>);
+    const pagination = parsePaginationParams(req.query as Record<string, unknown>);
 
     const result = await this.orgRepo.list({
       status: status as 'active' | 'blocked' | undefined,
@@ -52,13 +52,7 @@ export class OrganizationController {
     });
 
 
-    ApiResponse.success(res, {
-      items: result.items,
-      meta: buildPaginationMeta(
-        result.total,
-        pagination
-      ),
-    });
+    ApiResponse.success(res,result);
   };
 
   getOne = async (req: Request, res: Response): Promise<void> => {

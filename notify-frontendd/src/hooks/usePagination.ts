@@ -1,14 +1,23 @@
-'use client';
+import { PaginatedResult } from '@/types/pagination';
 
-import { useState, useCallback } from 'react';
-import { DEFAULT_PAGE_SIZE } from '@/constants/app';
+interface PaginationInfo<T> {
+  items: T[];
+  totalPages: number;
+  currentPage: number;
+  totalItems: number;
+  limit: number;
+}
 
-export function usePagination(initialPage = 1, limit = DEFAULT_PAGE_SIZE) {
-  const [page, setPage] = useState(initialPage);
-
-  const nextPage = useCallback(() => setPage((p) => p + 1), []);
-  const prevPage = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
-  const reset = useCallback(() => setPage(initialPage), [initialPage]);
-
-  return { page, limit, setPage, nextPage, prevPage, reset };
+export function usePaginationInfo<T>(
+  data?: PaginatedResult<T>
+): PaginationInfo<T> {
+  return {
+    items: data?.items ?? [],
+    totalPages: data
+      ? Math.max(1, Math.ceil(data.meta.total / data.meta.limit))
+      : 1,
+    currentPage: data?.meta.page ?? 1,
+    totalItems: data?.meta.total ?? 0,
+    limit: data?.meta.limit ?? 10,
+  };
 }

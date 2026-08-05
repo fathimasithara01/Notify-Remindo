@@ -26,7 +26,7 @@ export class GetCurrentUserUseCase {
       id: user.id,
       name: user.name,
       email: user.email,
-      roles: roles.map((r) => r.slug),
+      roles: roles.map((r) => r.role.slug),
     };
   }
 }

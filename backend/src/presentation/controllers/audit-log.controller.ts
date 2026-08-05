@@ -4,7 +4,7 @@ import { TOKENS } from '../../infrastructure/di/tokens';
 import { IAuditLogRepository } from '../../domain/repositories/audit-log.repository.interface';
 import { AuditLog } from '../../domain/entities/audit-log.entity';
 import { ApiResponse } from '../../shared/utils/api-response';
-import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
+import {  paginationMeta, parsePaginationParams } from '../../shared/utils/pagination';
 
 @injectable()
 export class AuditLogController {
@@ -12,7 +12,7 @@ export class AuditLogController {
 
   list = async (req: Request, res: Response): Promise<void> => {
     const { adminId, targetType, targetId } = req.query;
-    const pagination = parsePagination(req.query as Record<string, unknown>);
+    const pagination = parsePaginationParams(req.query as Record<string, unknown>);
 
     const logs = await this.auditLogRepo.list({
       adminId: adminId as string | undefined,

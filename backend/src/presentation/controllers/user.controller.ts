@@ -8,7 +8,7 @@ import { EditUserUseCase } from '../../application/user/use-cases/edit-user.use-
 import { RevokeSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError, UnauthorizedError } from '../../domain/errors/domain.error';
-import { parsePagination, buildPaginationMeta } from '../../shared/utils/pagination';
+import { parsePaginationParams } from '../../shared/utils/pagination'; 
 import { User } from '../../domain/entities/user.entity';
 
 function toSafeUser(user: User) {
@@ -35,9 +35,7 @@ export class UserController {
   list = async (req: Request, res: Response): Promise<void> => {
     const { search, status } = req.query;
 
-    const pagination = parsePagination(
-      req.query as Record<string, unknown>
-    );
+    const pagination = parsePaginationParams(req.query as Record<string, unknown>);
 
     const internalUsers = await this.userRepo.list({
       internalOnly: true,
@@ -46,13 +44,7 @@ export class UserController {
       ...pagination,
     });
 
-    ApiResponse.success(res, {
-      items: internalUsers.items,
-      meta: buildPaginationMeta(
-        internalUsers.total,
-        pagination
-      ),
-    });
+    ApiResponse.success(res, internalUsers)
   };
 
   getOne = async (req: Request, res: Response): Promise<void> => {

@@ -24,9 +24,8 @@ import {
   ApiResponse,
 } from "../../shared/utils/api-response";
 
-import {
-  parsePagination,
-} from "../../shared/utils/pagination";
+import {  paginationMeta, parsePaginationParams } from '../../shared/utils/pagination';
+
 
 import { DeleteSubscriptionPlanUseCase }
   from "../../application/subscription/use-cases/subscription-plan/delete-subscription-plan.use-case";
@@ -58,7 +57,7 @@ export class SubscriptionPlanController {
   };
 
   listPlans = async (req: Request, res: Response): Promise<void> => {
-    const pagination = parsePagination(req.query as Record<string, unknown>);
+    const pagination = parsePaginationParams(req.query as Record<string, unknown>);
 
     const result = await this.subscriptionPlanRepository.list({
       status: req.query.status as any,

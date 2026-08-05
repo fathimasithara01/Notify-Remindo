@@ -43,12 +43,12 @@ export class AcceptInviteUseCase {
     }
 
     const roles = await this.userRepo.listRoles(updated.id);
-    const activeRoles = roles.filter((r) => r.status === 'active');
+    const activeRoles = roles.filter((r) => r.role.status === 'active');
 
     const payload = {
       userId: updated.id,
       roleIds: activeRoles.map((r) => r.id),
-      roleSlugs: activeRoles.map((r) => r.slug),
+      roleSlugs: activeRoles.map((r) => r.role.slug),
       organizationId: updated.organizationId,
       tokenVersion: updated.tokenVersion,
     };
@@ -60,7 +60,7 @@ export class AcceptInviteUseCase {
         id: updated.id,
         name: updated.name,
         email: updated.email,
-        roles: activeRoles.map((r) => r.slug),
+        roles: activeRoles.map((r) => r.role.slug),
       },
     };
   }

@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api/client';
-import { PaginatedResponse } from '@/types/pagination';
+import { PaginatedResult  } from '@/types/pagination';
 import {
     Organization,
     CreateOrganizationPayload,
@@ -12,7 +12,7 @@ import {
 export const organizationApi = {
 
     list: (filters?: OrganizationListFilters) =>
-        apiClient.get<PaginatedResponse<Organization>>('/organizations', {
+        apiClient.get<PaginatedResult <Organization>>('/organizations', {
             status: filters?.status,
             salesmanId: filters?.salesmanId,
             planId: filters?.currentPlanId,

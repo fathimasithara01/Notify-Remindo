@@ -18,15 +18,21 @@ export interface IUserRepository {
   update(id: string, data: Partial<NewUser>): Promise<User | null>;
   delete(id: string): Promise<boolean>;
   list(filter?: {
-    status?: 'invited' | 'active' | 'inactive';
+    status?: "invited" | "active" | "inactive";
     organizationId?: string;
     internalOnly?: boolean;
     search?: string;
+    page: number;
+    limit: number;
   }): Promise<PaginatedResult<User>>;
 
   listRoles(userId: string): Promise<UserRoleAssignment[]>;
   assignRole(userId: string, roleId: string): Promise<void>;
   removeRole(userId: string, roleId: string): Promise<void>;
   findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null>;
+  findOneByOrganizationAndStatus(
+    organizationId: string,
+    status: "invited" | "active" | "inactive"
+  ): Promise<User | null>;
 
 }

@@ -81,7 +81,7 @@ export default function UsersPage() {
     deleteUser.mutate(dialog.user.id, { onSuccess: closeDialog });
   };
 
-  const totalPages = data ? Math.max(1, Math.ceil(data.total / data.limit)) : 1;
+  const totalPages = data ? Math.max(1, Math.ceil(data.meta.total / data.meta.limit)) : 1;
 
   return (
     <div className="space-y-6 p-6">
@@ -111,7 +111,7 @@ export default function UsersPage() {
         onRevokeSessions={(user) => setDialog({ type: 'revoke', user })}
       />
 
-      {data && data.total > 0 && (
+      {data && data.meta.total > 0 && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>

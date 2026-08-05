@@ -1,9 +1,3 @@
-// src/shared/utils/pagination.ts
-
-export const DEFAULT_PAGE = 1;
-export const DEFAULT_LIMIT = 20;
-export const MAX_LIMIT = 100;
-
 export interface PaginationParams {
   page: number;
   limit: number;
@@ -18,46 +12,49 @@ export interface PaginationMeta {
 
 export interface PaginatedResult<T> {
   items: T[];
-  total: number;
+  meta: PaginationMeta;
 }
 
-export function parsePagination(
-  query: Record<string, unknown>
+
+export function parsePaginationParams(
+  query: { page?: string | number; limit?: string | number },
+  options?: { defaultLimit?: number; maxLimit?: number }
 ): PaginationParams {
-  const page = Math.max(
-    DEFAULT_PAGE,
-    Number(query.page) || DEFAULT_PAGE
-  );
+  const defaultLimit = options?.defaultLimit ?? 10;
+  const maxLimit = options?.maxLimit ?? 100;
 
-  const limit = Math.min(
-    MAX_LIMIT,
-    Math.max(
-      1,
-      Number(query.limit) || DEFAULT_LIMIT
-    )
-  );
+  const rawPage = Number(query.page);
+  const rawLimit = Number(query.limit);
 
-  return {
-    page,
-    limit,
-  };
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
+  const limit =
+    Number.isFinite(rawLimit) && rawLimit > 0
+      ? Math.min(Math.floor(rawLimit), maxLimit)
+      : defaultLimit;
+
+  return { page, limit };
 }
 
-export function getPaginationOffset({
-  page,
-  limit,
-}: PaginationParams): number {
-  return (page - 1) * limit;
+export function paginationMeta(total: number, params: PaginationParams): PaginationMeta {
+  const { page, limit } = params;
+  const totalPages = limit > 0 ? Math.max(1, Math.ceil(total / limit)) : 1;
+
+  return { total, page, limit, totalPages };
 }
 
-export function buildPaginationMeta(
+
+export function buildPaginatedResult<T>(
+  items: T[],
   total: number,
-  { page, limit }: PaginationParams
-): PaginationMeta {
+  params: PaginationParams
+): PaginatedResult<T> {
   return {
-    total,
-    page,
-    limit,
-    totalPages: Math.max(1, Math.ceil(total / limit)),
+    items,
+    meta: paginationMeta(total, params),
   };
+}
+
+
+export function getOffset(params: PaginationParams): number {
+  return (params.page - 1) * params.limit;
 }

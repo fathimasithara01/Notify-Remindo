@@ -6,7 +6,7 @@ import { IAuditLogRepository } from '../../domain/repositories/audit-log.reposit
 import { ResendInviteUseCase } from '../../application/organization/use-cases/resend-invite.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError, DomainError, UnauthorizedError } from '../../domain/errors/domain.error';
-import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
+import { paginationMeta, parsePaginationParams } from '../../shared/utils/pagination';
 
 @injectable()
 export class InviteController {
@@ -14,14 +14,13 @@ export class InviteController {
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: ResendInviteUseCase
-  ) {}
+  ) { }
 
   list = async (req: Request, res: Response): Promise<void> => {
-    const pagination = parsePagination(req.query as Record<string, unknown>);
-    const invited = await this.userRepo.list({ status: 'invited' });
+    const pagination = parsePaginationParams(req.query as Record<string, unknown>);
+    const invited = await this.userRepo.list({ status: 'invited', ...pagination, });
 
-    const start = (pagination.page - 1) * pagination.limit;
-    const pageItems = invited.slice(start, start + pagination.limit).map((u) => ({
+    const pageItems = invited.items.map((u) => ({
       id: u.id,
       name: u.name,
       email: u.email,
@@ -32,7 +31,7 @@ export class InviteController {
 
     ApiResponse.success(res, {
       items: pageItems,
-      meta: paginationMeta(invited.length, pagination),
+      meta: invited.meta,
     });
   };
 
