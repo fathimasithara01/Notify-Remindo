@@ -14,6 +14,13 @@ const PERMISSIONS: Array<{ name: string; module: string; description: string }> 
   { name: 'organization.edit', module: 'organization', description: 'Edit organization details' },
   { name: 'organization.delete', module: 'organization', description: 'Delete (soft-delete) an organization' },
   { name: 'organization.block', module: 'organization', description: 'Block/unblock organizations' },
+
+  {
+    name: 'organization.reset_admin_password',
+    module: 'organization',
+    description: 'Reset organization admin password',
+  },
+
   {
     name: 'organization.upgrade_plan',
     module: 'organization',
