@@ -61,7 +61,6 @@ import { InviteController } from '../../presentation/controllers/invite.controll
 import { S3FileStorageService } from '../storage/s3-file-storage.service';
 import { OrganizationDocumentController } from '../../presentation/controllers/organization-document.controller';
 import { PlanFeatureRepository } from '../database/repositories/plan-feature.repository';
-import { OrganizationSubscriptionRepository } from '../database/repositories/organization-subscription.repository';
 import { UpdateFeatureUseCase } from '../../application/subscription/use-cases/feature/update-feature.use-case';
 import { DeleteFeatureUseCase } from '../../application/subscription/use-cases/feature/delete-feature.use-case';
 import { CreateOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/organization-subscription/create-organization-subscription.use-case';
@@ -73,6 +72,7 @@ import { CreateSubscriptionPlanUseCase } from '../../application/subscription/us
 import { UpdateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/update-subscription-plan.use-case';
 import { DeleteSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/delete-subscription-plan.use-case';
 import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout-from-alldevice';
+import { OrganizationSubscriptionRepository } from '../database/repositories/organization-subscription.repository';
 
 export function registerDependencies(): void {
   // Repositories
@@ -86,7 +86,7 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
   container.registerSingleton(TOKENS.OrganizationDocumentRepository, OrganizationDocumentRepository);
   container.registerSingleton(TOKENS.PlanFeatureRepository, PlanFeatureRepository),
-    container.registerSingleton(TOKENS.OrganizationSubscriptionRepository, OrganizationSubscriptionRepository)
+  container.registerSingleton(TOKENS.OrganizationSubscriptionRepository, OrganizationSubscriptionRepository),
 
   // Services
   container.registerSingleton(TOKENS.HashService, BcryptHashService);

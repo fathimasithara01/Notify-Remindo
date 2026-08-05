@@ -9,7 +9,7 @@ export const TOKENS = {
   NotificationRepository: Symbol('NotificationRepository'),
   AuditLogRepository: Symbol('AuditLogRepository'),
   OrganizationDocumentRepository: Symbol('OrganizationDocumentRepository'),
-  PlanFeatureRepository: Symbol('PlanFeatureRepository'),
+  PlanFeatureRepository: Symbol('PlanFeatureRepository'), 
   OrganizationSubscriptionRepository: Symbol('OrganizationSubscriptionRepository'),
 
   // Services (interfaces)
@@ -58,7 +58,7 @@ export const TOKENS = {
   CreateSubscriptionPlanUseCase: Symbol('CreateSubscriptionPlanUseCase'),
   UpdateSubscriptionPlanUseCase: Symbol('UpdateSubscriptionPlanUseCase'),
   DeleteSubscriptionPlanUseCase: Symbol('DeleteSubscriptionPlanUseCase'),
-LogoutAllDevicesUseCase: Symbol('LogoutAllDevicesUseCase'),
+  LogoutAllDevicesUseCase: Symbol('LogoutAllDevicesUseCase'),
 
   // Controllers
   AuthController: Symbol('AuthController'),

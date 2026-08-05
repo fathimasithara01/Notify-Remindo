@@ -46,7 +46,7 @@ export class RenewOrganizationSubscriptionUseCase {
 
     constructor(
 
-        @inject(TOKENS.OrganizationSubscriptionRepository)
+        @inject(TOKENS.SubscriptionPlanRepository)
 
         private readonly subscriptionRepository:
             IOrganizationSubscriptionRepository,

@@ -43,7 +43,7 @@ export class CreateOrganizationUseCase {
 
     @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService,
 
-    @inject(TOKENS.OrganizationSubscriptionRepository) private readonly organizationSubscriptionRepository: IOrganizationSubscriptionRepository,
+    @inject(TOKENS.SubscriptionPlanRepository) private readonly organizationSubscriptionRepository: IOrganizationSubscriptionRepository,
   ) { }
 
   async execute(input: CreateOrganizationInput): Promise<Organization> {
