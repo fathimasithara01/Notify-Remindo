@@ -34,9 +34,11 @@ export const usersApi = {
     getRoles: (id: string): Promise<UserRole[]> =>
         apiClient.get<UserRole[]>(`${BASE_URL}/${id}/roles`),
 
-    assignRole: (id: string, payload: AssignRoleDto): Promise<UserRole> =>
-        apiClient.post<UserRole>(`${BASE_URL}/${id}/roles`, payload),
+    // Backend returns the user's full updated role list after assign/remove,
+    // not just the single affected role — keep the return type in sync with that.
+    assignRole: (id: string, payload: AssignRoleDto): Promise<UserRole[]> =>
+        apiClient.post<UserRole[]>(`${BASE_URL}/${id}/roles`, payload),
 
-    removeRole: (id: string, roleId: string): Promise<null> =>
-        apiClient.delete<null>(`${BASE_URL}/${id}/roles/${roleId}`),
+    removeRole: (id: string, roleId: string): Promise<UserRole[]> =>
+        apiClient.delete<UserRole[]>(`${BASE_URL}/${id}/roles/${roleId}`),
 };

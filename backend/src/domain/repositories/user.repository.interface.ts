@@ -1,5 +1,5 @@
 import { User, NewUser } from '../entities/user.entity';
-import { Role } from '../entities/role.entity';
+import { UserRoleAssignment } from '../entities/user-role.entity';
 
 export interface OrganizationAdminSummary {
   id: string;
@@ -23,7 +23,7 @@ export interface IUserRepository {
     search?: string;
   }): Promise<User[]>;
 
-  listRoles(userId: string): Promise<Role[]>;
+  listRoles(userId: string): Promise<UserRoleAssignment[]>;
   assignRole(userId: string, roleId: string): Promise<void>;
   removeRole(userId: string, roleId: string): Promise<void>;
   findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null>;

@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Form,
   FormControl,
@@ -19,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useRoles } from '../../roles/hooks/useRoles';
 import {
   createUserSchema,
   editUserSchema,
@@ -38,6 +41,14 @@ interface UserFormProps {
 export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserFormProps) {
   const isEdit = mode === 'edit';
 
+  // Roles are only offered at invite time — editing roles afterward
+  // happens through UserRoleDialog, so this fetch is skipped in edit mode.
+  const { data: rolesResult, isLoading: rolesLoading } = useRoles(
+    { status: 'active', limit: 100, page: 1 },
+    { enabled: !isEdit }
+  );
+  const availableRoles = rolesResult?.items ?? [];
+
   const form = useForm<CreateUserFormValues | EditUserFormValues>({
     resolver: zodResolver(isEdit ? editUserSchema : createUserSchema),
     defaultValues: isEdit
@@ -51,6 +62,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
           name: '',
           email: '',
           phone: '',
+          roleIds: [],
         },
   });
 
@@ -121,6 +133,58 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
                 <FormMessage />
               </FormItem>
             )}
+          />
+        )}
+
+        {!isEdit && (
+          <FormField
+            control={form.control}
+            name="roleIds"
+            render={({ field }) => {
+              const selected = new Set((field.value as string[] | undefined) ?? []);
+              const toggleRole = (roleId: string, checked: boolean) => {
+                const next = new Set(selected);
+                if (checked) next.add(roleId);
+                else next.delete(roleId);
+                field.onChange(Array.from(next));
+              };
+
+              return (
+                <FormItem>
+                  <FormLabel>Roles (optional)</FormLabel>
+                  <FormControl>
+                    {rolesLoading ? (
+                      <div className="space-y-2">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-5 w-28" />
+                      </div>
+                    ) : availableRoles.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        No active roles available. You can assign roles after inviting the user.
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {availableRoles.map((role) => (
+                          <label
+                            key={role.id}
+                            className="flex items-center gap-2 text-sm font-normal"
+                          >
+                            <Checkbox
+                              checked={selected.has(role.id)}
+                              onCheckedChange={(checked) =>
+                                toggleRole(role.id, checked === true)
+                              }
+                            />
+                            {role.name}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
         )}
 

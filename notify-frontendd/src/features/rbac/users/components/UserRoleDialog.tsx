@@ -78,7 +78,7 @@ export function UserRoleDialog({ user, open, onOpenChange }: UserRoleDialogProps
                     variant="outline"
                     className="flex items-center gap-1 pr-1"
                   >
-                    {userRole.role.name}
+                    {userRole.role?.name ?? 'Unknown role'}
                     <button
                       type="button"
                       onClick={() =>
@@ -86,7 +86,7 @@ export function UserRoleDialog({ user, open, onOpenChange }: UserRoleDialogProps
                       }
                       disabled={removeRole.isPending}
                       className="rounded-full p-0.5 hover:bg-muted"
-                      aria-label={`Remove ${userRole.role.name}`}
+                       aria-label={`Remove ${userRole.role?.name ?? 'role'}`}
                     >
                       <X className="h-3 w-3" />
                     </button>
