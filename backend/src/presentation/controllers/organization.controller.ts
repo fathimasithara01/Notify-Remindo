@@ -13,7 +13,7 @@ import { AssignSalesmanUseCase } from '../../application/organization/use-cases/
 import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError, NotFoundError } from '../../domain/errors/domain.error';
 import { parsePaginationParams } from '../../shared/utils/pagination';
-
+import { SetOrganizationAdminPasswordUseCase } from '../../application/user/use-cases/set-organization-admin-password.use-case';
 
 @injectable()
 export class OrganizationController {
@@ -26,7 +26,8 @@ export class OrganizationController {
     @inject(TOKENS.DeleteOrganizationUseCase) private deleteOrgUseCase: DeleteOrganizationUseCase,
     @inject(TOKENS.UpgradePlanUseCase) private upgradePlanUseCase: UpgradePlanUseCase,
     @inject(TOKENS.BlockCustomerUseCase) private blockCustomerUseCase: BlockCustomerUseCase,
-    @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase
+    @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase,
+    @inject(TOKENS.SetOrganizationAdminPasswordUseCase) private setOrganizationAdminPasswordUseCase: SetOrganizationAdminPasswordUseCase
   ) { }
 
   create = async (req: Request, res: Response): Promise<void> => {
@@ -52,7 +53,7 @@ export class OrganizationController {
     });
 
 
-    ApiResponse.success(res,result);
+    ApiResponse.success(res, result);
   };
 
   getOne = async (req: Request, res: Response): Promise<void> => {
@@ -74,6 +75,20 @@ export class OrganizationController {
     ApiResponse.success(res, organization, 200, 'Organization updated');
   };
 
+  setAdminPassword = async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+      throw new UnauthorizedError();
+    }
+
+    await this.setOrganizationAdminPasswordUseCase.execute({
+      organizationId: req.params.id,
+      password: req.body.password,
+      adminId: req.user.userId,
+    });
+
+    ApiResponse.success(res, null, 200, 'Organization admin password updated');
+  };
+
   delete = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
 
@@ -83,6 +98,7 @@ export class OrganizationController {
     });
     ApiResponse.success(res, null, 200, 'Organization deleted');
   };
+
 
   block = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();

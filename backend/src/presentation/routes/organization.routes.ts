@@ -13,6 +13,7 @@ import {
   blockCustomerSchema,
   addContactPersonSchema,
   editContactPersonSchema,
+  resetOrganizationAdminPasswordSchema,
 } from '../validators/organization.validator';
 import { asyncHandler } from '../../shared/utils/async-handler';
 
@@ -33,6 +34,7 @@ router.patch(
 );
 router.delete('/:id', authorize('organization.delete'), asyncHandler(controller.delete));
 
+
 router.post(
   '/:id/block',
   authorize('organization.block'),
@@ -40,6 +42,14 @@ router.post(
   asyncHandler(controller.block)
 );
 router.post('/:id/unblock', authorize('organization.block'), asyncHandler(controller.unblock));
+
+router.post(
+  '/:id/reset-admin-password',
+  authorize('organization.reset_admin_password'),
+  validateRequest(resetOrganizationAdminPasswordSchema),
+  asyncHandler(controller.setAdminPassword)
+);
+
 router.post(
   '/:id/upgrade-plan',
   authorize('organization.upgrade_plan'),

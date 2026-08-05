@@ -16,6 +16,7 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   findByInviteToken(token: string): Promise<User | null>;
   update(id: string, data: Partial<NewUser>): Promise<User | null>;
+  resetPassword( userId: string, passwordHash: string): Promise<boolean>;
   delete(id: string): Promise<boolean>;
   list(filter?: {
     status?: "invited" | "active" | "inactive";

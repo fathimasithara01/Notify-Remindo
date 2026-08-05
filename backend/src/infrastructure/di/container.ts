@@ -73,6 +73,7 @@ import { UpdateSubscriptionPlanUseCase } from '../../application/subscription/us
 import { DeleteSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/delete-subscription-plan.use-case';
 import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout-from-alldevice';
 import { OrganizationSubscriptionRepository } from '../database/repositories/organization-subscription.repository';
+import { SetOrganizationAdminPasswordUseCase } from '../../application/user/use-cases/set-organization-admin-password.use-case';
 
 export function registerDependencies(): void {
   // Repositories
@@ -86,10 +87,10 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
   container.registerSingleton(TOKENS.OrganizationDocumentRepository, OrganizationDocumentRepository);
   container.registerSingleton(TOKENS.PlanFeatureRepository, PlanFeatureRepository),
-  container.registerSingleton(TOKENS.OrganizationSubscriptionRepository, OrganizationSubscriptionRepository),
+    container.registerSingleton(TOKENS.OrganizationSubscriptionRepository, OrganizationSubscriptionRepository),
 
-  // Services
-  container.registerSingleton(TOKENS.HashService, BcryptHashService);
+    // Services
+    container.registerSingleton(TOKENS.HashService, BcryptHashService);
   container.registerSingleton(TOKENS.TokenService, JwtTokenService);
   container.registerSingleton(TOKENS.WhatsAppNotifierService, WhatsAppNotifierService);
   container.registerSingleton(TOKENS.EmailNotifierService, EmailNotifierService);
@@ -138,8 +139,8 @@ export function registerDependencies(): void {
   container.register(TOKENS.CreateSubscriptionPlanUseCase, CreateSubscriptionPlanUseCase);
   container.register(TOKENS.UpdateSubscriptionPlanUseCase, UpdateSubscriptionPlanUseCase);
   container.register(TOKENS.DeleteSubscriptionPlanUseCase, DeleteSubscriptionPlanUseCase);
-    container.register(TOKENS.LogoutAllDevicesUseCase, LogoutAllDevicesUseCase);
-
+  container.register(TOKENS.LogoutAllDevicesUseCase, LogoutAllDevicesUseCase);
+  container.register(TOKENS.SetOrganizationAdminPasswordUseCase, SetOrganizationAdminPasswordUseCase);
 
   // Controllers
   container.registerSingleton(TOKENS.AuthController, AuthController);

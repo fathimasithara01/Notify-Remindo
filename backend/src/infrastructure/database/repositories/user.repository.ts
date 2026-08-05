@@ -44,6 +44,25 @@ export class UserRepository implements IUserRepository {
     return result !== null;
   }
 
+  async resetPassword(userId: string, passwordHash: string): Promise<boolean> {
+    const result = await UserModel.findOneAndUpdate(
+      {
+        _id: userId,
+        deletedAt: null,
+      },
+      {
+        $set: {
+          passwordHash,
+        },
+        $inc: {
+          tokenVersion: 1,
+        },
+      }
+    );
+
+    return result !== null;
+  }
+
   async list(filter: {
     status?: "invited" | "active" | "inactive";
     organizationId?: string;
