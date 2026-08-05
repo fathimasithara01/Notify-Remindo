@@ -191,9 +191,7 @@ export function OrganizationTable() {
                       <TableCell>
 
                         <Link
-                          href={ROUTES.organizations.detail(
-                            org.id
-                          )}
+                          href={ROUTES.organizations.detail(org.id  )}
                           className="font-medium hover:text-primary hover:underline"
                         >
                           {org.name}
@@ -266,6 +264,7 @@ export function OrganizationTable() {
                             }
                             title="Resend invitation?"
                             description={`Resend invitation email to ${org.admin?.email ?? "this admin"}?`}
+                            confirmLabel="Resend invitation"
                             onConfirm={() => resendInviteMutation.mutate(org.id)}
                             isPending={isResending}
                           />
