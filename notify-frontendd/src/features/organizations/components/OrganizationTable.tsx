@@ -174,10 +174,6 @@ export function OrganizationTable() {
                       className="transition-colors hover:bg-muted/50"
                     >
 
-                      {/* ========================= */}
-                      {/* ORGANIZATION */}
-                      {/* ========================= */}
-
                       <TableCell>
 
                         <Link
