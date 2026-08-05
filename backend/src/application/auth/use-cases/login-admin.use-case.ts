@@ -12,11 +12,11 @@ export class LoginAdminUseCase {
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.HashService) private hashService: IHashService,
     @inject(TOKENS.TokenService) private tokenService: ITokenService
-  ) {}
+  ) { }
 
   async execute(data: LoginDto): Promise<LoginResult> {
     const user = await this.userRepo.findByEmail(data.email);
-    if (!user)  throw new UnauthorizedError('Invalid email or password');
+    if (!user) throw new UnauthorizedError('Invalid email or password');
 
     if (user.status === 'invited') {
       throw new UnauthorizedError('Please accept your invite and set a password before logging in');
@@ -43,7 +43,7 @@ export class LoginAdminUseCase {
 
     const payload = {
       userId: user.id,
-      roleIds: activeRoles.map((r) => r.id),
+      roleIds: activeRoles.map((r) => r.roleId),
       roleSlugs: activeRoles.map((r) => r.role.slug),
       organizationId: user.organizationId,
       tokenVersion: user.tokenVersion,

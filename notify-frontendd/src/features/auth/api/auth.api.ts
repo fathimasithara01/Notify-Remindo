@@ -1,21 +1,16 @@
-import axiosInstance from '@/lib/api/axios-instance';
+import { apiClient } from '@/lib/api/client';
 import { AuthUser, LoginPayload, LoginResponse } from '../types/auth.types';
 
 export const authApi = {
-  login: async (payload: LoginPayload): Promise<LoginResponse> => {
-    const response = await axiosInstance.post<LoginResponse>(
+  login: async (payload: LoginPayload): Promise<LoginResponse> => 
+    apiClient.post<LoginResponse>(
       '/auth/login',
       payload
-    );
-    return response.data;
-  },
+    ),
 
-  logout: async (): Promise<void> => {
-    await axiosInstance.post('/auth/logout');
-  },
+  logout: async (): Promise<void> => 
+    await apiClient.post('/auth/logout'),
 
-  me: async (): Promise<AuthUser> => {
-    const response = await axiosInstance.get<AuthUser>('/auth/me');
-    return response.data;
-  },
+  me: async (): Promise<AuthUser> => 
+    apiClient.get<AuthUser>('/auth/me'),
 };
