@@ -17,6 +17,7 @@ import { ApiClientError } from '@/lib/api/errors';
 import {
   CreateOrganizationPayload,
   EditOrganizationPayload,
+  ResetAdminPasswordPayload,
 } from '../types/organization.types';
 
 
@@ -66,13 +67,7 @@ export function useCreateOrganization() {
   });
 }
 
-
-/**
- * Update Organization
- */
-export function useUpdateOrganization(
-  organizationId: string
-) {
+export function useUpdateOrganization(organizationId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -107,10 +102,6 @@ export function useUpdateOrganization(
   });
 }
 
-
-/**
- * Delete Organization
- */
 export function useDeleteOrganization() {
   const queryClient = useQueryClient();
 
@@ -145,10 +136,6 @@ export function useDeleteOrganization() {
   });
 }
 
-
-/**
- * Block Organization
- */
 export function useBlockOrganization() {
   const queryClient = useQueryClient();
 
@@ -188,10 +175,6 @@ export function useBlockOrganization() {
   });
 }
 
-
-/**
- * Unblock Organization
- */
 export function useUnblockOrganization() {
   const queryClient = useQueryClient();
 
@@ -226,10 +209,40 @@ export function useUnblockOrganization() {
   });
 }
 
+export function useResetAdminPassword() {
+  const queryClient = useQueryClient();
 
-/**
- * Upgrade Organization Plan
- */
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: ResetAdminPasswordPayload;
+    }) =>
+      organizationApi.resetAdminPassword(
+        id,
+        payload
+      ),
+
+    onSuccess: (_, variables) => {
+      // Refresh organization detail
+      queryClient.invalidateQueries({
+        queryKey:
+          queryKeys.organizations.detail(
+            variables.id
+          ),
+      });
+
+      toast.success(
+        'Organization admin password updated successfully'
+      );
+    },
+
+    onError,
+  });
+}
+
 export function useUpgradePlan(
   organizationId: string
 ) {

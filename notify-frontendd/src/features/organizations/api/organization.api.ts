@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api/client';
-import { PaginatedResult  } from '@/types/pagination';
+import { PaginatedResult } from '@/types/pagination';
 import {
     Organization,
     CreateOrganizationPayload,
@@ -7,12 +7,13 @@ import {
     OrganizationListFilters,
     ContactPerson,
     NewContactPersonPayload,
+    ResetAdminPasswordPayload,
 } from '../types/organization.types';
 
 export const organizationApi = {
 
     list: (filters?: OrganizationListFilters) =>
-        apiClient.get<PaginatedResult <Organization>>('/organizations', {
+        apiClient.get<PaginatedResult<Organization>>('/organizations', {
             status: filters?.status,
             salesmanId: filters?.salesmanId,
             planId: filters?.currentPlanId,
@@ -38,6 +39,9 @@ export const organizationApi = {
 
     unblock: (id: string) =>
         apiClient.post<Organization>(`/organizations/${id}/unblock`),
+
+    resetAdminPassword: (id: string, payload: ResetAdminPasswordPayload) =>
+        apiClient.post<null>(`/organizations/${id}/reset-admin-password`, payload),
 
     upgradePlan: (id: string, newPlanId: string) =>
         apiClient.post<Organization>(`/organizations/${id}/upgrade-plan`, { newPlanId }),

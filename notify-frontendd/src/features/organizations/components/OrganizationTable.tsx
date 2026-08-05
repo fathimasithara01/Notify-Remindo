@@ -7,6 +7,7 @@ import {
   Trash2,
   Ban,
   CheckCircle2,
+  KeyRound,
 } from "lucide-react";
 
 import { useOrganizations } from "../hooks/useOrganizations";
@@ -41,12 +42,13 @@ import { EditOrganizationDialog } from "./EditOrganizationDialog";
 
 import { ROUTES } from "@/config/routes";
 import { DEFAULT_PAGE_SIZE } from "@/constants/app";
+import { ResetAdminPasswordDialog } from "./ResetAdminPasswordDialog";
 
 export function OrganizationTable() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [editingOrg, setEditingOrg] =
-    useState<Organization | null>(null);
+  const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
+  const [passwordResetOrg, setPasswordResetOrg] = useState<Organization | null>(null);
 
   const {
     data,
@@ -108,7 +110,7 @@ export function OrganizationTable() {
 
             <Table>
 
-        
+
               <TableHeader>
 
                 <TableRow>
@@ -129,7 +131,7 @@ export function OrganizationTable() {
                     Plan Name
                   </TableHead>
 
-                  
+
                   <TableHead className="min-w-[100px] font-semibold">
                     Status
                   </TableHead>
@@ -142,7 +144,7 @@ export function OrganizationTable() {
 
               </TableHeader>
 
-            
+
 
               <TableBody>
 
@@ -193,7 +195,7 @@ export function OrganizationTable() {
                         {org.admin?.phone ?? "—"}
                       </TableCell>
 
-                       <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground">
                         {org?.currentPlanName ?? "—"}
                       </TableCell>
 
@@ -211,9 +213,6 @@ export function OrganizationTable() {
 
                       </TableCell>
 
-                      {/* ========================= */}
-                      {/* ACTIONS */}
-                      {/* ========================= */}
 
                       <TableCell>
 
@@ -232,6 +231,21 @@ export function OrganizationTable() {
                             }
                           >
                             <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* RESET ADMIN PASSWORD */}
+
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Reset password for ${org.name}`}
+                            disabled={isUpdating}
+                            onClick={() =>
+                              setPasswordResetOrg(org)
+                            }
+                          >
+                            <KeyRound className="h-4 w-4" />
                           </Button>
 
                           {/* BLOCK */}
@@ -374,6 +388,16 @@ export function OrganizationTable() {
         onOpenChange={(open) => {
           if (!open) {
             setEditingOrg(null);
+          }
+        }}
+      />
+
+      <ResetAdminPasswordDialog
+        organization={passwordResetOrg}
+        open={Boolean(passwordResetOrg)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPasswordResetOrg(null);
           }
         }}
       />

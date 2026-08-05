@@ -118,3 +118,8 @@ export interface NewContactPersonPayload {
   contactEmail?: string;
   contactPhone?: string;
 }
+
+export interface ResetAdminPasswordPayload {
+  password: string;
+  confirmPassword: string;
+}
