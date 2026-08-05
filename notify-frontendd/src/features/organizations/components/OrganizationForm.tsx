@@ -132,9 +132,8 @@ export function OrganizationForm() {
   const isDisabled =
     isSubmitting || plansLoading;
 
-  const onSubmit = (
-    values: CreateOrganizationFormValues
-  ) => {
+  const onSubmit = (values: CreateOrganizationFormValues) => {
+      console.log(values);
     createMutation.mutate(values);
   };
 
@@ -192,10 +191,6 @@ export function OrganizationForm() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-6"
         >
-
-          {/* ================================================= */}
-          {/* BUSINESS INFORMATION */}
-          {/* ================================================= */}
 
           <Card>
 
@@ -580,7 +575,6 @@ export function OrganizationForm() {
 
                         <FormLabel>
                           Subscription Plan
-                          <RequiredMark />
                         </FormLabel>
 
                         <Select

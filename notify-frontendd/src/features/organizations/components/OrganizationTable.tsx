@@ -142,9 +142,7 @@ export function OrganizationTable() {
 
               </TableHeader>
 
-              {/* ========================= */}
-              {/* BODY */}
-              {/* ========================= */}
+            
 
               <TableBody>
 

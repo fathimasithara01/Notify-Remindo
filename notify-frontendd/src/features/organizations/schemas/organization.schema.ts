@@ -3,8 +3,16 @@ import { z } from 'zod';
 export const createOrganizationSchema = z.object({
     name: z.string().trim().min(1, 'Organization name is required'),
 
-    businessEmail: z.string().trim().email('Enter a valid business email address'),
-    businessPhone: z.string().trim().min(1, 'Business phone is required'),
+    businessEmail: z
+        .string()
+        .trim()
+        .min(1, 'Business email is required')
+        .email('Enter a valid business email address'),
+
+    businessPhone: z.string()
+        .trim()
+        .min(1, 'Business phone is required')
+        .regex(/^[0-9+\-\s()]{10,15}$/, 'Enter a valid phone number'),
 
     address: z
         .string()
@@ -38,12 +46,14 @@ export const createOrganizationSchema = z.object({
         email: z
             .string()
             .trim()
+            .min(1, 'Admin email is required')
             .email('Enter a valid admin email address'),
 
         phone: z
             .string()
             .trim()
-            .optional(),
+            .min(1, 'Admin phone is required')
+            .regex(/^[0-9+\-\s()]{10,15}$/, 'Enter a valid phone number')
     }),
 });
 
