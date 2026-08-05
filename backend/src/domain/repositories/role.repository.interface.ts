@@ -1,4 +1,5 @@
 import { Role, NewRole, RoleWithPermissions } from '../entities/role.entity';
+import { PaginatedResult } from "../../shared/utils/pagination";
 
 export interface IRoleRepository {
   create(data: NewRole): Promise<Role>;
@@ -6,7 +7,7 @@ export interface IRoleRepository {
   findBySlug(slug: string): Promise<Role | null>;
   update(id: string, data: Partial<NewRole>): Promise<Role | null>;
   delete(id: string): Promise<boolean>;
-  list(filter?: { status?: 'active' | 'inactive'; search?: string }): Promise<Role[]>;
+  list(filter?: { status?: 'active' | 'inactive'; search?: string }): Promise<PaginatedResult<Role>>;
 
   findWithPermissions(id: string): Promise<RoleWithPermissions | null>;
 }

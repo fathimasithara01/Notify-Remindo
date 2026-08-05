@@ -6,6 +6,7 @@ import { UserRoleAssignment } from '../../../domain/entities/user-role.entity';
 import { UserModel, UserDocument } from '../models/user.model';
 import { UserRoleModel } from '../models/user-role.model';
 import { RoleModel } from '../models/role.model';
+import { getPaginationOffset, PaginatedResult } from '../../../shared/utils/pagination';
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -43,23 +44,58 @@ export class UserRepository implements IUserRepository {
     return result !== null;
   }
 
-  async list(filter?: {
-    status?: 'invited' | 'active' | 'inactive';
+  async list(filter: {
+    status?: "invited" | "active" | "inactive";
     organizationId?: string;
     internalOnly?: boolean;
     search?: string;
-  }): Promise<User[]> {
-    const query: Record<string, unknown> = { deletedAt: null };
-    if (filter?.status) query.status = filter.status;
-    if (filter?.organizationId) query.organizationId = filter.organizationId;
-    if (filter?.internalOnly) query.organizationId = null;
-    if (filter?.search) {
-      const regex = new RegExp(filter.search.trim(), 'i');
-      query.$or = [{ name: regex }, { email: regex }];
+    page: number;
+    limit: number;
+  }): Promise<PaginatedResult<User>> {
+
+    const query: Record<string, unknown> = {
+      deletedAt: null,
+    };
+
+    if (filter.status) {
+      query.status = filter.status;
     }
 
-    const docs = await UserModel.find(query);
-    return docs.map((doc) => this.toDomain(doc));
+    if (filter.organizationId) {
+      query.organizationId = filter.organizationId;
+    }
+
+    if (filter.internalOnly) {
+      query.organizationId = null;
+    }
+
+    if (filter.search?.trim()) {
+      const regex = new RegExp(filter.search.trim(), "i");
+
+      query.$or = [
+        { name: regex },
+        { email: regex },
+      ];
+    }
+
+    const skip = getPaginationOffset({
+      page: filter.page,
+      limit: filter.limit,
+    });
+
+    const [docs, total] = await Promise.all([
+      UserModel.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(filter.limit),
+
+      UserModel.countDocuments(query),
+    ]);
+
+    return {
+      items: docs.map(doc => this.toDomain(doc)),
+      total,
+    };
   }
 
   async listRoles(userId: string): Promise<UserRoleAssignment[]> {

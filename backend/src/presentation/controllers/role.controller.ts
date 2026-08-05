@@ -8,7 +8,7 @@ import { EditRoleUseCase } from '../../application/role/use-cases/edit-role.use-
 import { DeleteRoleUseCase } from '../../application/role/use-cases/delete-role.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError, UnauthorizedError } from '../../domain/errors/domain.error';
-import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
+import { parsePagination, buildPaginationMeta } from '../../shared/utils/pagination';
 import { RolePermissionCache } from '../../infrastructure/cache/role-permission-cache';
 import { container } from '../../infrastructure/di/container';
 
@@ -20,7 +20,7 @@ export class RoleController {
     @inject(TOKENS.CreateRoleUseCase) private createRoleUseCase: CreateRoleUseCase,
     @inject(TOKENS.EditRoleUseCase) private editRoleUseCase: EditRoleUseCase,
     @inject(TOKENS.DeleteRoleUseCase) private deleteRoleUseCase: DeleteRoleUseCase
-  ) {}
+  ) { }
 
   create = async (req: Request, res: Response): Promise<void> => {
     const role = await this.createRoleUseCase.execute(req.body);
@@ -28,16 +28,21 @@ export class RoleController {
   };
 
   list = async (req: Request, res: Response): Promise<void> => {
-    const { search } = req.query;
-    const pagination = parsePagination(req.query as Record<string, unknown>);
-    const roles = await this.roleRepo.list({ search: search as string | undefined });
+    const { search, status } = req.query;
 
-    const start = (pagination.page - 1) * pagination.limit;
-    const pageItems = roles.slice(start, start + pagination.limit);
+    const pagination = parsePagination(
+      req.query as Record<string, unknown>
+    );
+
+    const result = await this.roleRepo.list({
+      search: search as string | undefined,
+      status: status as "active" | "inactive" | undefined,
+      ...pagination,
+    });
 
     ApiResponse.success(res, {
-      items: pageItems,
-      meta: paginationMeta(roles.length, pagination),
+      items: result.items,
+      meta: buildPaginationMeta(result.total, pagination),
     });
   };
 

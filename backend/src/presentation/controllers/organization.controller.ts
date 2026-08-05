@@ -12,7 +12,7 @@ import { BlockCustomerUseCase } from '../../application/organization/use-cases/b
 import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError, NotFoundError } from '../../domain/errors/domain.error';
-import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
+import { parsePagination, buildPaginationMeta } from '../../shared/utils/pagination';
 
 
 @injectable()
@@ -54,12 +54,10 @@ export class OrganizationController {
 
     ApiResponse.success(res, {
       items: result.items,
-      meta: {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      },
+      meta: buildPaginationMeta(
+        result.total,
+        pagination
+      ),
     });
   };
 

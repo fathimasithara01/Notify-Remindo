@@ -8,7 +8,7 @@ import { EditUserUseCase } from '../../application/user/use-cases/edit-user.use-
 import { RevokeSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError, UnauthorizedError } from '../../domain/errors/domain.error';
-import { parsePagination, paginationMeta } from '../../shared/utils/pagination';
+import { parsePagination, buildPaginationMeta } from '../../shared/utils/pagination';
 import { User } from '../../domain/entities/user.entity';
 
 function toSafeUser(user: User) {
@@ -24,7 +24,7 @@ export class UserController {
     @inject(TOKENS.CreateUserUseCase) private createUserUseCase: CreateUserUseCase,
     @inject(TOKENS.EditUserUseCase) private editUserUseCase: EditUserUseCase,
     @inject(TOKENS.RevokeSessionsUseCase) private revokeSessionsUseCase: RevokeSessionsUseCase
-  ) {}
+  ) { }
 
   create = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
@@ -33,20 +33,25 @@ export class UserController {
   };
 
   list = async (req: Request, res: Response): Promise<void> => {
-    const { search } = req.query;
-    const pagination = parsePagination(req.query as Record<string, unknown>);
+    const { search, status } = req.query;
+
+    const pagination = parsePagination(
+      req.query as Record<string, unknown>
+    );
 
     const internalUsers = await this.userRepo.list({
       internalOnly: true,
       search: search as string | undefined,
+      status: status as "active" | "inactive" | undefined,
+      ...pagination,
     });
 
-    const start = (pagination.page - 1) * pagination.limit;
-    const pageItems = internalUsers.slice(start, start + pagination.limit).map(toSafeUser);
-
     ApiResponse.success(res, {
-      items: pageItems,
-      meta: paginationMeta(internalUsers.length, pagination),
+      items: internalUsers.items,
+      meta: buildPaginationMeta(
+        internalUsers.total,
+        pagination
+      ),
     });
   };
 

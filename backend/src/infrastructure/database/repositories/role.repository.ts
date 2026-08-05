@@ -4,6 +4,7 @@ import { Role, NewRole, RoleWithPermissions } from '../../../domain/entities/rol
 import { RoleModel, RoleDocument } from '../models/role.model';
 import { RolePermissionModel } from '../models/role-permission.model';
 import { PermissionModel } from '../models/permission.model';
+import { getPaginationOffset, PaginatedResult } from '../../../shared/utils/pagination';
 
 @injectable()
 export class RoleRepository implements IRoleRepository {
@@ -39,17 +40,48 @@ export class RoleRepository implements IRoleRepository {
     return result !== null;
   }
 
-  async list(filter?: { status?: 'active' | 'inactive'; search?: string }): Promise<Role[]> {
-    const query: Record<string, unknown> = { deletedAt: null };
-    if (filter?.status) query.status = filter.status;
-    if (filter?.search) {
-      const regex = new RegExp(filter.search.trim(), 'i');
-      query.$or = [{ name: regex }, { slug: regex }];
-    }
+ async list(filter: {
+  status?: "active" | "inactive";
+  search?: string;
+  page: number;
+  limit: number;
+}): Promise<PaginatedResult<Role>> {
+  const query: Record<string, unknown> = {
+    deletedAt: null,
+  };
 
-    const docs = await RoleModel.find(query);
-    return docs.map((doc) => this.toDomain(doc));
+  if (filter.status) {
+    query.status = filter.status;
   }
+
+  if (filter.search?.trim()) {
+    const regex = new RegExp(filter.search.trim(), "i");
+
+    query.$or = [
+      { name: regex },
+      { slug: regex },
+    ];
+  }
+
+  const skip = getPaginationOffset({
+    page: filter.page,
+    limit: filter.limit,
+  });
+
+  const [docs, total] = await Promise.all([
+    RoleModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(filter.limit),
+
+    RoleModel.countDocuments(query),
+  ]);
+
+  return {
+    items: docs.map((doc) => this.toDomain(doc)),
+    total,
+  };
+}
 
   async findWithPermissions(id: string): Promise<RoleWithPermissions | null> {
     const roleDoc = await RoleModel.findOne({ _id: id, deletedAt: null });

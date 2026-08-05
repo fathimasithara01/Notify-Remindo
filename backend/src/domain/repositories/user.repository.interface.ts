@@ -1,5 +1,6 @@
 import { User, NewUser } from '../entities/user.entity';
 import { UserRoleAssignment } from '../entities/user-role.entity';
+import { PaginatedResult } from '../../shared/utils/pagination';
 
 export interface OrganizationAdminSummary {
   id: string;
@@ -21,7 +22,7 @@ export interface IUserRepository {
     organizationId?: string;
     internalOnly?: boolean;
     search?: string;
-  }): Promise<User[]>;
+  }): Promise<PaginatedResult<User>>;
 
   listRoles(userId: string): Promise<UserRoleAssignment[]>;
   assignRole(userId: string, roleId: string): Promise<void>;
