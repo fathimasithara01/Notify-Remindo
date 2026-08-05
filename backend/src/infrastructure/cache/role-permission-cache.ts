@@ -6,11 +6,14 @@ interface CacheEntry {
   expiresAt: number;
 }
 
+//Role permission database-il ninnu ella request-ilum edukkanda.
+//  Oru pravashyam eduth memory-il save cheyyuka. Pinne kurachu neram ath use cheyyuka
+
 const TTL_MS = 60 * 1000;
 
 @injectable()
 export class RolePermissionCache {
-  private store = new Map<string, CacheEntry>();
+  private store = new Map<string, CacheEntry>(); //Ithu oru temporary box aanu.
 
   get(roleId: string): RoleWithPermissions | null {
     const entry = this.store.get(roleId);

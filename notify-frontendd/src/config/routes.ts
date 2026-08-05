@@ -12,20 +12,12 @@ export const ROUTES = {
   },
   permissions: '/super-admin/permissions',
   subscriptions: {
-    plans:
-      "/super-admin/subscription-plans",
-
-    features:
-      "/super-admin/subscription-plans/features",
-
-    planFeatures:
-      "/super-admin/subscription-plans/plan-features",
-
+    plans: '/super-admin/subscription-plans',
+    features: '/super-admin/subscription-plans/features',
+    planFeatures: '/super-admin/subscription-plans/plan-features',
     organizationSubscriptions:
-      "/super-admin/subscription-plans/organization-subscriptions",
-
-    detail: (id: string) =>
-      `/super-admin/subscription-plans/${id}`,
+      '/super-admin/subscription-plans/organization-subscriptions',
+    detail: (id: string) => `/super-admin/subscription-plans/${id}`,
   },
   notifications: '/super-admin/notifications',
   users: {

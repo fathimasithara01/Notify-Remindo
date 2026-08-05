@@ -1,5 +1,5 @@
-import { apiClient } from '@/lib/api/client';
 import { OrganizationDocument } from '../types/organization.types';
+import axiosInstance from '@/lib/api/axios-instance';
 
 export const organizationDocumentApi = {
   /**
@@ -13,7 +13,7 @@ export const organizationDocumentApi = {
 
     formData.append('document', file);
 
-    return apiClient.post<OrganizationDocument>(
+    return axiosInstance.post<OrganizationDocument>(
       `/organizations/${organizationId}/documents`,
       formData,
     );
@@ -23,7 +23,7 @@ export const organizationDocumentApi = {
   list: (
     organizationId: string,
   ) =>
-    apiClient.get<OrganizationDocument[]>(
+    axiosInstance.get<OrganizationDocument[]>(
       `/organizations/${organizationId}/documents`,
     ),
 
@@ -34,7 +34,7 @@ export const organizationDocumentApi = {
     organizationId: string,
     documentId: string,
   ) =>
-    apiClient.get<{ downloadUrl: string }>(
+    axiosInstance.get<{ downloadUrl: string }>(
       `/organizations/${organizationId}/documents/${documentId}/download`,
     ),
 
@@ -45,7 +45,7 @@ export const organizationDocumentApi = {
     organizationId: string,
     documentId: string,
   ) =>
-    apiClient.delete<null>(
+    axiosInstance.delete<null>(
       `/organizations/${organizationId}/documents/${documentId}`,
     ),
 };

@@ -2,7 +2,7 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
-  roles: string[];
+  roleSlugs: string[];
 }
 
 export interface LoginPayload {

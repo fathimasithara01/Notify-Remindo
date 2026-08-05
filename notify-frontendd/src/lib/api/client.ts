@@ -1,69 +1,82 @@
+import axios, { AxiosRequestConfig } from 'axios';
+import axiosInstance from './axios-instance';
 import { ApiClientError } from './errors';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
-
 interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
-    details?: unknown;
+  success: boolean;
+  message: string;
+  data: T;
+  details?: unknown;
 }
+
+type QueryParams = Record<string, string | number | boolean | undefined>;
 
 interface RequestOptions {
-    method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
-    body?: unknown;
-    params?: Record<string, string | undefined>;
+  body?: unknown;
+  params?: QueryParams;
+  config?: Omit<AxiosRequestConfig, 'url' | 'method' | 'data' | 'params'>;
 }
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { method = 'GET', body, params } = options;
-
-    const url = new URL(`${API_URL}${path}`);
-    if (params) {
-        Object.entries(params).forEach(([key, value]) => {
-            if (value !== undefined) url.searchParams.set(key, value);
-        });
-    }
-
-    const isFormData = body instanceof FormData;
-
-    const res = await fetch(url.toString(), {
-        method,
-        credentials: 'include',
-
-        headers: isFormData
-            ? undefined
-            : body
-                ? { 'Content-Type': 'application/json' }
-                : undefined,
-
-        body: body
-            ? isFormData
-                ? body
-                : JSON.stringify(body)
-            : undefined,
+async function request<T>(
+  method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE',
+  path: string,
+  options: RequestOptions = {}
+): Promise<T> {
+  try {
+    const response = await axiosInstance.request<ApiResponse<T>>({
+      ...options.config,
+      url: path,
+      method,
+      data: options.body,
+      params: options.params,
     });
 
-    const json: ApiResponse<T> = await res.json().catch(() => ({
-        success: false,
-        message: 'Invalid server response',
-        data: null as T,
-    }));
-
-    if (!res.ok || !json.success) {
-        throw new ApiClientError(res.status, json.message || 'Request failed', json.details);
+    if (!response.data.success) {
+      throw new ApiClientError(
+        response.status,
+        response.data.message || 'Request failed',
+        response.data.details
+      );
     }
 
-    return json.data;
+    return response.data.data;
+  } catch (error) {
+    if (error instanceof ApiClientError) throw error;
+
+    if (axios.isAxiosError(error)) {
+      const body = error.response?.data as ApiResponse<T> | undefined;
+      throw new ApiClientError(
+        error.response?.status ?? 0,
+        body?.message ?? error.message ?? 'Request failed',
+        body?.details
+      );
+    }
+
+    throw error;
+  }
 }
 
+// ---- Public surface ---------------------------------------------------
+// Everything routes through `request`, so envelope-unwrapping and error
+// normalization only exist in one place. No competing implementation.
 export const apiClient = {
-    get: <T>(path: string, params?: RequestOptions['params']) =>
-        request<T>(path, { method: 'GET', params }),
+  get<T>(url: string, params?: QueryParams, config?: RequestOptions['config']): Promise<T> {
+    return request<T>('GET', url, { params, config });
+  },
 
-    post: <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body }),
+  post<T>(url: string, body?: unknown, config?: RequestOptions['config']): Promise<T> {
+    return request<T>('POST', url, { body, config });
+  },
 
-    patch: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PATCH', body }),
+  patch<T>(url: string, body?: unknown, config?: RequestOptions['config']): Promise<T> {
+    return request<T>('PATCH', url, { body, config });
+  },
 
-    delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+  put<T>(url: string, body?: unknown, config?: RequestOptions['config']): Promise<T> {
+    return request<T>('PUT', url, { body, config });
+  },
+
+  delete<T>(url: string, config?: RequestOptions['config']): Promise<T> {
+    return request<T>('DELETE', url, { config });
+  },
 };

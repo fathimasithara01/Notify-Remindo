@@ -16,9 +16,7 @@ export class LoginAdminUseCase {
 
   async execute(data: LoginDto): Promise<LoginResult> {
     const user = await this.userRepo.findByEmail(data.email);
-    if (!user) {
-      throw new UnauthorizedError('Invalid email or password');
-    }
+    if (!user)  throw new UnauthorizedError('Invalid email or password');
 
     if (user.status === 'invited') {
       throw new UnauthorizedError('Please accept your invite and set a password before logging in');

@@ -58,6 +58,7 @@ export const TOKENS = {
   CreateSubscriptionPlanUseCase: Symbol('CreateSubscriptionPlanUseCase'),
   UpdateSubscriptionPlanUseCase: Symbol('UpdateSubscriptionPlanUseCase'),
   DeleteSubscriptionPlanUseCase: Symbol('DeleteSubscriptionPlanUseCase'),
+LogoutAllDevicesUseCase: Symbol('LogoutAllDevicesUseCase'),
 
   // Controllers
   AuthController: Symbol('AuthController'),

@@ -68,8 +68,6 @@ export interface CreateOrganizationPayload {
 
   documents?: OrganizationDocument[];
 
-  //  Initial Organization Admin. This user receives the invitation email and becomes the Organization Admin.
-
   admin: {
     name: string;
     email: string;

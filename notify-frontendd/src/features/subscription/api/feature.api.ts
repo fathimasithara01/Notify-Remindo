@@ -1,4 +1,4 @@
-import axiosInstance from "@/lib/axios/axios-instance";
+import axiosInstance from "@/lib/api/axios-instance";
 import { CreateFeatureInput, Feature } from "../types/feature.types";
 
 export interface FeatureListParams {
@@ -43,17 +43,9 @@ export const featureApi = {
 
   },
 
-  async findById(
-    id: string
-  ): Promise<Feature> {
-
-    const response =
-      await axiosInstance.get(
-        `/subscription/features/${id}`
-      );
-
+  async findById(id: string): Promise<Feature> {
+    const response =await axiosInstance.get(  `/subscription/features/${id}`);
     return response.data.data;
-
   },
 
   async create(

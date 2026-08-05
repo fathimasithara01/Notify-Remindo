@@ -21,7 +21,7 @@ const controller = container.resolve<OrganizationController>(TOKENS.Organization
 
 router.use(requireAuth);
 
-router.post('/',authorize('organization.create'),validateRequest(createOrganizationSchema),asyncHandler(controller.create));
+router.post('/', authorize('organization.create'), validateRequest(createOrganizationSchema), asyncHandler(controller.create));
 router.get('/', authorize('organization.view'), asyncHandler(controller.list));
 router.get('/:id', authorize('organization.view'), asyncHandler(controller.getOne));
 

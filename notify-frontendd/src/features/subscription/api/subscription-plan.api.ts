@@ -1,4 +1,4 @@
-import axiosInstance from "@/lib/axios/axios-instance";
+import axiosInstance from "@/lib/api/axios-instance";
 import { SubscriptionPlan, CreateSubscriptionPlanInput } from "../types/subscription-plan.types";
 
 export interface SubscriptionPlanListParams {

@@ -13,33 +13,14 @@ const controller = container.resolve<RoleController>(TOKENS.RoleController);
 
 router.use(requireAuth);
 
-router.post(
-  '/',
-  authorize('role.create'),
-  validateRequest(createRoleSchema),
-  asyncHandler(controller.create)
-);
+router.post('/',authorize('role.create'),validateRequest(createRoleSchema),asyncHandler(controller.create));
 router.get('/', authorize('role.view'), asyncHandler(controller.list));
 router.get('/:id', authorize('role.view'), asyncHandler(controller.getOne));
-router.patch(
-  '/:id',
-  authorize('role.edit'),
-  validateRequest(editRoleSchema),
-  asyncHandler(controller.update)
-);
+router.patch( '/:id', authorize('role.edit'), validateRequest(editRoleSchema), asyncHandler(controller.update));
 router.delete('/:id', authorize('role.delete'), asyncHandler(controller.delete));
 
 router.get('/:id/permissions', authorize('role.view'), asyncHandler(controller.getPermissions));
-router.post(
-  '/:id/permissions',
-  authorize('role.edit'),
-  validateRequest(addPermissionSchema),
-  asyncHandler(controller.addPermission)
-);
-router.delete(
-  '/:id/permissions/:permissionId',
-  authorize('role.edit'),
-  asyncHandler(controller.removePermission)
-);
+router.post('/:id/permissions',authorize('role.edit'),validateRequest(addPermissionSchema),asyncHandler(controller.addPermission));
+router.delete('/:id/permissions/:permissionId',authorize('role.edit'),asyncHandler(controller.removePermission));
 
 export default router;

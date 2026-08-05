@@ -4,7 +4,7 @@ import { injectable } from 'tsyringe';
 export class TokenRevocationRegistry {
   private minVersions = new Map<string, number>();
 
-  isRevoked(userId: string, tokenVersion: number): boolean {
+  isRevoked(userId: string, tokenVersion: number): boolean { // invalidate/ permanently invalid user old tokens
     const minVersion = this.minVersions.get(userId);
     return minVersion !== undefined && tokenVersion < minVersion;
   }
@@ -13,7 +13,7 @@ export class TokenRevocationRegistry {
     this.minVersions.set(userId, newMinVersion);
   }
 
-  clear(userId: string): void {
-    this.minVersions.delete(userId);
-  }
+  // clear(userId: string): void {
+  //   this.minVersions.delete(userId);
+  // }
 }

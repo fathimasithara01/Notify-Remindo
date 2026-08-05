@@ -16,9 +16,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
     const tokenService = container.resolve<ITokenService>(TOKENS.TokenService);
     const payload = tokenService.verifyAccessToken(token);
 
-    const revocationRegistry = container.resolve<TokenRevocationRegistry>(
-      TOKENS.TokenRevocationRegistry
-    );
+    const revocationRegistry = container.resolve<TokenRevocationRegistry>(TOKENS.TokenRevocationRegistry);
     if (revocationRegistry.isRevoked(payload.userId, payload.tokenVersion ?? 0)) {
       return next(new UnauthorizedError('Session has been revoked. Please log in again.'));
     }

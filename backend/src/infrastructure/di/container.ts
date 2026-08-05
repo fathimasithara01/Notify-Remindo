@@ -13,8 +13,6 @@ import { NotificationRepository } from '../database/repositories/notification.re
 import { AuditLogRepository } from '../database/repositories/audit-log.repository';
 import { OrganizationDocumentRepository } from '../database/repositories/organization-document.repository';
 
-
-
 // Services
 import { BcryptHashService } from '../services/bcrypt-hash.service';
 import { JwtTokenService } from '../services/jwt-token.service';
@@ -74,6 +72,7 @@ import { RemovePlanFeatureUseCase } from '../../application/subscription/use-cas
 import { CreateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/create-subscription-plan.use-case';
 import { UpdateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/update-subscription-plan.use-case';
 import { DeleteSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/delete-subscription-plan.use-case';
+import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout-from-alldevice';
 
 export function registerDependencies(): void {
   // Repositories
@@ -139,6 +138,8 @@ export function registerDependencies(): void {
   container.register(TOKENS.CreateSubscriptionPlanUseCase, CreateSubscriptionPlanUseCase);
   container.register(TOKENS.UpdateSubscriptionPlanUseCase, UpdateSubscriptionPlanUseCase);
   container.register(TOKENS.DeleteSubscriptionPlanUseCase, DeleteSubscriptionPlanUseCase);
+    container.register(TOKENS.LogoutAllDevicesUseCase, LogoutAllDevicesUseCase);
+
 
   // Controllers
   container.registerSingleton(TOKENS.AuthController, AuthController);
@@ -151,8 +152,6 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.AuditLogController, AuditLogController);
   container.registerSingleton(TOKENS.InviteController, InviteController);
   container.registerSingleton(TOKENS.OrganizationDocumentController, OrganizationDocumentController);
-
-
 }
 
 export { container };

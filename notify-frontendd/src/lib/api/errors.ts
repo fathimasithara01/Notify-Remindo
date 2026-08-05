@@ -1,6 +1,11 @@
 export class ApiClientError extends Error {
-    constructor(public statusCode: number, message: string, public details?: unknown) {
-        super(message);  // Ithu parent class aaya Error-inte constructor call cheyyunnu.
-        this.name = 'ApiClientError';
-    }
+  readonly status: number;
+  readonly details?: unknown;
+
+  constructor(status: number, message: string, details?: unknown) {
+    super(message);
+    this.name = 'ApiClientError';
+    this.status = status;
+    this.details = details;
+  }
 }

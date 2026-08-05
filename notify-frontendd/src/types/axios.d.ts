@@ -1,11 +1,7 @@
 import "axios";
 
 declare module "axios" {
-
-  export interface AxiosRequestConfig {
-
+  interface InternalAxiosRequestConfig {
     _retry?: boolean;
-
   }
-
 }

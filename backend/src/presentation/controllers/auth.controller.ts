@@ -9,6 +9,7 @@ import { AcceptInviteUseCase } from '../../application/auth/use-cases/accept-inv
 import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError } from '../../domain/errors/domain.error';
 import { env } from '../../config/env';
+import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout-from-alldevice';
 
 const baseCookieOptions: CookieOptions = {
   httpOnly: true,
@@ -26,15 +27,21 @@ const REFRESH_TOKEN_COOKIE: CookieOptions = {
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
-@injectable()
+@injectable()  //"Ee class DI container create cheyyan pattum. "Container, you are allowed to create this class."
 export class AuthController {
-  constructor(
-    @inject(TOKENS.LoginAdminUseCase) private loginUseCase: LoginAdminUseCase,
+  constructor( // Before I can work, I need these objects.  Ee controller work cheyyan munpe ivayokke venam.
+    @inject(TOKENS.LoginAdminUseCase) private loginUseCase: LoginAdminUseCase, // Container, LoginAdminUseCase create cheythu ivide inject cheyyu.
     @inject(TOKENS.RefreshTokenUseCase) private refreshTokenUseCase: RefreshTokenUseCase,
     @inject(TOKENS.GetCurrentUserUseCase) private getCurrentUserUseCase: GetCurrentUserUseCase,
     @inject(TOKENS.VerifyInviteTokenUseCase) private verifyInviteTokenUseCase: VerifyInviteTokenUseCase,
-    @inject(TOKENS.AcceptInviteUseCase) private acceptInviteUseCase: AcceptInviteUseCase
+    @inject(TOKENS.AcceptInviteUseCase) private acceptInviteUseCase: AcceptInviteUseCase,
+    @inject(TOKENS.LogoutAllDevicesUseCase) private logoutAllDevicesUseCase: LogoutAllDevicesUseCase,
   ) { }
+
+  //   export class AuthController {
+  //   private loginUseCase = new LoginAdminUseCase();
+  //   private refreshTokenUseCase = new RefreshTokenUseCase();
+  // }
 
   private setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
     res.cookie('accessToken', accessToken, ACCESS_TOKEN_COOKIE);
@@ -44,7 +51,7 @@ export class AuthController {
   login = async (req: Request, res: Response): Promise<void> => {
     const result = await this.loginUseCase.execute(req.body);
     this.setAuthCookies(res, result.accessToken, result.refreshToken);
-    
+
     ApiResponse.success(res, { user: result.user });
   };
 
@@ -79,5 +86,14 @@ export class AuthController {
     const result = await this.acceptInviteUseCase.execute(req.body);
     this.setAuthCookies(res, result.accessToken, result.refreshToken);
     ApiResponse.success(res, { user: result.user }, 200, 'Account activated');
+  };
+
+  logoutAllDevices = async (req: Request, res: Response) => {
+    await this.logoutAllDevicesUseCase.execute(req.body);
+
+    res.clearCookie('accessToken', baseCookieOptions);
+    res.clearCookie('refreshToken', baseCookieOptions);
+
+    ApiResponse.success(res, null, 200, 'Logged out from all devices');
   };
 }

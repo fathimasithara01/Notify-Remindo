@@ -16,9 +16,6 @@ const organizationSubscriptionController = container.resolve(OrganizationSubscri
 
 router.post("/", requireAuth, authorize("plan.create"), subscriptionPlanController.createPlan);
 router.get("/", requireAuth, authorize("plan.view"), subscriptionPlanController.listPlans);
-router.get("/:id", requireAuth, authorize("plan.view"), subscriptionPlanController.getPlanById);
-router.patch("/:id", requireAuth, authorize("plan.edit"), subscriptionPlanController.updatePlan);
-router.delete("/:id",requireAuth,authorize("plan.delete"),subscriptionPlanController.deletePlan);
 
 router.post("/features",requireAuth,authorize("plan.create"),featureController.createFeature);
 router.get( "/features",  requireAuth, authorize("plan.view"), featureController.listFeatures);
@@ -35,5 +32,10 @@ router.get( "/organizations/:organizationId/subscriptions/active",requireAuth,au
 router.get( "/organizations/:organizationId/subscriptions", requireAuth, authorize("subscription.view"), organizationSubscriptionController.listSubscriptionHistory);
 router.patch("/organization-subscriptions/:id/renew",requireAuth,authorize("subscription.edit"),organizationSubscriptionController.renewSubscription);
 router.patch(  "/organization-subscriptions/:id/cancel",  requireAuth,  authorize("subscription.cancel"),  organizationSubscriptionController.cancelSubscription);
+
+
+router.get("/:id", requireAuth, authorize("plan.view"), subscriptionPlanController.getPlanById);
+router.patch("/:id", requireAuth, authorize("plan.edit"), subscriptionPlanController.updatePlan);
+router.delete("/:id",requireAuth,authorize("plan.delete"),subscriptionPlanController.deletePlan);
 
 export default router;

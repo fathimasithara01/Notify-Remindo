@@ -1,6 +1,5 @@
 import { apiClient } from '@/lib/api/client';
 import { PaginatedResponse } from '@/types/pagination';
-
 import {
     Organization,
     CreateOrganizationPayload,
@@ -11,77 +10,50 @@ import {
 } from '../types/organization.types';
 
 export const organizationApi = {
-    /**
-     * Get organizations with filters and pagination
-     *
-     * Backend:
-     * GET /organizations
-     *
-     * Supports:
-     * - status
-     * - salesmanId
-     * - planId
-     * - search
-     * - page
-     * - limit
-     */
-    list: (filters?: OrganizationListFilters) => apiClient.get<PaginatedResponse<Organization>>('/organizations',
-        {
+
+    list: (filters?: OrganizationListFilters) =>
+        apiClient.get<PaginatedResponse<Organization>>('/organizations', {
             status: filters?.status,
             salesmanId: filters?.salesmanId,
             planId: filters?.currentPlanId,
             search: filters?.search,
             page: filters?.page?.toString(),
             limit: filters?.limit?.toString(),
-        }
-    ),
-    getOne: (id: string) => apiClient.get<Organization & { contactPersons: ContactPerson[] }>(`/organizations/${id}`),
-    create: (payload: CreateOrganizationPayload) => apiClient.post<Organization>('/organizations', payload),
+        }),
 
-    /**
-     * Update organization details
-     */
-    update: (
-        id: string,
-        payload: EditOrganizationPayload
-    ) =>
-        apiClient.patch<Organization>(
-            `/organizations/${id}`,
-            payload
-        ),
+    getOne: (id: string) =>
+        apiClient.get<Organization & { contactPersons: ContactPerson[] }>(`/organizations/${id}`),
 
-    delete: (id: string) => apiClient.delete<null>(`/organizations/${id}`),
-    block: (id: string, reason?: string) => apiClient.post<Organization>(`/organizations/${id}/block`, { reason }),
-    unblock: (id: string) => apiClient.post<Organization>(`/organizations/${id}/unblock`),
+    create: (payload: CreateOrganizationPayload) =>
+        apiClient.post<Organization>('/organizations', payload),
 
-    upgradePlan: (id: string, newPlanId: string) => apiClient.post<Organization>(`/organizations/${id}/upgrade-plan`, { newPlanId }),
+    update: (id: string, payload: EditOrganizationPayload) =>
+        apiClient.patch<Organization>(`/organizations/${id}`, payload),
 
-    listContactPersons: (id: string) => apiClient.get<ContactPerson[]>(`/organizations/${id}/contacts`),
+    delete: (id: string) =>
+        apiClient.delete<null>(`/organizations/${id}`),
 
-    addContactPerson: (
-        id: string,
-        payload: NewContactPersonPayload
-    ) =>
-        apiClient.post<ContactPerson>(
-            `/organizations/${id}/contacts`,
-            payload
-        ),
+    block: (id: string, reason?: string) =>
+        apiClient.post<Organization>(`/organizations/${id}/block`, { reason }),
 
-    updateContactPerson: (
-        id: string,
-        contactId: string,
-        payload: Partial<NewContactPersonPayload>
-    ) =>
+    unblock: (id: string) =>
+        apiClient.post<Organization>(`/organizations/${id}/unblock`),
+
+    upgradePlan: (id: string, newPlanId: string) =>
+        apiClient.post<Organization>(`/organizations/${id}/upgrade-plan`, { newPlanId }),
+
+    listContactPersons: (id: string) =>
+        apiClient.get<ContactPerson[]>(`/organizations/${id}/contacts`),
+
+    addContactPerson: (id: string, payload: NewContactPersonPayload) =>
+        apiClient.post<ContactPerson>(`/organizations/${id}/contacts`, payload),
+
+    updateContactPerson: (id: string, contactId: string, payload: Partial<NewContactPersonPayload>) =>
         apiClient.patch<ContactPerson>(
             `/organizations/${id}/contacts/${contactId}`,
             payload
         ),
 
-    removeContactPerson: (
-        id: string,
-        contactId: string
-    ) =>
-        apiClient.delete<null>(
-            `/organizations/${id}/contacts/${contactId}`
-        ),
+    removeContactPerson: (id: string, contactId: string) =>
+        apiClient.delete<null>(`/organizations/${id}/contacts/${contactId}`),
 };

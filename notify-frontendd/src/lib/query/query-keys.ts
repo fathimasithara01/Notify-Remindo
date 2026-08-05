@@ -48,42 +48,32 @@ export const queryKeys = {
     documents: (id: string) => ['organizations', id, 'documents'] as const,
   },
 
-  roles: {
-    all: () =>
-      ['roles'] as const,
-
-    lists: () =>
-      ['roles', 'list'] as const,
-
-    list: (page: number) =>
-      [
-        'roles',
-        'list',
-        page,
-      ] as const,
-
-    details: () =>
-      ['roles', 'detail'] as const,
-
-    detail: (id: string) =>
-      [
-        'roles',
-        'detail',
-        id,
-      ] as const,
-
-    permissions: (id: string) =>
-      [
-        'roles',
-        'detail',
-        id,
-        'permissions',
-      ] as const,
+  users: {
+    all: ['rbac', 'users'] as const,
+    lists: () => [...queryKeys.users.all, 'list'] as const,
+    list: (filters: object) =>
+      [...queryKeys.users.lists(), filters] as const,
+    details: () => [...queryKeys.users.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.users.details(), id] as const,
+    roles: (id: string) => [...queryKeys.users.detail(id), 'roles'] as const,
   },
-
+  roles: {
+    all: ['rbac', 'roles'] as const,
+    lists: () => [...queryKeys.roles.all, 'list'] as const,
+    list: (filters: object) =>
+      [...queryKeys.roles.lists(), filters] as const,
+    details: () => [...queryKeys.roles.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.roles.details(), id] as const,
+    permissions: (id: string) =>
+      [...queryKeys.roles.detail(id), 'permissions'] as const,
+  },
   permissions: {
-    all: () =>
-      ['permissions'] as const,
+    all: ['rbac', 'permissions'] as const,
+    lists: () => [...queryKeys.permissions.all, 'list'] as const,
+    list: (filters: object) =>
+      [...queryKeys.permissions.lists(), filters] as const,
+    details: () => [...queryKeys.permissions.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.permissions.details(), id] as const,
   },
 
   subscriptions: {
@@ -231,33 +221,6 @@ export const queryKeys = {
         'notifications',
         status,
         page,
-      ] as const,
-  },
-
-  users: {
-    all: () =>
-      ['users'] as const,
-
-    list: (page: number) =>
-      [
-        'users',
-        'list',
-        page,
-      ] as const,
-
-    detail: (id: string) =>
-      [
-        'users',
-        'detail',
-        id,
-      ] as const,
-
-    roles: (id: string) =>
-      [
-        'users',
-        'detail',
-        id,
-        'roles',
       ] as const,
   },
 

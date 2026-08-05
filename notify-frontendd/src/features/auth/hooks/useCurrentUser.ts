@@ -1,14 +1,12 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
-import { authApi } from '../api/auth.api';
-import {queryKeys} from '@/lib/query/query-keys'
-
+import { apiClient } from '@/lib/api/client';
+import { AuthUser } from '@/features/auth/types/auth.types';
 
 export function useCurrentUser() {
   return useQuery({
-    queryKey: queryKeys.auth.me(),
-    queryFn: authApi.me,
-    retry: false, // a 401 here means "not logged in", not "network blip" — don't retry
+    queryKey: ['auth', 'me'] as const,
+    queryFn: () => apiClient.get<AuthUser>('/auth/me'),
+    staleTime: 5 * 60_000,
+    retry: false,
   });
 }
