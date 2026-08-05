@@ -1,10 +1,12 @@
-import axiosInstance from "@/lib/api/axios-instance";
+import { apiClient } from '@/lib/api/client';
 
 import {
   PlanFeature,
   PlanFeatureWithDetails,
   CreatePlanFeatureInput,
-} from "../types/plan-feature.types";
+} from '../types/plan-feature.types';
+
+const BASE_URL = '/subscription-plans/plans';
 
 export interface PlanFeatureListResponse {
   items: PlanFeatureWithDetails[];
@@ -12,53 +14,36 @@ export interface PlanFeatureListResponse {
 }
 
 export const planFeatureApi = {
-
   /**
    * Add a feature to a subscription plan
    */
-  async add(
+  add: (
     planId: string,
-    data: Omit<CreatePlanFeatureInput, "planId">
-  ): Promise<PlanFeature> {
-
-    const response =
-      await axiosInstance.post(
-        `/subscription-plans/plans/${planId}/features`,
-        data
-      );
-
-    return response.data.data;
-  },
-
+    data: Omit<CreatePlanFeatureInput, 'planId'>
+  ): Promise<PlanFeature> =>
+    apiClient.post<PlanFeature>(
+      `${BASE_URL}/${planId}/features`,
+      data
+    ),
 
   /**
    * Get all features assigned to a plan
    */
-  async list(
+  list: (
     planId: string
-  ): Promise<PlanFeatureListResponse> {
-
-    const response =
-      await axiosInstance.get(
-        `/subscription-plans/plans/${planId}/features`
-      );
-
-    return response.data.data;
-  },
-
+  ): Promise<PlanFeatureListResponse> =>
+    apiClient.get<PlanFeatureListResponse>(
+      `${BASE_URL}/${planId}/features`
+    ),
 
   /**
    * Remove a feature from a plan
    */
-  async remove(
+  remove: (
     planId: string,
     featureId: string
-  ): Promise<void> {
-
-    await axiosInstance.delete(
-      `/subscription-plans/plans/${planId}/features/${featureId}`
-    );
-
-  },
-
+  ): Promise<void> =>
+    apiClient.delete<void>(
+      `${BASE_URL}/${planId}/features/${featureId}`
+    ),
 };

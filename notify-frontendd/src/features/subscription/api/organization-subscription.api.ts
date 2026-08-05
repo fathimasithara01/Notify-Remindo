@@ -1,104 +1,71 @@
-import axiosInstance from "@/lib/axios/axios-instance";
-
+import { apiClient } from '@/lib/api/client';
 import {
   OrganizationSubscription,
   CreateOrganizationSubscriptionInput,
   OrganizationSubscriptionHistoryParams,
   OrganizationSubscriptionListResponse,
-} from "../types/organization-subscription.types";
+} from '../types/organization-subscription.types';
+
+const BASE_URL = '/subscription-plans/organization-subscriptions';
 
 export const organizationSubscriptionApi = {
-  /**
-   * Create a subscription for an organization
-   */
-  async create(
+  create: (
     data: CreateOrganizationSubscriptionInput
-  ): Promise<OrganizationSubscription> {
-    const response =
-      await axiosInstance.post(
-        "/subscription-plans/organization-subscriptions",
-        data
-      );
-
-    return response.data.data;
-  },
+  ): Promise<OrganizationSubscription> =>
+    apiClient.post<OrganizationSubscription>(
+      BASE_URL,
+      data
+    ),
 
   /**
    * Get the currently active subscription
    * of an organization
    */
-  async getActive(
+  getActive: (
     organizationId: string
-  ): Promise<OrganizationSubscription | null> {
-    const response =
-      await axiosInstance.get(
-        `/subscription-plans/organizations/${organizationId}/subscriptions/active`
-      );
-
-    return response.data.data;
-  },
+  ): Promise<OrganizationSubscription | null> =>
+    apiClient.get<OrganizationSubscription | null>(
+      `/subscription-plans/organizations/${organizationId}/subscriptions/active`
+    ),
 
   /**
    * Get subscription history
    * of an organization
    */
-  async list(
+  list: (
     params: OrganizationSubscriptionHistoryParams
-  ): Promise<OrganizationSubscriptionListResponse> {
-    const {
-      organizationId,
-      page,
-      limit,
-      status,
-    } = params;
+  ): Promise<OrganizationSubscriptionListResponse> => {
+    const { organizationId, page, limit, status } = params;
 
-    const response =
-      await axiosInstance.get(
-        `/subscription-plans/organizations/${organizationId}/subscriptions`,
-        {
-          params: {
-            page,
-            limit,
-            status:
-              status === "all"
-                ? undefined
-                : status,
-          },
-        }
-      );
-
-    return response.data.data;
+    return apiClient.get<OrganizationSubscriptionListResponse>(
+      `/subscription-plans/organizations/${organizationId}/subscriptions`,
+      {
+        page,
+        limit,
+        status: status === 'all' ? undefined : status,
+      }
+    );
   },
 
   /**
    * Renew an organization subscription
    */
-  async renew(
+  renew: (
     id: string
-  ): Promise<OrganizationSubscription> {
-    const response =
-      await axiosInstance.patch(
-        `/subscription-plans/organization-subscriptions/${id}/renew`
-      );
-
-    return response.data.data;
-  },
+  ): Promise<OrganizationSubscription> =>
+    apiClient.patch<OrganizationSubscription>(
+      `${BASE_URL}/${id}/renew`
+    ),
 
   /**
    * Cancel an organization subscription
    */
-  async cancel(
+  cancel: (
     id: string,
     reason?: string
-  ): Promise<OrganizationSubscription> {
-    const response =
-      await axiosInstance.patch(
-        `/subscription-plans/organization-subscriptions/${id}/cancel`,
-        reason
-          ? { reason }
-          : undefined
-      );
-
-    return response.data.data;
-  },
+  ): Promise<OrganizationSubscription> =>
+    apiClient.patch<OrganizationSubscription>(
+      `${BASE_URL}/${id}/cancel`,
+      reason ? { reason } : undefined
+    ),
 };

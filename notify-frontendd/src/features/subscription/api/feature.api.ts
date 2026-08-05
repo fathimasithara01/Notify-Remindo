@@ -1,90 +1,53 @@
-import axiosInstance from "@/lib/api/axios-instance";
-import { CreateFeatureInput, Feature } from "../types/feature.types";
+import { apiClient } from '@/lib/api/client';
+import { CreateFeatureInput, Feature } from '../types/feature.types';
+import { toQueryParams } from '@/features/rbac/shared/query-params';
+
+const BASE_URL = '/subscription-plans/features';
 
 export interface FeatureListParams {
   page?: number;
-
   limit?: number;
-
-  status?:
-    | "active"
-    | "inactive";
-
+  status?: 'active' | 'inactive';
   search?: string;
 }
 
 export interface FeatureListResponse {
   items: Feature[];
-
   total: number;
-
   page: number;
-
   limit: number;
-
   totalPages: number;
 }
 
 export const featureApi = {
+  list: (params?: FeatureListParams): Promise<FeatureListResponse> =>
+    apiClient.get<FeatureListResponse>(
+      BASE_URL,
+      toQueryParams(params ?? {}),
+    ),
 
-  async list(
-    params?: FeatureListParams
-  ): Promise<FeatureListResponse> {
+  findById: (id: string): Promise<Feature> =>
+    apiClient.get<Feature>(
+      `${BASE_URL}/${id}`
+    ),
 
-    const response =
-      await axiosInstance.get(
-        "/subscription-plans/features",
-        {
-          params,
-        }
-      );
+  create: (data: CreateFeatureInput): Promise<Feature> =>
+    apiClient.post<Feature>(
+      BASE_URL,
+      data
+    ),
 
-    return response.data.data;
-
-  },
-
-  async findById(id: string): Promise<Feature> {
-    const response =await axiosInstance.get(  `/subscription/features/${id}`);
-    return response.data.data;
-  },
-
-  async create(
-    data: CreateFeatureInput
-  ): Promise<Feature> {
-
-    const response =
-      await axiosInstance.post(
-        "/subscription/features",
-        data
-      );
-
-    return response.data.data;
-
-  },
-
-  async update(
+  update: (
     id: string,
     data: Partial<CreateFeatureInput>
-  ): Promise<Feature> {
+  ): Promise<Feature> =>
+    apiClient.patch<Feature>(
+      `${BASE_URL}/${id}`,
+      data
+    ),
 
-    const response =
-      await axiosInstance.patch(
-        `/subscription/features/${id}`,
-        data
-      );
-
-    return response.data.data;
-
-  },
-
-  async remove(
-    id: string
-  ): Promise<void> {
-
-    await axiosInstance.delete(
-      `/subscription/features/${id}`
-    );
-
-  },
-
+  remove: (id: string): Promise<void> =>
+    apiClient.delete<void>(
+      `${BASE_URL}/${id}`
+    ),
 };
