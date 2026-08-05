@@ -210,7 +210,7 @@ export function OrganizationTable() {
                       </TableCell>
 
                       <TableCell className="text-muted-foreground">
-                        {org?.currentPlanName ?? "—"}
+                        {org.currentPlanName ?? "—"}
                       </TableCell>
 
                       <TableCell>
@@ -252,33 +252,23 @@ export function OrganizationTable() {
 
                           {/* RESEND INVITE */}
 
-                          {org.admin?.status === "invited" && (
-                            <ConfirmDialog
-                              trigger={
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="icon"
-                                      aria-label="Resend invitation"
-                                      disabled={isUpdating}
-                                    >
-                                      <Send className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-
-                                  <TooltipContent>
-                                    Resend invitation
-                                  </TooltipContent>
-                                </Tooltip>
-                              }
-                              title="Resend invitation?"
-                              description={`Resend invitation email to ${org.admin.email}?`}
-                              onConfirm={() => resendInviteMutation.mutate(org.id)}
-                              isPending={isResending}
-                            />
-                          )}
+                          <ConfirmDialog
+                            tooltip="Resend invitation"
+                            trigger={
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                disabled={isUpdating || !org.admin?.email}
+                              >
+                                <Send className="h-4 w-4" />
+                              </Button>
+                            }
+                            title="Resend invitation?"
+                            description={`Resend invitation email to ${org.admin?.email ?? "this admin"}?`}
+                            onConfirm={() => resendInviteMutation.mutate(org.id)}
+                            isPending={isResending}
+                          />
 
                           {/* RESET PASSWORD */}
 
@@ -303,63 +293,45 @@ export function OrganizationTable() {
                             </Tooltip>
                           )}
 
-                          {/* BLOCK */}
+                          {/* BLOCK / UNBLOCK */}
 
                           {org.status === "active" ? (
                             <ConfirmDialog
+                              tooltip="Block organization"
                               trigger={
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="icon"
-                                      aria-label={`Block ${org.name}`}
-                                      disabled={isUpdating}
-                                      className="text-orange-600 hover:text-orange-600"
-                                    >
-                                      <Ban className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-
-                                  <TooltipContent>
-                                    Block organization
-                                  </TooltipContent>
-                                </Tooltip>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={isUpdating}
+                                  className="text-orange-600 hover:text-orange-600"
+                                >
+                                  <Ban className="h-4 w-4" />
+                                </Button>
                               }
                               title="Block organization?"
                               description={`"${org.name}" will no longer be able to access the platform.`}
-                              onConfirm={() =>
-                                blockMutation.mutate({
-                                  id: org.id,
-                                })
-                              }
+                              confirmLabel="Block"
+                              onConfirm={() => blockMutation.mutate({ id: org.id })}
                               isPending={isBlocking}
                             />
                           ) : (
                             <ConfirmDialog
+                              tooltip="Unblock organization"
                               trigger={
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="icon"
-                                      aria-label={`Unblock ${org.name}`}
-                                      disabled={isUpdating}
-                                      className="text-green-600 hover:text-green-600"
-                                    >
-                                      <CheckCircle2 className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-
-                                  <TooltipContent>
-                                    Unblock organization
-                                  </TooltipContent>
-                                </Tooltip>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={isUpdating}
+                                  className="text-green-600 hover:text-green-600"
+                                >
+                                  <CheckCircle2 className="h-4 w-4" />
+                                </Button>
                               }
                               title="Unblock organization?"
                               description={`"${org.name}" will regain access to the platform.`}
+                              confirmLabel="Unblock"
                               onConfirm={() => unblockMutation.mutate(org.id)}
                               isPending={isUnblocking}
                             />
@@ -368,28 +340,22 @@ export function OrganizationTable() {
                           {/* DELETE */}
 
                           <ConfirmDialog
+                            tooltip="Delete organization"
                             trigger={
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    aria-label={`Delete ${org.name}`}
-                                    disabled={isUpdating}
-                                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-
-                                <TooltipContent>
-                                  Delete organization
-                                </TooltipContent>
-                              </Tooltip>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                disabled={isUpdating}
+                                aria-label={`Delete ${org.name}`}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             }
                             title="Delete organization?"
                             description={`"${org.name}" will be removed from active listings. This action cannot be easily undone.`}
+                            confirmLabel="Delete"
                             onConfirm={() => deleteMutation.mutate(org.id)}
                             isPending={isDeleting}
                           />
