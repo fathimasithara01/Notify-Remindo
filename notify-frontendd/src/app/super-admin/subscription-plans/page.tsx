@@ -2,10 +2,6 @@
 
 import { useState } from "react";
 
-import { Plus } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-
 import {
   SubscriptionPlanTable,
 } from "@/features/subscription/components/plans/subscription-plan-table";
