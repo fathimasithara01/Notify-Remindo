@@ -13,13 +13,37 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
+type LinkKind = 'invite' | 'resend' | 'reset';
+
 interface InviteSuccessDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   inviteUrl: string;
   userName: string;
   emailSent: boolean;
+  kind?: LinkKind;
 }
+
+const COPY: Record<LinkKind, { sentTitle: string; createdTitle: string; sentDescription: string; expiryNote: string }> = {
+  invite: {
+    sentTitle: 'Invite sent to',
+    createdTitle: 'Invite created for',
+    sentDescription: "An email has been sent with this link. If it doesn't arrive, you can copy and share it manually.",
+    expiryNote: 'This link expires in 7 days.',
+  },
+  resend: {
+    sentTitle: 'Invite resent to',
+    createdTitle: 'New invite link created for',
+    sentDescription: "A new email has been sent with this link. The old link no longer works. If the email doesn't arrive, you can copy and share this link manually.",
+    expiryNote: 'This link expires in 7 days.',
+  },
+  reset: {
+    sentTitle: 'Reset link sent to',
+    createdTitle: 'Reset link created for',
+    sentDescription: "An email has been sent with a link to set a new password. If it doesn't arrive, you can copy and share it manually.",
+    expiryNote: 'This link expires in 24 hours.',
+  },
+};
 
 export function InviteSuccessDialog({
   open,
@@ -27,8 +51,10 @@ export function InviteSuccessDialog({
   inviteUrl,
   userName,
   emailSent,
+  kind = 'invite',
 }: InviteSuccessDialogProps) {
   const [copied, setCopied] = useState(false);
+  const copy = COPY[kind];
 
   const handleCopy = async () => {
     try {
@@ -45,12 +71,10 @@ export function InviteSuccessDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {emailSent ? `Invite sent to ${userName}` : `Invite created for ${userName}`}
+            {emailSent ? `${copy.sentTitle} ${userName}` : `${copy.createdTitle} ${userName}`}
           </DialogTitle>
           <DialogDescription>
-            {emailSent
-              ? "An email has been sent with this link. If it doesn't arrive, you can copy and share it manually. This link expires in 7 days."
-              : 'This link expires in 7 days.'}
+            {emailSent ? `${copy.sentDescription} ${copy.expiryNote}` : copy.expiryNote}
           </DialogDescription>
         </DialogHeader>
 
@@ -58,8 +82,8 @@ export function InviteSuccessDialog({
           <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
             <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
-              We couldn&apos;t send the invite email right now. Copy the link
-              below and share it with {userName} directly.
+              We couldn&apos;t send the {kind === 'reset' ? 'reset' : 'invite'} email
+              right now. Copy the link below and share it with {userName} directly.
             </p>
           </div>
         )}

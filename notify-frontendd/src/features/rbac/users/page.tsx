@@ -23,7 +23,6 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
-import { useResendInvite } from './hooks/useResendInvite';
 import { UserTable } from './components/UserTable';
 import { UserFilters } from './components/UserFilters';
 import { UserForm } from './components/UserForm';
@@ -35,13 +34,14 @@ import { useUsers } from './hooks/useUsers';
 import { useCreateUser } from './hooks/useCreateUser';
 import { useUpdateUser } from './hooks/useUpdateUser';
 import { useDeleteUser } from './hooks/useDeleteUser';
+import { useResendInvite } from './hooks/useResendInvite';
+import { useRequestPasswordReset } from './hooks/useRequestPasswordReset';
 import { useCurrentUser } from '@/features/auth/hooks/useCurrentUser';
 import { DEFAULT_PAGE_SIZE } from '../shared/constants';
 import { ROUTES } from '@/config/routes';
 
 import type { User, UserFilters as UserFiltersType } from './types/user.types';
 import type { CreateUserFormValues, EditUserFormValues } from './schemas/user.schema';
-import { useRequestPasswordReset } from './hooks/useRequestPasswordReset';
 
 type DialogState =
   | { type: 'none' }
@@ -49,9 +49,7 @@ type DialogState =
   | { type: 'edit'; user: User }
   | { type: 'roles'; user: User }
   | { type: 'revoke'; user: User }
-  | { type: 'delete'; user: User }
-  | { type: 'resendInvite'; user: User }
-  | { type: 'requestReset'; user: User };
+  | { type: 'delete'; user: User };
 
 /** Holds the invite result (link + email delivery status) shown right after a
  * successful invite. Kept separate from `dialog` state so it survives the
@@ -60,6 +58,7 @@ interface InviteResult {
   userName: string;
   inviteUrl: string;
   emailSent: boolean;
+  kind: 'invite' | 'resend' | 'reset';
 }
 
 export default function UsersPage() {
@@ -79,24 +78,6 @@ export default function UsersPage() {
   const resendInvite = useResendInvite();
   const requestPasswordReset = useRequestPasswordReset();
 
-  const handleResendInvite = (user: User) => {
-    resendInvite.mutate(user.id, {
-      onSuccess: (data) => {
-        closeDialog();
-        setInviteResult({ userName: user.name, inviteUrl: data.inviteUrl, emailSent: data.emailSent });
-      },
-    });
-  };
-
-  const handleRequestPasswordReset = (user: User) => {
-    requestPasswordReset.mutate(user.id, {
-      onSuccess: (data) => {
-        closeDialog();
-        setInviteResult({ userName: user.name, inviteUrl: data.resetUrl, emailSent: data.emailSent });
-      },
-    });
-  };
-
   const closeDialog = () => setDialog({ type: 'none' });
 
   const handleCreateSubmit = (values: CreateUserFormValues | EditUserFormValues) => {
@@ -107,6 +88,33 @@ export default function UsersPage() {
           userName: data.name,
           inviteUrl: data.inviteUrl,
           emailSent: data.emailSent,
+          kind: 'invite',
+        });
+      },
+    });
+  };
+
+  const handleResendInvite = (user: User) => {
+    resendInvite.mutate(user.id, {
+      onSuccess: (data) => {
+        setInviteResult({
+          userName: user.name,
+          inviteUrl: data.inviteUrl,
+          emailSent: data.emailSent,
+          kind: 'resend',
+        });
+      },
+    });
+  };
+
+  const handleRequestPasswordReset = (user: User) => {
+    requestPasswordReset.mutate(user.id, {
+      onSuccess: (data) => {
+        setInviteResult({
+          userName: user.name,
+          inviteUrl: data.resetUrl,
+          emailSent: data.emailSent,
+          kind: 'reset',
         });
       },
     });
@@ -246,6 +254,7 @@ export default function UsersPage() {
           userName={inviteResult.userName}
           inviteUrl={inviteResult.inviteUrl}
           emailSent={inviteResult.emailSent}
+          kind={inviteResult.kind}
         />
       )}
 
