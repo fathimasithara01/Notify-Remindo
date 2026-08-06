@@ -21,7 +21,7 @@ import {
 
 import {
   UpdateSubscriptionPlanDto,
-} from "../../../dtos/update-subscription-plan.dto";
+} from "../../../dtos/subscription/update-subscription-plan.dto";
 
 export interface UpdateSubscriptionPlanInput {
   planId: string;

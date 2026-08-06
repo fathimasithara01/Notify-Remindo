@@ -21,7 +21,7 @@ import {
 
 import {
   UpdateFeatureDto,
-} from "../../../dtos/update-feature.dto";
+} from "../../../dtos/subscription/update-feature.dto";
 
 
 

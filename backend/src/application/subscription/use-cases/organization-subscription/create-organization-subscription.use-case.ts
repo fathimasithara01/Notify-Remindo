@@ -14,9 +14,6 @@ import {
     OrganizationSubscription,
 } from "../../../../domain/entities/organization-subscription.entity";
 
-import {
-    CreateSubscriptionDto,
-} from "../../../dtos/create-subscription.dto";
 
 import {
     DomainError,
@@ -27,6 +24,7 @@ import {
 import {
     IAuditLogRepository,
 } from "../../../../domain/repositories/audit-log.repository.interface";
+import { CreateSubscriptionDto } from "../../../dtos/subscription/create-subscription.dto";
 
 
 

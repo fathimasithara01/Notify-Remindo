@@ -1,6 +1,6 @@
 import {
   FeatureDataType,
-} from "../../domain/entities/feature.entity";
+} from "../../../domain/entities/feature.entity";
 
 
 export type PlanFeatureValue =

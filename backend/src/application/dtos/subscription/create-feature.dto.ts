@@ -1,7 +1,7 @@
 import {
   FeatureDataType,
   FeatureStatus,
-} from "../../domain/entities/feature.entity";
+} from "../../../domain/entities/feature.entity";
 
 
 export interface CreateFeatureDto {

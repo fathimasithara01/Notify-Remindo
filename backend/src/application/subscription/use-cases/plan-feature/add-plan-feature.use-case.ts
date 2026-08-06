@@ -31,7 +31,7 @@ import {
 
 import {
     CreatePlanFeatureDto,
-} from "../../../dtos/create-plan-feature.dto";
+} from "../../../dtos/subscription/create-plan-feature.dto";
 
 
 import {

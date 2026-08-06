@@ -1,11 +1,11 @@
 import {
   Currency,
   BillingInterval,
-} from "../../domain/entities/subscription-plan.entity";
+} from "../../../domain/entities/subscription-plan.entity";
 
 import {
   FeatureStatus,
-} from "../../domain/entities/feature.entity";
+} from "../../../domain/entities/feature.entity";
 
 export interface CreateSubscriptionPlanDto {
 

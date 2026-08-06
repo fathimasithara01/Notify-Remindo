@@ -22,7 +22,7 @@ import {
 
 import {
   CreateFeatureDto,
-} from "../../../dtos/create-feature.dto";
+} from "../../../dtos/subscription/create-feature.dto";
 
 export interface CreateFeatureInput {
   data: CreateFeatureDto;

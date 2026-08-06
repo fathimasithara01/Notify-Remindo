@@ -4,7 +4,7 @@ import { ISubscriptionPlanRepository } from "../../../../domain/repositories/sub
 import { IPlanFeatureRepository } from "../../../../domain/repositories/plan-feature.repository.interface";
 import { IAuditLogRepository } from "../../../../domain/repositories/audit-log.repository.interface";
 import { SubscriptionPlan } from "../../../../domain/entities/subscription-plan.entity";
-import { CreateSubscriptionPlanDto } from "../../../dtos/create-subscription-plan.dto";
+import { CreateSubscriptionPlanDto } from "../../../dtos/subscription/create-subscription-plan.dto";
 import { DomainError } from "../../../../domain/errors/domain.error";
 
 export interface CreateSubscriptionPlanInput {
