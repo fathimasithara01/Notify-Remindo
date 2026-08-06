@@ -15,6 +15,7 @@ export const TOKENS = {
   UserResendInviteUseCase: Symbol('ResendInviteUseCase'),
   RequestPasswordResetUseCase: Symbol('RequestPasswordResetUseCase'),
   ResetPasswordUseCase: Symbol('ResetPasswordUseCase'),
+  ChangePasswordUseCase: Symbol('ChangePasswordUseCase'),
 
   // Services (interfaces)
   HashService: Symbol('HashService'),

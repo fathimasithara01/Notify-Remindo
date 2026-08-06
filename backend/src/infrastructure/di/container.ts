@@ -78,6 +78,7 @@ import { CancelInviteUseCase } from '../../application/organization/use-cases/Ca
 import { RequestPasswordResetUseCase } from '../../application/user/use-cases/request-password-reset.use-case';
 import { ResetPasswordUseCase } from '../../application/auth/use-cases/reset-password.use-case';
 import { UserResendInviteUseCase } from '../../application/user/use-cases/resend-invite.use-case';
+import { ChangePasswordUseCase } from '../../application/auth/use-cases/change-password.use-case';
 
 export function registerDependencies(): void {
   // Repositories
@@ -105,7 +106,7 @@ export function registerDependencies(): void {
     container.registerSingleton(TOKENS.UserResendInviteUseCase, UserResendInviteUseCase);
   container.registerSingleton(TOKENS.RequestPasswordResetUseCase, RequestPasswordResetUseCase);
   container.registerSingleton(TOKENS.ResetPasswordUseCase, ResetPasswordUseCase);
-
+  container.registerSingleton(TOKENS.ChangePasswordUseCase, ChangePasswordUseCase);
 
   container.register(TOKENS.NotifierMap, {
     useFactory: (c) => ({

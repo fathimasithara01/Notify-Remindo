@@ -1,3 +1,5 @@
+export type OrganizationInviteMethod = 'email' | 'temp-password';
+
 export interface CreateOrganizationDto {
   name: string;
 
@@ -16,6 +18,8 @@ export interface CreateOrganizationDto {
     fileSize: number;
     uploadedAt: Date;
   }[];
+
+  inviteMethod: OrganizationInviteMethod;
 
   // Primary contact = initial Organization Admin
   admin: {

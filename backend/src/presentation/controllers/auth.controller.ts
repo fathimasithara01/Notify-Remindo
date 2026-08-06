@@ -11,6 +11,7 @@ import { UnauthorizedError } from '../../domain/errors/domain.error';
 import { env } from '../../config/env';
 import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout-from-alldevice';
 import { ResetPasswordUseCase } from '../../application/auth/use-cases/reset-password.use-case';
+import { ChangePasswordUseCase } from '../../application/auth/use-cases/change-password.use-case'
 
 const baseCookieOptions: CookieOptions = {
   httpOnly: true,
@@ -37,7 +38,8 @@ export class AuthController {
     @inject(TOKENS.VerifyInviteTokenUseCase) private verifyInviteTokenUseCase: VerifyInviteTokenUseCase,
     @inject(TOKENS.AcceptInviteUseCase) private acceptInviteUseCase: AcceptInviteUseCase,
     @inject(TOKENS.LogoutAllDevicesUseCase) private logoutAllDevicesUseCase: LogoutAllDevicesUseCase,
-      @inject(TOKENS.ResetPasswordUseCase) private resetPasswordUseCase: ResetPasswordUseCase,
+    @inject(TOKENS.ResetPasswordUseCase) private resetPasswordUseCase: ResetPasswordUseCase,
+    @inject(TOKENS.ChangePasswordUseCase) private changePasswordUseCase: ChangePasswordUseCase,
 
   ) { }
 
@@ -58,10 +60,25 @@ export class AuthController {
     ApiResponse.success(res, { user: result.user });
   };
 
-resetPassword = async (req: Request, res: Response): Promise<void> => {
-  await this.resetPasswordUseCase.execute(req.body);
-  ApiResponse.success(res, null, 200, 'Password reset successfully. Please log in.');
-};
+  changePassword = async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) throw new UnauthorizedError();
+    await this.changePasswordUseCase.execute({
+      userId: req.user.userId,
+      currentPassword: req.body.currentPassword,
+      newPassword: req.body.newPassword,
+    });
+    // tokenVersion just bumped server-side (inside resetPassword), so the
+    // access token this request came in on is now stale for future calls —
+    // clear cookies and make the frontend redirect to login.
+    res.clearCookie('accessToken', baseCookieOptions);
+    res.clearCookie('refreshToken', baseCookieOptions);
+    ApiResponse.success(res, null, 200, 'Password changed. Please log in again.');
+  };
+
+  resetPassword = async (req: Request, res: Response): Promise<void> => {
+    await this.resetPasswordUseCase.execute(req.body);
+    ApiResponse.success(res, null, 200, 'Password reset successfully. Please log in.');
+  };
 
   logout = async (_req: Request, res: Response): Promise<void> => {
     res.clearCookie('accessToken', baseCookieOptions);

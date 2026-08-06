@@ -57,6 +57,7 @@ export class LoginAdminUseCase {
         name: user.name,
         email: user.email,
         roles: activeRoles.map((r) => r.role.slug),
+        mustChangePassword:true,
       },
     };
   }

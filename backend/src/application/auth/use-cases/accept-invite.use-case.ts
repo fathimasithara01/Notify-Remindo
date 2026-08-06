@@ -61,6 +61,7 @@ export class AcceptInviteUseCase {
         name: updated.name,
         email: updated.email,
         roles: activeRoles.map((r) => r.role.slug),
+        mustChangePassword:true,
       },
     };
   }

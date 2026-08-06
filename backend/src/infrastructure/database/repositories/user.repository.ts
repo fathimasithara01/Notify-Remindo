@@ -254,6 +254,7 @@ export class UserRepository implements IUserRepository {
       resetPasswordToken: doc.resetPasswordToken,
       resetPasswordTokenExpiresAt: doc.resetPasswordTokenExpiresAt,
       tokenVersion: doc.tokenVersion,
+      mustChangePassword: doc.mustChangePassword ?? false,
       deletedAt: doc.deletedAt,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

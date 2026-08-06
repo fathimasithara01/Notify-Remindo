@@ -11,5 +11,6 @@ export interface LoginResult {
     name: string;
     email: string;
     roles: string[]; 
+    mustChangePassword:boolean;
   };
 }

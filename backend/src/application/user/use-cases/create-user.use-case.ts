@@ -62,7 +62,8 @@ export class CreateUserUseCase {
       inviteToken,
       inviteTokenExpiresAt,
       resetPasswordToken: null,
-      resetPasswordTokenExpiresAt: null
+      resetPasswordTokenExpiresAt: null,
+      mustChangePassword: true,
     });
 
     for (const roleId of data.roleIds) {

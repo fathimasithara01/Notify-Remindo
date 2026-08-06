@@ -31,6 +31,8 @@ export const createOrganizationSchema = z.object({
       })
     ).optional(),
 
+  inviteMethod: z.enum(['email', 'temp-password']).default('email'),
+
   admin: z.object({
     name: z.string().min(1, 'Admin name is required'),
     email: z.string().email('Invalid admin email'),

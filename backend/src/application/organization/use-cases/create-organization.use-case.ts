@@ -10,15 +10,18 @@ import { IRoleRepository } from '../../../domain/repositories/role.repository.in
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
 import { IOrganizationSubscriptionRepository }
   from "../../../domain/repositories/organization-subscription.repository.interface";
+import { IHashService } from '../../../domain/services/hash.service.interface';
 
 import { INotifierService } from '../../../domain/services/notifier.service.interface';
 
 import { Organization } from '../../../domain/entities/organization.entity';
+import { User } from '../../../domain/entities/user.entity';
 import { DomainError } from '../../../domain/errors/domain.error';
 
-import { CreateOrganizationDto } from '../../dtos/create-organization.dto';
+import { CreateOrganizationDto } from '../../dtos/organization/create-organization.dto';
 
 import { inviteEmailTemplate } from '../../../infrastructure/email-templates/invite-email.template';
+import { generateTempPassword } from '../../../shared/utils/password-generator';
 import { env } from '../../../config/env';
 
 const INVITE_TOKEN_TTL_HOURS = 24;
@@ -28,25 +31,33 @@ export interface CreateOrganizationInput {
   adminId: string;
 }
 
+export interface CreateOrganizationResult {
+  organization: Organization;
+  admin: User;
+  /** Present only when inviteMethod === 'email'. */
+  inviteUrl?: string;
+  /** Present only when inviteMethod === 'email'. False if the email send failed. */
+  emailSent?: boolean;
+  /** Present only when inviteMethod === 'temp-password'. Plain text — this is
+   * the ONLY time it's ever available outside the hash. Never logged, never
+   * stored anywhere but the response. */
+  tempPassword?: string;
+}
+
 @injectable()
 export class CreateOrganizationUseCase {
   constructor(
     @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
-
     @inject(TOKENS.SubscriptionPlanRepository) private planRepo: ISubscriptionPlanRepository,
-
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
-
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
-
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
-
     @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService,
-
+    @inject(TOKENS.HashService) private hashService: IHashService,
     @inject(TOKENS.SubscriptionPlanRepository) private readonly organizationSubscriptionRepository: IOrganizationSubscriptionRepository,
   ) { }
 
-  async execute(input: CreateOrganizationInput): Promise<Organization> {
+  async execute(input: CreateOrganizationInput): Promise<CreateOrganizationResult> {
     const { data, adminId } = input;
 
     // 1. Validate subscription plan if provided
@@ -78,7 +89,7 @@ export class CreateOrganizationUseCase {
       documents: data.documents,
     });
 
-    // 6. Create Subscription if plan exists
+    // 5. Create Subscription if plan exists
     if (plan) {
       const startDate = new Date();
       const endDate = new Date(startDate);
@@ -87,11 +98,9 @@ export class CreateOrganizationUseCase {
         case "weekly":
           endDate.setDate(endDate.getDate() + 7);
           break;
-
         case "monthly":
           endDate.setMonth(endDate.getMonth() + 1);
           break;
-
         case "yearly":
           endDate.setFullYear(endDate.getFullYear() + 1);
           break;
@@ -113,33 +122,16 @@ export class CreateOrganizationUseCase {
       });
     }
 
-    // 7. Generate invitation token
-    const inviteToken = crypto.randomBytes(32).toString('hex');
+    // 6. Create Organization Admin User — branches based on inviteMethod
+    const result =
+      data.inviteMethod === 'temp-password'
+        ? await this.createAdminWithTempPassword(data, organization.id)
+        : await this.createAdminWithInviteEmail(data, organization.id);
 
-    const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
+    // 7. Assign Organization Admin Role
+    await this.userRepo.assignRole(result.admin.id, organizationAdminRole.id);
 
-    // 8. Create Organization Admin User
-    const organizationAdminUser = await this.userRepo.create({
-      name: data.admin.name,
-      email: data.admin.email,
-      phone: data.admin.phone ?? null,
-      passwordHash: null,
-      status: 'invited',
-      organizationId: organization.id,
-      inviteToken,
-      inviteTokenExpiresAt,
-      tokenVersion: 0,
-      resetPasswordToken: null,
-      resetPasswordTokenExpiresAt: null
-    });
-
-    // 9. Assign Organization Admin Role
-    await this.userRepo.assignRole(organizationAdminUser.id, organizationAdminRole.id);
-
-    // 10. Send invitation to Admin login email
-    await this.sendInviteEmail(data.admin.email, data.name, inviteToken);
-
-    // 11. Audit log
+    // 8. Audit log
     await this.auditLogRepo.create({
       adminId,
       action: 'CREATE_ORGANIZATION',
@@ -148,34 +140,87 @@ export class CreateOrganizationUseCase {
       metadata: {
         name: organization.name,
         planId: plan?.id ?? null,
-        adminUserId: organizationAdminUser.id,
+        adminUserId: result.admin.id,
+        inviteMethod: data.inviteMethod,
       },
     });
 
-    return organization;
+    return { organization, ...result };
   }
 
-  private async sendInviteEmail(email: string, orgName: string, token: string): Promise<void> {
-    const inviteUrl = `${env.FRONTEND_URL}/accept-invite/${token}`;
+  /** Email-invite path: user stays 'invited' until they click the link and
+   * set their own password. Email delivery is best-effort — failure here
+   * never rolls back the organization/user records already created. */
+  private async createAdminWithInviteEmail(
+    data: CreateOrganizationDto,
+    organizationId: string
+  ): Promise<{ admin: User; inviteUrl: string; emailSent: boolean }> {
+    const inviteToken = crypto.randomBytes(32).toString('hex');
+    const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
 
-    const content = inviteEmailTemplate({
-      orgName,
-      inviteUrl,
-      ttlHours: INVITE_TOKEN_TTL_HOURS,
+    const admin = await this.userRepo.create({
+      name: data.admin.name,
+      email: data.admin.email,
+      phone: data.admin.phone ?? null,
+      passwordHash: null,
+      status: 'invited',
+      organizationId,
+      inviteToken,
+      inviteTokenExpiresAt,
+      tokenVersion: 0,
+      resetPasswordToken: null,
+      resetPasswordTokenExpiresAt: null,
+      mustChangePassword: false,
     });
 
+    const inviteUrl = `${env.FRONTEND_URL}/accept-invite?token=${inviteToken}`;
+
+    let emailSent = true;
     try {
+      const content = inviteEmailTemplate({
+        orgName: data.name,
+        inviteUrl,
+        ttlHours: INVITE_TOKEN_TTL_HOURS,
+      });
       await this.emailNotifier.send({
-        to: email,
+        to: data.admin.email,
         subject: content.subject,
         message: content.text,
         html: content.html,
       });
     } catch (error) {
-      console.error(
-        'Failed to send invite email:',
-        error
-      );
+      emailSent = false;
+      console.error(`Failed to send org-invite email to ${data.admin.email}:`, error);
     }
+
+    return { admin, inviteUrl, emailSent };
+  }
+
+  /** Temp-password path: no email is sent at all. The admin creating the
+   * org copies the password from the response and shares it out of band.
+   * User starts 'active' but must change the password on first login. */
+  private async createAdminWithTempPassword(
+    data: CreateOrganizationDto,
+    organizationId: string
+  ): Promise<{ admin: User; tempPassword: string }> {
+    const tempPassword = generateTempPassword();
+    const passwordHash = await this.hashService.hash(tempPassword);
+
+    const admin = await this.userRepo.create({
+      name: data.admin.name,
+      email: data.admin.email,
+      phone: data.admin.phone ?? null,
+      passwordHash,
+      status: 'active',
+      organizationId,
+      inviteToken: null,
+      inviteTokenExpiresAt: null,
+      tokenVersion: 0,
+      resetPasswordToken: null,
+      resetPasswordTokenExpiresAt: null,
+      mustChangePassword: true,
+    });
+
+    return { admin, tempPassword };
   }
 }

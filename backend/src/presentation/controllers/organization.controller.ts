@@ -35,11 +35,11 @@ export class OrganizationController {
 
   create = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-    const organization = await this.createOrgUseCase.execute({
+    const result = await this.createOrgUseCase.execute({
       data: req.body,
       adminId: req.user.userId,
     });
-    ApiResponse.created(res, organization);
+    ApiResponse.created(res, result);
   };
 
   list = async (req: Request, res: Response): Promise<void> => {

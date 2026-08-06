@@ -8,10 +8,11 @@ export interface User {
   passwordHash: string | null;
   status: UserStatus;
   organizationId?: string | null;
-  inviteToken?: string | null;
-  inviteTokenExpiresAt?: Date | null;
+  inviteToken: string | null;
+  inviteTokenExpiresAt: Date | null;
   resetPasswordToken: string | null;
   resetPasswordTokenExpiresAt: Date | null;
+  mustChangePassword: boolean;
   tokenVersion: number;
   deletedAt?: Date | null;
   createdAt: Date;

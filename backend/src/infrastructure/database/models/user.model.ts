@@ -12,6 +12,7 @@ export interface UserDocument extends Document {
   tokenVersion: number;
   resetPasswordToken: string | null;
   resetPasswordTokenExpiresAt: Date | null;
+  mustChangePassword: boolean;
   deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -30,6 +31,7 @@ const userSchema = new Schema<UserDocument>(
     tokenVersion: { type: Number, default: 0 },
     resetPasswordToken: { type: String, default: null },
     resetPasswordTokenExpiresAt: { type: Date, default: null },
+    mustChangePassword: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
   },
   { timestamps: true }
