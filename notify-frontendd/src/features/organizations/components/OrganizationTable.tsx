@@ -181,6 +181,12 @@ export function OrganizationTable() {
                     isDeleting ||
                     isResending;
 
+                  // Reset password should be available whenever there's an
+                  // admin account to reset — gating on admin.status === "active"
+                  // hid the action for any admin whose status was pending,
+                  // undefined, or anything else.
+                  const canResetPassword = Boolean(org.admin?.email);
+
                   return (
 
                     <TableRow
@@ -191,7 +197,7 @@ export function OrganizationTable() {
                       <TableCell>
 
                         <Link
-                          href={ROUTES.organizations.detail(org.id  )}
+                          href={ROUTES.organizations.detail(org.id)}
                           className="font-medium hover:text-primary hover:underline"
                         >
                           {org.name}
@@ -257,6 +263,7 @@ export function OrganizationTable() {
                                 type="button"
                                 variant="ghost"
                                 size="icon"
+                                aria-label={`Resend invitation to ${org.name}`}
                                 disabled={isUpdating || !org.admin?.email}
                               >
                                 <Send className="h-4 w-4" />
@@ -271,14 +278,14 @@ export function OrganizationTable() {
 
                           {/* RESET PASSWORD */}
 
-                          {org.admin?.status === "active" && (
+                          {canResetPassword && (
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
                                   type="button"
                                   variant="ghost"
                                   size="icon"
-                                  aria-label={`Reset password for ${org.admin.name}`}
+                                  aria-label={`Reset password for ${org.admin?.name ?? org.name}`}
                                   disabled={isUpdating}
                                   onClick={() => setResetPasswordOrg(org)}
                                 >
@@ -302,6 +309,7 @@ export function OrganizationTable() {
                                   type="button"
                                   variant="ghost"
                                   size="icon"
+                                  aria-label={`Block ${org.name}`}
                                   disabled={isUpdating}
                                   className="text-orange-600 hover:text-orange-600"
                                 >
@@ -322,6 +330,7 @@ export function OrganizationTable() {
                                   type="button"
                                   variant="ghost"
                                   size="icon"
+                                  aria-label={`Unblock ${org.name}`}
                                   disabled={isUpdating}
                                   className="text-green-600 hover:text-green-600"
                                 >
