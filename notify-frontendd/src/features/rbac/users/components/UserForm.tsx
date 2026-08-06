@@ -55,10 +55,11 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
       ? {
           name: user?.name ?? '',
           phone: user?.phone ?? '',
-          status: user?.status ?? 'invited',
+          status: user?.status === 'inactive' ? 'inactive' : 'active',
         }
       : {
           name: '',
+          email: '',
           phone: '',
           roleIds: [],
         },
@@ -80,6 +81,25 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
             </FormItem>
           )}
         />
+
+        {/* Email is only collected at invite time. It becomes the user's
+            login identity, so changing it later goes through a separate
+            verification flow, not this form. */}
+        {!isEdit && (
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="name@company.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}
@@ -109,7 +129,6 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="invited">Invited</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="inactive">Inactive</SelectItem>
                   </SelectContent>
@@ -144,7 +163,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
                       </div>
                     ) : availableRoles.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
-                        No active roles available. You can assign roles after inviting the user.
+                        No active roles available. Create a role first before inviting a user.
                       </p>
                     ) : (
                       <div className="space-y-2">

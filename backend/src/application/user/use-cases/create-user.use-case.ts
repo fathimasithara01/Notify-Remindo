@@ -26,7 +26,8 @@ export class CreateUserUseCase {
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
-@inject(TOKENS.NotifierService) private notifierService: INotifierService  ) { }
+    @inject(TOKENS.EmailNotifierService ) private emailService: INotifierService 
+  ) { }
 
   async execute(input: CreateUserInput): Promise<CreateUserResult> {
     const { data, adminId } = input;
@@ -79,7 +80,6 @@ export class CreateUserUseCase {
     await this.emailService.send({
       to: user.email,
       subject: 'You\'ve been invited to Notify',
-
       message: `Hi ${user.name}, you've been invited. Click the link to set your password: ${inviteUrl}`,
       html: `<p>Hi ${user.name},</p><p>You've been invited to Notify. Click below to set your password:</p><p><a href="${inviteUrl}">${inviteUrl}</a></p><p>This link expires in 7 days.</p>`,
     });
