@@ -43,6 +43,7 @@ const processQueue = (error: unknown = null) => {
     if (error) {
       reject(error);
     } else {
+      console.log("nbnbnbnbnbnbnblock")
       resolve(axiosInstance(config));
     }
   });
@@ -74,7 +75,7 @@ axiosInstance.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      await refreshClient.post('/auth/refresh', {});
+      await refreshClient.post('/auth/refresh-token', {});
 
       refreshHasFailed = false;
       processQueue();
