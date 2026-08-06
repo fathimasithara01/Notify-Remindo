@@ -36,4 +36,5 @@ export interface IUserRepository {
     status: "invited" | "active" | "inactive"
   ): Promise<User | null>;
   cancelInvite(userId: string): Promise<boolean>;
+  findByInviteToken(token: string): Promise<User | null>;
 }

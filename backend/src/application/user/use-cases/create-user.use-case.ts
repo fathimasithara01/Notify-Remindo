@@ -2,15 +2,22 @@ import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
-import { IHashService } from '../../../domain/services/hash.service.interface';
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
+import { INotifierService  } from '../../../domain/services/notifier.service.interface';
 import { User } from '../../../domain/entities/user.entity';
 import { ConflictError, DomainError } from '../../../domain/errors/domain.error';
 import { CreateUserDto } from '../../dtos/create-user.dto';
+import { generateInviteToken, getInviteExpiry } from '../../../shared/utils/token-generator';
+import { env } from '../../../config/env';
 
 export interface CreateUserInput {
   data: CreateUserDto;
   adminId: string;
+}
+
+export interface CreateUserResult {
+  user: User;
+  inviteUrl: string;
 }
 
 @injectable()
@@ -18,11 +25,10 @@ export class CreateUserUseCase {
   constructor(
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
-    @inject(TOKENS.HashService) private hashService: IHashService,
-    @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository
-  ) {}
+    @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
+@inject(TOKENS.NotifierService) private notifierService: INotifierService  ) { }
 
-  async execute(input: CreateUserInput): Promise<User> {
+  async execute(input: CreateUserInput): Promise<CreateUserResult> {
     const { data, adminId } = input;
 
     if (data.roleIds.length === 0) {
@@ -41,16 +47,18 @@ export class CreateUserUseCase {
       }
     }
 
-    const passwordHash = await this.hashService.hash(data.password);
+    const inviteToken = generateInviteToken();
+    const inviteTokenExpiresAt = getInviteExpiry(7);
 
     const user = await this.userRepo.create({
       name: data.name,
       email: data.email,
-      phone:data.phone,
-      passwordHash,
-      status: 'active',
-      organizationId: null,
+      phone: data.phone,
+      passwordHash: null,
+      status: 'invited',
       tokenVersion: 0,
+      inviteToken,
+      inviteTokenExpiresAt,
     });
 
     for (const roleId of data.roleIds) {
@@ -65,6 +73,17 @@ export class CreateUserUseCase {
       metadata: { email: user.email, roleIds: data.roleIds },
     });
 
-    return user;
+    const inviteUrl = `${env.FRONTEND_URL}/accept-invite?token=${inviteToken}`;
+
+
+    await this.emailService.send({
+      to: user.email,
+      subject: 'You\'ve been invited to Notify',
+
+      message: `Hi ${user.name}, you've been invited. Click the link to set your password: ${inviteUrl}`,
+      html: `<p>Hi ${user.name},</p><p>You've been invited to Notify. Click below to set your password:</p><p><a href="${inviteUrl}">${inviteUrl}</a></p><p>This link expires in 7 days.</p>`,
+    });
+
+    return { user, inviteUrl };
   }
 }

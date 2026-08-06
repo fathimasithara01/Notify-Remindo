@@ -15,7 +15,7 @@ export class EmailNotifierService implements INotifierService {
         user: env.SMTP_USER,
         pass: env.SMTP_PASSWORD,
       },
-    });
+    }); 
   }
 
   async send(payload: NotificationPayload): Promise<void> {

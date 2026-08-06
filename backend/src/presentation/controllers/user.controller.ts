@@ -8,7 +8,7 @@ import { EditUserUseCase } from '../../application/user/use-cases/edit-user.use-
 import { RevokeSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError, UnauthorizedError } from '../../domain/errors/domain.error';
-import { parsePaginationParams } from '../../shared/utils/pagination'; 
+import { parsePaginationParams } from '../../shared/utils/pagination';
 import { User } from '../../domain/entities/user.entity';
 
 function toSafeUser(user: User) {
@@ -28,8 +28,8 @@ export class UserController {
 
   create = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-    const user = await this.createUserUseCase.execute({ data: req.body, adminId: req.user.userId });
-    ApiResponse.created(res, toSafeUser(user));
+    const { user, inviteUrl } = await this.createUserUseCase.execute({ data: req.body, adminId: req.user.userId, });
+    ApiResponse.created(res, { ...toSafeUser(user), inviteUrl });
   };
 
   list = async (req: Request, res: Response): Promise<void> => {
@@ -72,8 +72,6 @@ export class UserController {
     });
     ApiResponse.success(res, null, 200, 'All sessions revoked for this user');
   };
-
-  // --- Roles sub-resource ---
 
   getRoles = async (req: Request, res: Response): Promise<void> => {
     const roles = await this.userRepo.listRoles(req.params.id);
