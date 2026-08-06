@@ -28,16 +28,17 @@ export interface CreateUserDto {
   name: string;
   email: string;
   phone?: string;
-  organizationId?: string;
-  roleIds?: string[];
+  roleIds: string[];
 }
 
-/** Fields the edit form can update. Status/email changes may be restricted server-side. */
+export interface CreateUserResponse extends User {
+  inviteUrl: string;
+}
+
 export interface UpdateUserDto {
   name?: string;
-  email?: string;
   phone?: string | null;
-  status?: UserStatus;
+  status?: 'active' | 'inactive';
 }
 
 export interface AssignRoleDto {

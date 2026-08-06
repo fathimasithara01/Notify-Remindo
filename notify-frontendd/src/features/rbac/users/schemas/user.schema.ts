@@ -9,15 +9,13 @@ export const createUserSchema = z.object({
     .regex(/^\+?[0-9]{7,15}$/, 'Enter a valid phone number')
     .optional()
     .or(z.literal('')),
-  organizationId: z.string().optional(),
-  roleIds: z.array(z.string()).optional(),
+  roleIds: z.array(z.string()).min(1, 'Select at least one role'),
 });
 
 export type CreateUserFormValues = z.infer<typeof createUserSchema>;
 
 export const editUserSchema = z.object({
   name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
-  email: z.string().trim().email('Enter a valid email address'),
   phone: z
     .string()
     .trim()

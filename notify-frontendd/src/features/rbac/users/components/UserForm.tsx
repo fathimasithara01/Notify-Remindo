@@ -54,13 +54,11 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
     defaultValues: isEdit
       ? {
           name: user?.name ?? '',
-          email: user?.email ?? '',
           phone: user?.phone ?? '',
           status: user?.status ?? 'invited',
         }
       : {
           name: '',
-          email: '',
           phone: '',
           roleIds: [],
         },
@@ -77,20 +75,6 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
               <FormLabel>Full name</FormLabel>
               <FormControl>
                 <Input placeholder="e.g. Fathima Rahman" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="name@company.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -151,7 +135,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
 
               return (
                 <FormItem>
-                  <FormLabel>Roles (optional)</FormLabel>
+                  <FormLabel>Roles</FormLabel>
                   <FormControl>
                     {rolesLoading ? (
                       <div className="space-y-2">

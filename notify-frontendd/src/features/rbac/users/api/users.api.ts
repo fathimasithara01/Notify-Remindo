@@ -2,6 +2,7 @@ import { toQueryParams } from '../../shared/query-params';
 import type {
     AssignRoleDto,
     CreateUserDto,
+    CreateUserResponse,
     PaginatedResult,
     UpdateUserDto,
     User,
@@ -19,8 +20,8 @@ export const usersApi = {
     getOne: (id: string): Promise<User> =>
         apiClient.get<User>(`${BASE_URL}/${id}`),
 
-    create: (payload: CreateUserDto): Promise<User> =>
-        apiClient.post<User>(BASE_URL, payload),
+    create: (payload: CreateUserDto): Promise<CreateUserResponse> =>
+        apiClient.post<CreateUserResponse>(BASE_URL, payload),
 
     update: (id: string, payload: UpdateUserDto): Promise<User> =>
         apiClient.patch<User>(`${BASE_URL}/${id}`, payload),

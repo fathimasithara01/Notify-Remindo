@@ -9,6 +9,7 @@ export const createUserSchema = z.object({
 
 export const editUserSchema = z.object({
   name: z.string().min(1).optional(),
+  phone: z.string().optional(),
   status: z.enum(['active', 'inactive']).optional(),
 });
 
