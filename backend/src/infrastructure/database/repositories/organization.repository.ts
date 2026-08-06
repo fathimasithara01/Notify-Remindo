@@ -155,7 +155,7 @@ export class OrganizationRepository implements IOrganizationRepository {
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
 
-      admin: doc.admin
+      admin: doc.admin?.id
         ? {
           id: doc.admin.id.toString(),
           name: doc.admin.name,
@@ -354,7 +354,7 @@ export class OrganizationRepository implements IOrganizationRepository {
                 address: 1,
                 status: 1,
                 currentPlanId: 1,
-                 currentPlanName: '$plan.name',
+                currentPlanName: '$plan.name',
                 salesmanId: 1,
                 documents: 1,
                 deletedAt: 1,
@@ -399,7 +399,7 @@ export class OrganizationRepository implements IOrganizationRepository {
         createdAt: doc.createdAt,
         updatedAt: doc.updatedAt,
 
-        admin: doc.admin
+        admin: doc.admin?.id
           ? {
             id: doc.admin.id.toString(),
             name: doc.admin.name,

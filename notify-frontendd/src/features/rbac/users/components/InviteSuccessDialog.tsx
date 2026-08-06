@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -18,6 +18,7 @@ interface InviteSuccessDialogProps {
   onOpenChange: (open: boolean) => void;
   inviteUrl: string;
   userName: string;
+  emailSent: boolean;
 }
 
 export function InviteSuccessDialog({
@@ -25,6 +26,7 @@ export function InviteSuccessDialog({
   onOpenChange,
   inviteUrl,
   userName,
+  emailSent,
 }: InviteSuccessDialogProps) {
   const [copied, setCopied] = useState(false);
 
@@ -42,12 +44,25 @@ export function InviteSuccessDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Invite sent to {userName}</DialogTitle>
+          <DialogTitle>
+            {emailSent ? `Invite sent to ${userName}` : `Invite created for ${userName}`}
+          </DialogTitle>
           <DialogDescription>
-            An email has been sent with this link. If it doesn&apos;t arrive,
-            you can copy and share it manually. This link expires in 7 days.
+            {emailSent
+              ? "An email has been sent with this link. If it doesn't arrive, you can copy and share it manually. This link expires in 7 days."
+              : 'This link expires in 7 days.'}
           </DialogDescription>
         </DialogHeader>
+
+        {!emailSent && (
+          <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              We couldn&apos;t send the invite email right now. Copy the link
+              below and share it with {userName} directly.
+            </p>
+          </div>
+        )}
 
         <div className="flex items-center gap-2">
           <Input value={inviteUrl} readOnly className="flex-1 text-sm" />

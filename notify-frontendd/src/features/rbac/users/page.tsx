@@ -28,6 +28,7 @@ import { UserFilters } from './components/UserFilters';
 import { UserForm } from './components/UserForm';
 import { UserRoleDialog } from './components/UserRoleDialog';
 import { RevokeSessionDialog } from './components/RevokeSessionDialog';
+import { InviteSuccessDialog } from './components/InviteSuccessDialog';
 
 import { useUsers } from './hooks/useUsers';
 import { useCreateUser } from './hooks/useCreateUser';
@@ -48,6 +49,15 @@ type DialogState =
   | { type: 'revoke'; user: User }
   | { type: 'delete'; user: User };
 
+/** Holds the invite result (link + email delivery status) shown right after a
+ * successful invite. Kept separate from `dialog` state so it survives the
+ * create dialog closing — the success dialog opens right after. */
+interface InviteResult {
+  userName: string;
+  inviteUrl: string;
+  emailSent: boolean;
+}
+
 export default function UsersPage() {
   const router = useRouter();
   const [filters, setFilters] = useState<UserFiltersType>({
@@ -55,6 +65,7 @@ export default function UsersPage() {
     limit: DEFAULT_PAGE_SIZE,
   });
   const [dialog, setDialog] = useState<DialogState>({ type: 'none' });
+  const [inviteResult, setInviteResult] = useState<InviteResult | null>(null);
 
   const { data, isLoading } = useUsers(filters);
   const { data: currentUser } = useCurrentUser();
@@ -65,7 +76,16 @@ export default function UsersPage() {
   const closeDialog = () => setDialog({ type: 'none' });
 
   const handleCreateSubmit = (values: CreateUserFormValues | EditUserFormValues) => {
-    createUser.mutate(values as CreateUserFormValues, { onSuccess: closeDialog });
+    createUser.mutate(values as CreateUserFormValues, {
+      onSuccess: (data) => {
+        closeDialog();
+        setInviteResult({
+          userName: data.name,
+          inviteUrl: data.inviteUrl,
+          emailSent: data.emailSent,
+        });
+      },
+    });
   };
 
   const handleEditSubmit = (values: CreateUserFormValues | EditUserFormValues) => {
@@ -190,6 +210,18 @@ export default function UsersPage() {
         open={dialog.type === 'revoke'}
         onOpenChange={(o) => !o && closeDialog()}
       />
+
+      {/* Invite success — shows the invite link, with a warning + copy
+          fallback if the email failed to send */}
+      {inviteResult && (
+        <InviteSuccessDialog
+          open={!!inviteResult}
+          onOpenChange={(o) => !o && setInviteResult(null)}
+          userName={inviteResult.userName}
+          inviteUrl={inviteResult.inviteUrl}
+          emailSent={inviteResult.emailSent}
+        />
+      )}
 
       {/* Delete confirmation */}
       <AlertDialog open={dialog.type === 'delete'} onOpenChange={(o) => !o && closeDialog()}>

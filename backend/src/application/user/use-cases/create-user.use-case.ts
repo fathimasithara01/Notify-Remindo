@@ -3,7 +3,7 @@ import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
-import { INotifierService  } from '../../../domain/services/notifier.service.interface';
+import { INotifierService } from '../../../domain/services/notifier.service.interface';
 import { User } from '../../../domain/entities/user.entity';
 import { ConflictError, DomainError } from '../../../domain/errors/domain.error';
 import { CreateUserDto } from '../../dtos/create-user.dto';
@@ -18,6 +18,7 @@ export interface CreateUserInput {
 export interface CreateUserResult {
   user: User;
   inviteUrl: string;
+  emailSent: boolean;
 }
 
 @injectable()
@@ -26,8 +27,8 @@ export class CreateUserUseCase {
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
-    @inject(TOKENS.EmailNotifierService ) private emailService: INotifierService 
-  ) { }
+    @inject(TOKENS.EmailNotifierService) private notifierService: INotifierService
+  ) {}
 
   async execute(input: CreateUserInput): Promise<CreateUserResult> {
     const { data, adminId } = input;
@@ -76,14 +77,22 @@ export class CreateUserUseCase {
 
     const inviteUrl = `${env.FRONTEND_URL}/accept-invite?token=${inviteToken}`;
 
+    // Email delivery is best-effort. If it fails, the user record still
+    // exists (status: 'invited') and the admin gets inviteUrl back in the
+    // response so they can copy/share it manually — no rollback needed.
+    let emailSent = true;
+    try {
+      await this.notifierService.send({
+        to: user.email,
+        subject: "You've been invited to Notify",
+        message: `Hi ${user.name}, you've been invited. Click the link to set your password: ${inviteUrl}`,
+        html: `<p>Hi ${user.name},</p><p>You've been invited to Notify. Click below to set your password:</p><p><a href="${inviteUrl}">${inviteUrl}</a></p><p>This link expires in 7 days.</p>`,
+      });
+    } catch (error) {
+      emailSent = false;
+      console.error(`Failed to send invite email to ${user.email}:`, error);
+    }
 
-    await this.emailService.send({
-      to: user.email,
-      subject: 'You\'ve been invited to Notify',
-      message: `Hi ${user.name}, you've been invited. Click the link to set your password: ${inviteUrl}`,
-      html: `<p>Hi ${user.name},</p><p>You've been invited to Notify. Click below to set your password:</p><p><a href="${inviteUrl}">${inviteUrl}</a></p><p>This link expires in 7 days.</p>`,
-    });
-
-    return { user, inviteUrl };
+    return { user, inviteUrl, emailSent };
   }
 }

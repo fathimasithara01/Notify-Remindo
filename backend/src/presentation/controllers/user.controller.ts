@@ -28,8 +28,8 @@ export class UserController {
 
   create = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-    const { user, inviteUrl } = await this.createUserUseCase.execute({ data: req.body, adminId: req.user.userId, });
-    ApiResponse.created(res, { ...toSafeUser(user), inviteUrl });
+    const { user, inviteUrl, emailSent } = await this.createUserUseCase.execute({ data: req.body, adminId: req.user.userId, });
+    ApiResponse.created(res, { ...toSafeUser(user), inviteUrl, emailSent });
   };
 
   list = async (req: Request, res: Response): Promise<void> => {

@@ -33,6 +33,7 @@ export interface CreateUserDto {
 
 export interface CreateUserResponse extends User {
   inviteUrl: string;
+  emailSent: boolean;
 }
 
 export interface UpdateUserDto {
