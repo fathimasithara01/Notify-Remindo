@@ -10,6 +10,8 @@ export interface User {
   organizationId?: string | null;
   inviteToken?: string | null;
   inviteTokenExpiresAt?: Date | null;
+  resetPasswordToken: string | null;
+  resetPasswordTokenExpiresAt: Date | null;
   tokenVersion: number;
   deletedAt?: Date | null;
   createdAt: Date;

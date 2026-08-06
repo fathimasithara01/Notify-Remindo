@@ -9,8 +9,12 @@ export const TOKENS = {
   NotificationRepository: Symbol('NotificationRepository'),
   AuditLogRepository: Symbol('AuditLogRepository'),
   OrganizationDocumentRepository: Symbol('OrganizationDocumentRepository'),
-  PlanFeatureRepository: Symbol('PlanFeatureRepository'), 
+  PlanFeatureRepository: Symbol('PlanFeatureRepository'),
   OrganizationSubscriptionRepository: Symbol('OrganizationSubscriptionRepository'),
+
+  UserResendInviteUseCase: Symbol('ResendInviteUseCase'),
+  RequestPasswordResetUseCase: Symbol('RequestPasswordResetUseCase'),
+  ResetPasswordUseCase: Symbol('ResetPasswordUseCase'),
 
   // Services (interfaces)
   HashService: Symbol('HashService'),
@@ -60,7 +64,7 @@ export const TOKENS = {
   DeleteSubscriptionPlanUseCase: Symbol('DeleteSubscriptionPlanUseCase'),
   LogoutAllDevicesUseCase: Symbol('LogoutAllDevicesUseCase'),
   SetOrganizationAdminPasswordUseCase: Symbol('SetOrganizationAdminPasswordUseCase'),
-  CancelInviteUseCase:Symbol('CancelInviteUseCase'),
+  CancelInviteUseCase: Symbol('CancelInviteUseCase'),
 
   // Controllers
   AuthController: Symbol('AuthController'),

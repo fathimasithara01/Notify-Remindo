@@ -129,6 +129,8 @@ export class CreateOrganizationUseCase {
       inviteToken,
       inviteTokenExpiresAt,
       tokenVersion: 0,
+      resetPasswordToken: null,
+      resetPasswordTokenExpiresAt: null
     });
 
     // 9. Assign Organization Admin Role

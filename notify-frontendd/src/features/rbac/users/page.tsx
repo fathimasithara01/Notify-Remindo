@@ -23,6 +23,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
+import { useResendInvite } from './hooks/useResendInvite';
 import { UserTable } from './components/UserTable';
 import { UserFilters } from './components/UserFilters';
 import { UserForm } from './components/UserForm';
@@ -40,6 +41,7 @@ import { ROUTES } from '@/config/routes';
 
 import type { User, UserFilters as UserFiltersType } from './types/user.types';
 import type { CreateUserFormValues, EditUserFormValues } from './schemas/user.schema';
+import { useRequestPasswordReset } from './hooks/useRequestPasswordReset';
 
 type DialogState =
   | { type: 'none' }
@@ -47,7 +49,9 @@ type DialogState =
   | { type: 'edit'; user: User }
   | { type: 'roles'; user: User }
   | { type: 'revoke'; user: User }
-  | { type: 'delete'; user: User };
+  | { type: 'delete'; user: User }
+  | { type: 'resendInvite'; user: User }
+  | { type: 'requestReset'; user: User };
 
 /** Holds the invite result (link + email delivery status) shown right after a
  * successful invite. Kept separate from `dialog` state so it survives the
@@ -72,6 +76,26 @@ export default function UsersPage() {
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
+  const resendInvite = useResendInvite();
+  const requestPasswordReset = useRequestPasswordReset();
+
+  const handleResendInvite = (user: User) => {
+    resendInvite.mutate(user.id, {
+      onSuccess: (data) => {
+        closeDialog();
+        setInviteResult({ userName: user.name, inviteUrl: data.inviteUrl, emailSent: data.emailSent });
+      },
+    });
+  };
+
+  const handleRequestPasswordReset = (user: User) => {
+    requestPasswordReset.mutate(user.id, {
+      onSuccess: (data) => {
+        closeDialog();
+        setInviteResult({ userName: user.name, inviteUrl: data.resetUrl, emailSent: data.emailSent });
+      },
+    });
+  };
 
   const closeDialog = () => setDialog({ type: 'none' });
 
@@ -129,6 +153,8 @@ export default function UsersPage() {
         onDelete={(user) => setDialog({ type: 'delete', user })}
         onManageRoles={(user) => setDialog({ type: 'roles', user })}
         onRevokeSessions={(user) => setDialog({ type: 'revoke', user })}
+        onResendInvite={handleResendInvite}
+        onRequestPasswordReset={handleRequestPasswordReset}
       />
 
       {data && data.meta.total > 0 && (

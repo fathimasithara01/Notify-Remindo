@@ -75,6 +75,9 @@ import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout
 import { OrganizationSubscriptionRepository } from '../database/repositories/organization-subscription.repository';
 import { SetOrganizationAdminPasswordUseCase } from '../../application/organization/use-cases/set-organization-admin-password.use-case';
 import { CancelInviteUseCase } from '../../application/organization/use-cases/Cancel-invite-use-case';
+import { RequestPasswordResetUseCase } from '../../application/user/use-cases/request-password-reset.use-case';
+import { ResetPasswordUseCase } from '../../application/auth/use-cases/reset-password.use-case';
+import { UserResendInviteUseCase } from '../../application/user/use-cases/resend-invite.use-case';
 
 export function registerDependencies(): void {
   // Repositories
@@ -98,6 +101,11 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.RolePermissionCache, RolePermissionCache);
   container.registerSingleton(TOKENS.TokenRevocationRegistry, TokenRevocationRegistry);
   container.registerSingleton(TOKENS.FileStorageService, S3FileStorageService);
+
+    container.registerSingleton(TOKENS.UserResendInviteUseCase, UserResendInviteUseCase);
+  container.registerSingleton(TOKENS.RequestPasswordResetUseCase, RequestPasswordResetUseCase);
+  container.registerSingleton(TOKENS.ResetPasswordUseCase, ResetPasswordUseCase);
+
 
   container.register(TOKENS.NotifierMap, {
     useFactory: (c) => ({

@@ -1,6 +1,6 @@
 'use client';
 
-import { MoreHorizontal, ShieldCheck, LogOut, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, ShieldCheck, LogOut, Pencil, Trash2, Mail, KeyRound } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -25,13 +25,14 @@ import type { User } from '../types/user.types';
 interface UserTableProps {
   users: User[];
   isLoading: boolean;
-  /** Logged-in user's id — used to prevent deleting your own account from the UI. */
   currentUserId?: string;
   onView: (user: User) => void;
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
   onManageRoles: (user: User) => void;
   onRevokeSessions: (user: User) => void;
+  onResendInvite: (user: User) => void;
+  onRequestPasswordReset: (user: User) => void;
 }
 
 export function UserTable({
@@ -43,6 +44,8 @@ export function UserTable({
   onDelete,
   onManageRoles,
   onRevokeSessions,
+  onResendInvite ,
+  onRequestPasswordReset,
 }: UserTableProps) {
   if (isLoading) {
     return (
@@ -109,6 +112,7 @@ export function UserTable({
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
+
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => onEdit(user)}>
                         <Pencil className="mr-2 h-4 w-4" />
@@ -118,6 +122,21 @@ export function UserTable({
                         <ShieldCheck className="mr-2 h-4 w-4" />
                         Manage roles
                       </DropdownMenuItem>
+
+                      {user.status === 'invited' && (
+                        <DropdownMenuItem onClick={() => onResendInvite(user)}>
+                          <Mail className="mr-2 h-4 w-4" />
+                          Resend invite
+                        </DropdownMenuItem>
+                      )}
+
+                      {user.status === 'active' && (
+                        <DropdownMenuItem onClick={() => onRequestPasswordReset(user)}>
+                          <KeyRound className="mr-2 h-4 w-4" />
+                          Reset password
+                        </DropdownMenuItem>
+                      )}
+
                       <DropdownMenuItem onClick={() => onRevokeSessions(user)}>
                         <LogOut className="mr-2 h-4 w-4" />
                         Revoke sessions

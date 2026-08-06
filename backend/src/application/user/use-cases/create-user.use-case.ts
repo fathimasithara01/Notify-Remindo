@@ -28,7 +28,7 @@ export class CreateUserUseCase {
     @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.EmailNotifierService) private notifierService: INotifierService
-  ) {}
+  ) { }
 
   async execute(input: CreateUserInput): Promise<CreateUserResult> {
     const { data, adminId } = input;
@@ -61,6 +61,8 @@ export class CreateUserUseCase {
       tokenVersion: 0,
       inviteToken,
       inviteTokenExpiresAt,
+      resetPasswordToken: null,
+      resetPasswordTokenExpiresAt: null
     });
 
     for (const roleId of data.roleIds) {

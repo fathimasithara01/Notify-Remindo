@@ -10,6 +10,8 @@ export interface UserDocument extends Document {
   inviteToken: string | null;
   inviteTokenExpiresAt: Date | null;
   tokenVersion: number;
+  resetPasswordToken: string | null;
+  resetPasswordTokenExpiresAt: Date | null;
   deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -26,6 +28,8 @@ const userSchema = new Schema<UserDocument>(
     inviteToken: { type: String, default: null, index: true },
     inviteTokenExpiresAt: { type: Date, default: null },
     tokenVersion: { type: Number, default: 0 },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordTokenExpiresAt: { type: Date, default: null },
     deletedAt: { type: Date, default: null },
   },
   { timestamps: true }

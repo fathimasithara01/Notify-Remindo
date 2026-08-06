@@ -10,6 +10,7 @@ import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError } from '../../domain/errors/domain.error';
 import { env } from '../../config/env';
 import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout-from-alldevice';
+import { ResetPasswordUseCase } from '../../application/auth/use-cases/reset-password.use-case';
 
 const baseCookieOptions: CookieOptions = {
   httpOnly: true,
@@ -36,6 +37,8 @@ export class AuthController {
     @inject(TOKENS.VerifyInviteTokenUseCase) private verifyInviteTokenUseCase: VerifyInviteTokenUseCase,
     @inject(TOKENS.AcceptInviteUseCase) private acceptInviteUseCase: AcceptInviteUseCase,
     @inject(TOKENS.LogoutAllDevicesUseCase) private logoutAllDevicesUseCase: LogoutAllDevicesUseCase,
+      @inject(TOKENS.ResetPasswordUseCase) private resetPasswordUseCase: ResetPasswordUseCase,
+
   ) { }
 
   //   export class AuthController {
@@ -54,6 +57,11 @@ export class AuthController {
 
     ApiResponse.success(res, { user: result.user });
   };
+
+resetPassword = async (req: Request, res: Response): Promise<void> => {
+  await this.resetPasswordUseCase.execute(req.body);
+  ApiResponse.success(res, null, 200, 'Password reset successfully. Please log in.');
+};
 
   logout = async (_req: Request, res: Response): Promise<void> => {
     res.clearCookie('accessToken', baseCookieOptions);

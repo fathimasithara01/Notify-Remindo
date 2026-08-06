@@ -35,6 +35,18 @@ router.post(
   asyncHandler(controller.revokeSessions)
 );
 
+router.post(
+  '/:id/resend-invite',
+  authorize('user.edit'),
+  asyncHandler(controller.resendInvite)
+);
+
+router.post(
+  '/:id/request-password-reset',
+  authorize('user.edit'),
+  asyncHandler(controller.requestPasswordReset)
+);
+
 router.get('/:id/roles', authorize('user.view'), asyncHandler(controller.getRoles));
 router.post(
   '/:id/roles',

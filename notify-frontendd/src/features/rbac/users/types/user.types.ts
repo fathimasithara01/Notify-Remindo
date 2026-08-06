@@ -68,3 +68,13 @@ export interface ApiEnvelope<T> {
   data: T;
   message?: string;
 }
+
+export interface ResendInviteResponse {
+  inviteUrl: string;
+  emailSent: boolean;
+}
+
+export interface RequestPasswordResetResponse {
+  resetUrl: string;
+  emailSent: boolean;
+}

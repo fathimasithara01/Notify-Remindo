@@ -132,6 +132,11 @@ export class UserRepository implements IUserRepository {
       });
   }
 
+  async findByResetPasswordToken(token: string): Promise<User | null> {
+    const doc = await UserModel.findOne({ resetPasswordToken: token, deletedAt: null });
+    return doc ? this.toDomain(doc) : null;
+  }
+
   async cancelInvite(userId: string): Promise<boolean> {
     const result = await UserModel.findOneAndUpdate(
       {
@@ -246,6 +251,8 @@ export class UserRepository implements IUserRepository {
       organizationId: doc.organizationId ? doc.organizationId.toString() : null,
       inviteToken: doc.inviteToken,
       inviteTokenExpiresAt: doc.inviteTokenExpiresAt,
+      resetPasswordToken: doc.resetPasswordToken,
+      resetPasswordTokenExpiresAt: doc.resetPasswordTokenExpiresAt,
       tokenVersion: doc.tokenVersion,
       deletedAt: doc.deletedAt,
       createdAt: doc.createdAt,
