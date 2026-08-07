@@ -8,6 +8,7 @@ import {
     ContactPerson,
     NewContactPersonPayload,
     ResetAdminPasswordPayload,
+    CreateOrganizationResult,
 } from '../types/organization.types';
 
 export const organizationApi = {
@@ -26,7 +27,7 @@ export const organizationApi = {
         apiClient.get<Organization & { contactPersons: ContactPerson[] }>(`/organizations/${id}`),
 
     create: (payload: CreateOrganizationPayload) =>
-        apiClient.post<Organization>('/organizations', payload),
+        apiClient.post<CreateOrganizationResult>('/organizations', payload),
 
     update: (id: string, payload: EditOrganizationPayload) =>
         apiClient.patch<Organization>(`/organizations/${id}`, payload),

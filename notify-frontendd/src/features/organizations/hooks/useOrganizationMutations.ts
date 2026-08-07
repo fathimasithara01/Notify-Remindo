@@ -18,6 +18,7 @@ import {
   CreateOrganizationPayload,
   EditOrganizationPayload,
   ResetAdminPasswordPayload,
+  CreateOrganizationResult
 } from '../types/organization.types';
 
 
@@ -25,44 +26,22 @@ function onError(error: ApiClientError) {
   toast.error(error.message);
 }
 
-
-/**
- * Create Organization
- *
- * Backend creates:
- * - Organization
- * - Initial Organization Admin User
- * - Organization Admin Role
- * - Subscription (if plan selected)
- * - Invitation email
- */
 export function useCreateOrganization() {
-  const router = useRouter();
   const queryClient = useQueryClient();
-
+ 
   return useMutation({
-    mutationFn: (
-      payload: CreateOrganizationPayload
-    ) => organizationApi.create(payload),
-
-    onSuccess: (organization) => {
+    mutationFn: (payload: CreateOrganizationPayload): Promise<CreateOrganizationResult> =>
+      organizationApi.create(payload),
+ 
+    onSuccess: () => {
       // Refresh organization list
       queryClient.invalidateQueries({
         queryKey: queryKeys.organizations.all(),
       });
-
-      toast.success(
-        'Organization created successfully'
-      );
-
-      // Navigate to newly created organization
-      router.push(
-        ROUTES.organizations.detail(
-          organization.id
-        )
-      );
+ 
+      toast.success('Organization created successfully');
     },
-
+ 
     onError,
   });
 }

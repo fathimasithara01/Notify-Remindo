@@ -1,6 +1,6 @@
 export type OrganizationStatus = 'active' | 'blocked';
-
 export type OrganizationAdminStatus = 'active' | 'invited' | 'inactive';
+export type OrganizationInviteMethod = 'email' | 'temp-password';
 
 export interface OrganizationDocument {
   id: string;
@@ -68,6 +68,7 @@ export interface CreateOrganizationPayload {
   salesmanId?: string;
 
   documents?: OrganizationDocument[];
+    inviteMethod: OrganizationInviteMethod;
 
   admin: {
     name: string;
@@ -122,4 +123,17 @@ export interface NewContactPersonPayload {
 export interface ResetAdminPasswordPayload {
   password: string;
   confirmPassword: string;
+}
+
+export interface CreateOrganizationResult {
+  organization: Organization;
+  admin: {
+    id: string;
+    name: string;
+    email: string;
+    status: string;
+  };
+  inviteUrl?: string;
+  emailSent?: boolean;
+  tempPassword?: string;
 }

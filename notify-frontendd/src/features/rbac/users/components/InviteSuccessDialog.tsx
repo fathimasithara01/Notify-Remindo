@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Copy, TriangleAlert } from 'lucide-react';
+import { Check, Copy, TriangleAlert, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,17 +14,21 @@ import {
 } from '@/components/ui/dialog';
 
 type LinkKind = 'invite' | 'resend' | 'reset';
+type Kind = LinkKind | 'temp-password';
 
 interface InviteSuccessDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  inviteUrl: string;
+  /** The link (invite/resend/reset kinds) or the plaintext temp password
+   * (temp-password kind). Always shown in a read-only, copyable field. */
+  value: string;
   userName: string;
-  emailSent: boolean;
-  kind?: LinkKind;
+  /** Ignored for kind="temp-password" — no email is ever sent on that path. */
+  emailSent?: boolean;
+  kind?: Kind;
 }
 
-const COPY: Record<LinkKind, { sentTitle: string; createdTitle: string; sentDescription: string; expiryNote: string }> = {
+const LINK_COPY: Record<LinkKind, { sentTitle: string; createdTitle: string; sentDescription: string; expiryNote: string }> = {
   invite: {
     sentTitle: 'Invite sent to',
     createdTitle: 'Invite created for',
@@ -48,17 +52,16 @@ const COPY: Record<LinkKind, { sentTitle: string; createdTitle: string; sentDesc
 export function InviteSuccessDialog({
   open,
   onOpenChange,
-  inviteUrl,
+  value,
   userName,
-  emailSent,
+  emailSent = true,
   kind = 'invite',
 }: InviteSuccessDialogProps) {
   const [copied, setCopied] = useState(false);
-  const copy = COPY[kind];
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(inviteUrl);
+      await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -66,19 +69,41 @@ export function InviteSuccessDialog({
     }
   };
 
+  const isTempPassword = kind === 'temp-password';
+  const linkCopy = isTempPassword ? null : LINK_COPY[kind];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {emailSent ? `${copy.sentTitle} ${userName}` : `${copy.createdTitle} ${userName}`}
+            {isTempPassword
+              ? `Temporary password for ${userName}`
+              : emailSent
+                ? `${linkCopy!.sentTitle} ${userName}`
+                : `${linkCopy!.createdTitle} ${userName}`}
           </DialogTitle>
           <DialogDescription>
-            {emailSent ? `${copy.sentDescription} ${copy.expiryNote}` : copy.expiryNote}
+            {isTempPassword
+              ? "Share this with them directly — it won't be shown again. They'll be required to set a new password on first login."
+              : emailSent
+                ? `${linkCopy!.sentDescription} ${linkCopy!.expiryNote}`
+                : linkCopy!.expiryNote}
           </DialogDescription>
         </DialogHeader>
 
-        {!emailSent && (
+        {isTempPassword && (
+          <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              This password is shown only once and isn&apos;t stored anywhere
+              you can retrieve later. If it&apos;s lost, use &quot;Reset
+              password&quot; instead of asking for it again.
+            </p>
+          </div>
+        )}
+
+        {!isTempPassword && !emailSent && (
           <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
             <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
@@ -89,7 +114,11 @@ export function InviteSuccessDialog({
         )}
 
         <div className="flex items-center gap-2">
-          <Input value={inviteUrl} readOnly className="flex-1 text-sm" />
+          <Input
+            value={value}
+            readOnly
+            className="flex-1 font-mono text-sm"
+          />
           <Button type="button" variant="outline" size="icon" onClick={handleCopy}>
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
           </Button>

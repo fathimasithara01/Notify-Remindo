@@ -29,6 +29,10 @@ export const createOrganizationSchema = z.object({
         .trim()
         .optional(),
 
+    // How the org admin gets access — sent via email invite link, or
+    // shared manually as a system-generated temporary password.
+    inviteMethod: z.enum(['email', 'temp-password']),
+
     // Initial Organization Admin
 
     // This user will:
