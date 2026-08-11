@@ -28,7 +28,6 @@ interface RoleTableProps {
     onView: (role: Role) => void;
     onEdit: (role: Role) => void;
     onDelete: (role: Role) => void;
-    onManagePermissions: (role: Role) => void;
 }
 
 export function RoleTable({
@@ -37,7 +36,6 @@ export function RoleTable({
     onView,
     onEdit,
     onDelete,
-    onManagePermissions,
 }: RoleTableProps) {
     if (isLoading) {
         return (
@@ -66,8 +64,7 @@ export function RoleTable({
                 <TableHeader>
                     <TableRow>
                         <TableHead>Name</TableHead>
-                        <TableHead>Slug</TableHead>
-                        <TableHead>Description</TableHead>
+=                        <TableHead>Description</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="w-12" />
                     </TableRow>
@@ -92,9 +89,6 @@ export function RoleTable({
                                         )}
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-muted-foreground">
-                                    <code className="text-xs">{role.slug}</code>
-                                </TableCell>
                                 <TableCell className="max-w-xs truncate text-muted-foreground">
                                     {role.description || '—'}
                                 </TableCell>
@@ -116,10 +110,7 @@ export function RoleTable({
                                                 <Pencil className="mr-2 h-4 w-4" />
                                                 Edit
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => onManagePermissions(role)}>
-                                                <KeyRound className="mr-2 h-4 w-4" />
-                                                Manage permissions
-                                            </DropdownMenuItem>
+                                            
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem
                                                 onClick={() => onDelete(role)}

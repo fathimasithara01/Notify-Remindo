@@ -25,9 +25,8 @@ import {
 
 import { RoleTable } from './components/RoleTable';
 import { RoleFilters } from './components/RoleFilters';
-import { RoleForm } from './components/RoleForm';
+import { RoleForm, type RoleFormValues } from './components/RoleForm';
 import { RoleDetails } from './components/RoleDetails';
-import { RolePermissionDialog } from './components/RolePermissionDialog';
 
 import { useRoles } from './hooks/useRoles';
 import { useCreateRole } from './hooks/useCreateRole';
@@ -36,14 +35,12 @@ import { useDeleteRole } from './hooks/useDeleteRole';
 import { DEFAULT_PAGE_SIZE } from '../shared/constants';
 
 import type { Role, RoleFilters as RoleFiltersType } from './types/role.types';
-import type { CreateRoleFormValues, EditRoleFormValues } from './schemas/role.schema';
 
 type DialogState =
   | { type: 'none' }
   | { type: 'create' }
   | { type: 'edit'; role: Role }
   | { type: 'view'; role: Role }
-  | { type: 'permissions'; role: Role }
   | { type: 'delete'; role: Role };
 
 export default function RolesPage() {
@@ -60,14 +57,14 @@ export default function RolesPage() {
 
   const closeDialog = () => setDialog({ type: 'none' });
 
-  const handleCreateSubmit = (values: CreateRoleFormValues | EditRoleFormValues) => {
-    createRole.mutate(values as CreateRoleFormValues, { onSuccess: closeDialog });
+  const handleCreateSubmit = (values: RoleFormValues) => {
+    createRole.mutate(values, { onSuccess: closeDialog });
   };
 
-  const handleEditSubmit = (values: CreateRoleFormValues | EditRoleFormValues) => {
+  const handleEditSubmit = (values: RoleFormValues) => {
     if (dialog.type !== 'edit') return;
     updateRole.mutate(
-      { id: dialog.role.id, payload: values as EditRoleFormValues },
+      { id: dialog.role.id, payload: values },
       { onSuccess: closeDialog }
     );
   };
@@ -102,7 +99,6 @@ export default function RolesPage() {
         onView={(role) => setDialog({ type: 'view', role })}
         onEdit={(role) => setDialog({ type: 'edit', role })}
         onDelete={(role) => setDialog({ type: 'delete', role })}
-        onManagePermissions={(role) => setDialog({ type: 'permissions', role })}
       />
 
       {data && data.total > 0 && (
@@ -182,13 +178,6 @@ export default function RolesPage() {
           </div>
         </SheetContent>
       </Sheet>
-
-      {/* Manage permissions */}
-      <RolePermissionDialog
-        role={dialog.type === 'permissions' ? dialog.role : null}
-        open={dialog.type === 'permissions'}
-        onOpenChange={(o) => !o && closeDialog()}
-      />
 
       {/* Delete confirmation */}
       <AlertDialog open={dialog.type === 'delete'} onOpenChange={(o) => !o && closeDialog()}>

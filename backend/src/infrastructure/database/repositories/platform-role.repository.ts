@@ -49,8 +49,6 @@ export class PLatformRoleRepository implements IPlatformRoleRepository {
     return res.modifiedCount > 0;
   }
 
-
-
   async list(filter?: {
     organizationId?: string;
     status?: RoleStatus;

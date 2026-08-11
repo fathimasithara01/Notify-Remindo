@@ -1,11 +1,9 @@
 import { toQueryParams } from '../../shared/query-params';
 import type {
-  AddPermissionDto,
   CreateRoleDto,
   PaginatedResult,
   Role,
   RoleFilters,
-  RolePermission,
   UpdateRoleDto,
 } from '../types/role.types';
 import { apiClient } from '@/lib/api/client';
@@ -27,13 +25,4 @@ export const rolesApi = {
 
   delete: (id: string): Promise<null> =>
     apiClient.delete<null>(`${BASE_URL}/${id}`),
-
-  getPermissions: (id: string): Promise<RolePermission[]> =>
-    apiClient.get<RolePermission[]>(`${BASE_URL}/${id}/permissions`),
-
-  addPermission: (id: string, payload: AddPermissionDto): Promise<RolePermission> =>
-    apiClient.post<RolePermission>(`${BASE_URL}/${id}/permissions`, payload),
-
-  removePermission: (id: string, permissionId: string): Promise<null> =>
-    apiClient.delete<null>(`${BASE_URL}/${id}/permissions/${permissionId}`),
 };

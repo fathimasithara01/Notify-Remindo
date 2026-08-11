@@ -1,4 +1,3 @@
-// src/features/auth/AuthProvider.tsx
 'use client';
 
 import { createContext, useContext, useCallback } from 'react';

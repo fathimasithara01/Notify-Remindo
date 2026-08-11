@@ -1,10 +1,9 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { ROLE_STATUS_META } from '../../shared/constants';
-import { useRolePermissions } from '../hooks/useRolePermissions';
+import { ALL_PERMISSIONS } from '../../shared/constants';
 import type { Role } from '../types/role.types';
 
 interface RoleDetailsProps {
@@ -12,23 +11,19 @@ interface RoleDetailsProps {
 }
 
 export function RoleDetails({ role }: RoleDetailsProps) {
-  const { data: permissions, isLoading } = useRolePermissions(role.id);
   const statusMeta = ROLE_STATUS_META[role.status];
+  const permissionSet = new Set(role.permissionIds);
+  const assigned = ALL_PERMISSIONS.filter((p) => permissionSet.has(p.id));
 
-  const grouped = (permissions ?? []).reduce<Record<string, typeof permissions>>(
-    (acc, rp) => {
-      const moduleName = rp.permission.module;
-      acc[moduleName] = [...(acc[moduleName] ?? []), rp];
-      return acc;
-    },
-    {}
-  );
+  const grouped = assigned.reduce<Record<string, typeof assigned>>((acc, p) => {
+    acc[p.module] = [...(acc[p.module] ?? []), p];
+    return acc;
+  }, {});
 
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold">{role.name}</h3>
-        <code className="text-sm text-muted-foreground">{role.slug}</code>
       </div>
 
       {role.description && (
@@ -52,12 +47,7 @@ export function RoleDetails({ role }: RoleDetailsProps) {
 
       <div>
         <h4 className="mb-2 text-sm font-medium">Permissions</h4>
-        {isLoading ? (
-          <div className="space-y-2">
-            <Skeleton className="h-6 w-32" />
-            <Skeleton className="h-6 w-24" />
-          </div>
-        ) : permissions && permissions.length > 0 ? (
+        {assigned.length > 0 ? (
           <div className="space-y-3">
             {Object.entries(grouped).map(([moduleName, perms]) => (
               <div key={moduleName}>
@@ -65,9 +55,9 @@ export function RoleDetails({ role }: RoleDetailsProps) {
                   {moduleName}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {perms?.map((rp) => (
-                    <Badge key={rp.id} variant="outline">
-                      {rp.permission.name}
+                  {perms.map((p) => (
+                    <Badge key={p.id} variant="outline">
+                      {p.label}
                     </Badge>
                   ))}
                 </div>

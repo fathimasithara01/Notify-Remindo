@@ -1,45 +1,29 @@
 export type RoleStatus = 'active' | 'inactive';
+export type Permission = string;
 
 export interface Role {
   id: string;
   name: string;
-  slug: string;
   description?: string;
+  permissionIds: Permission[];
   isSystem: boolean;
   status: RoleStatus;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface RolePermission {
-  id: string;
-  roleId: string;
-  permissionId: string;
-  permission: {
-    id: string;
-    name: string;
-    module: string;
-  };
-  createdAt: string;
-}
-
-/** isSystem is server-controlled — never sent from the client. */
 export interface CreateRoleDto {
   name: string;
-  slug: string;
   description?: string;
   status?: RoleStatus;
+  permissionIds?: Permission[];
 }
 
 export interface UpdateRoleDto {
   name?: string;
-  slug?: string;
   description?: string;
   status?: RoleStatus;
-}
-
-export interface AddPermissionDto {
-  permissionId: string;
+  permissionIds?: Permission[];
 }
 
 export interface RoleFilters {

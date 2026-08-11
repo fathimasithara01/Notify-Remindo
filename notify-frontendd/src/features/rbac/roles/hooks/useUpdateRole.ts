@@ -6,7 +6,7 @@ import { queryKeys } from '@/lib/query/query-keys';
 
 interface UpdateRoleArgs {
   id: string;
-  payload: UpdateRoleDto;
+  payload: UpdateRoleDto & { permissionIds?: string[] };
 }
 
 export function useUpdateRole() {
@@ -14,17 +14,13 @@ export function useUpdateRole() {
 
   return useMutation({
     mutationFn: ({ id, payload }: UpdateRoleArgs) => rolesApi.update(id, payload),
-    onSuccess: (updatedRole) => {
+    onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.roles.lists() });
-      queryClient.setQueryData(
-        queryKeys.roles.detail(updatedRole.id),
-        updatedRole
-      );
+      queryClient.invalidateQueries({ queryKey: queryKeys.roles.detail(id) });
       toast.success('Role updated successfully');
     },
     onError: (error: unknown) => {
-      const message =
-        error instanceof Error ? error.message : 'Failed to update role';
+      const message = error instanceof Error ? error.message : 'Failed to update role';
       toast.error(message);
     },
   });

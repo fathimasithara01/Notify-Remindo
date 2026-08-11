@@ -35,7 +35,7 @@ export function RoleFilters({ filters, onChange }: RoleFiltersProps) {
       <div className="relative flex-1 sm:max-w-xs">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search by name or slug"
+          placeholder="Search by name"
           className="pl-8"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
