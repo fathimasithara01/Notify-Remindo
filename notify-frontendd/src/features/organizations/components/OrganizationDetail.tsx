@@ -21,11 +21,11 @@ import { useOrganization } from "../hooks/useOrganization";
 import { useUpgradePlan } from "../hooks/useOrganizationMutations";
 import { useSubscriptionPlans } from "@/features/subscription/hooks/plans/use-subscription-plans";
 
-import { ContactPersonList } from "./ContactPersonList";
-import { AddContactPersonDialog } from "./AddContactPersonDialog";
+// import { ContactPersonList } from "./ContactPersonList";
+// import { AddContactPersonDialog } from "./AddContactPersonDialog";
 
 import { DocumentUpload } from "./DocumentUpload";
-import { DocumentList } from "./DocumentList";
+// import { DocumentList } from "./DocumentList";
 
 import {
   Card,
@@ -292,10 +292,15 @@ export function OrganizationDetail({
 
                 <Info
                   icon={<User className="h-4 w-4" />}
-                  label="Name"
-                  value={org.admin.name}
+                  label="firstName"
+                  value={org.admin.firstName}
                 />
 
+                <Info
+                  icon={<User className="h-4 w-4" />}
+                  label="lastName"
+                  value={org.admin.lastName}
+                />
                 <Info
                   icon={<Mail className="h-4 w-4" />}
                   label="Email"
@@ -541,17 +546,17 @@ export function OrganizationDetail({
 
           </div>
 
-          <AddContactPersonDialog
+          {/* <AddContactPersonDialog
             organizationId={id}
-          />
+          /> */}
 
         </CardHeader>
 
         <CardContent>
 
-          <ContactPersonList
+          {/* <ContactPersonList
             organizationId={id}
-          />
+          /> */}
 
         </CardContent>
 
@@ -593,9 +598,9 @@ export function OrganizationDetail({
             organizationId={id}
           />
 
-          <DocumentList
+          {/* <DocumentList
             organizationId={id}
-          />
+          /> */}
 
         </CardContent>
 

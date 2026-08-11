@@ -1,6 +1,6 @@
 export type OrganizationStatus = 'active' | 'blocked';
 export type OrganizationAdminStatus = 'active' | 'invited' | 'inactive';
-export type OrganizationInviteMethod = 'email' | 'temp-password';
+export type OrganizationInviteMethod = 'email' | 'temppassword';
 
 export interface OrganizationDocument {
   id: string;
@@ -19,7 +19,8 @@ export interface OrganizationDocument {
 
 export interface OrganizationAdmin {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string | null;
   status: OrganizationAdminStatus;
@@ -48,8 +49,6 @@ export interface Organization {
     uploadedAt: Date;
   }[];
 
-  //  Primary Organization Admin. Can be null if the organization currently has no active/invited Organization Admin.
-
   admin: OrganizationAdmin | null;
 
   deletedAt?: Date | null;
@@ -71,7 +70,8 @@ export interface CreateOrganizationPayload {
   inviteMethod: OrganizationInviteMethod;
 
   admin: {
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phone?: string;
   };
@@ -105,7 +105,8 @@ export interface OrganizationListResponse {
 export interface ContactPerson {
   id: string;
   organizationId: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   designation?: string;
   contactEmail?: string | null;
   contactPhone?: string | null;
@@ -114,7 +115,8 @@ export interface ContactPerson {
 }
 
 export interface NewContactPersonPayload {
-  name: string;
+  firstName: string;
+  lastName: string;
   designation?: string;
   contactEmail?: string;
   contactPhone?: string;
@@ -129,7 +131,8 @@ export interface CreateOrganizationResult {
   organization: Organization;
   admin: {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     status: string;
   };

@@ -31,9 +31,9 @@ export interface IOrganizationRepository {
   assignSalesman(id: string, salesmanId: string): Promise<Organization | null>;
   changePlan(id: string, planId: string): Promise<Organization | null>;
 
-  addContactPerson(organizationId: string, data: NewContactPerson): Promise<ContactPerson>;
-  listContactPersons(organizationId: string): Promise<ContactPerson[]>;
-  getContactPerson(organizationId: string, contactPersonId: string): Promise<ContactPerson | null>;
-  updateContactPerson(organizationId: string,contactPersonId: string,data: Partial<NewContactPerson>): Promise<ContactPerson | null>;
-  removeContactPerson(organizationId: string, contactPersonId: string): Promise<boolean>;
+  // addContactPerson(organizationId: string, data: NewContactPerson): Promise<ContactPerson>;
+  // listContactPersons(organizationId: string): Promise<ContactPerson[]>;
+  // getContactPerson(organizationId: string, contactPersonId: string): Promise<ContactPerson | null>;
+  // updateContactPerson(organizationId: string,contactPersonId: string,data: Partial<NewContactPerson>): Promise<ContactPerson | null>;
+  // removeContactPerson(organizationId: string, contactPersonId: string): Promise<boolean>;
 }

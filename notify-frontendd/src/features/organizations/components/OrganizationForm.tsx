@@ -111,7 +111,8 @@ export function OrganizationForm() {
       inviteMethod: "email",
 
       admin: {
-        name: "",
+        firstName: "",
+        lastName: "",
         email: "",
         phone: "",
       },
@@ -135,13 +136,13 @@ export function OrganizationForm() {
       onSuccess: (result) => {
         if (result.tempPassword) {
           setInviteResult({
-            adminName: result.admin.name,
+            adminName: result.admin.firstName,
             value: result.tempPassword,
             kind: "temp-password",
           });
         } else {
           setInviteResult({
-            adminName: result.admin.name,
+            adminName: result.admin.firstName,
             value: result.inviteUrl!,
             emailSent: result.emailSent,
             kind: "invite",
@@ -382,7 +383,7 @@ export function OrganizationForm() {
                           className="flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
                         >
                           <RadioGroupItem
-                            value="temp-password"
+                            value="temppassword"
                             id="method-temp"
                             className="mt-1"
                             disabled={isSubmitting}
@@ -413,12 +414,12 @@ export function OrganizationForm() {
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   <div className="space-y-1">
                     <p className="text-sm font-medium">
-                      {inviteMethod === "temp-password"
+                      {inviteMethod === "temppassword"
                         ? "Manual password sharing"
                         : "Invitation-based access"}
                     </p>
                     <p className="text-xs leading-relaxed text-muted-foreground">
-                      {inviteMethod === "temp-password"
+                      {inviteMethod === "temppassword"
                         ? "No email is sent. After creating the organization, you'll see a one-time password to copy and share with the administrator directly."
                         : "The administrator will receive an invitation email. They can use the invitation link to create their password and access the organization. If email delivery fails, you'll get a copyable link as a fallback."}
                     </p>
@@ -427,22 +428,45 @@ export function OrganizationForm() {
               </div>
 
               <div className="grid gap-6 md:grid-cols-2">
-                {/* Admin Name */}
+                {/* Admin First Name */}
                 <FormField
                   control={form.control}
-                  name="admin.name"
+                  name="admin.firstName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Full Name
+                        First Name
                         <RequiredMark />
                       </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           disabled={isSubmitting}
-                          placeholder="e.g. John Doe"
-                          autoComplete="name"
+                          placeholder="e.g. John"
+                          autoComplete="given-name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Admin Last Name */}
+                <FormField
+                  control={form.control}
+                  name="admin.lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Last Name
+                        <RequiredMark />
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          disabled={isSubmitting}
+                          placeholder="e.g. Doe"
+                          autoComplete="family-name"
                         />
                       </FormControl>
                       <FormMessage />
@@ -476,7 +500,7 @@ export function OrganizationForm() {
                   control={form.control}
                   name="admin.email"
                   render={({ field }) => (
-                    <FormItem className="md:col-span-2">
+                    <FormItem>
                       <FormLabel>
                         Admin Login Email
                         <RequiredMark />
@@ -491,7 +515,7 @@ export function OrganizationForm() {
                         />
                       </FormControl>
                       <p className="text-xs text-muted-foreground">
-                        {inviteMethod === "temp-password"
+                        {inviteMethod === "temppassword"
                           ? "This will be their login email."
                           : "The invitation will be sent to this email address."}
                       </p>

@@ -29,23 +29,18 @@ export const createOrganizationSchema = z.object({
         .trim()
         .optional(),
 
-    // How the org admin gets access — sent via email invite link, or
-    // shared manually as a system-generated temporary password.
-    inviteMethod: z.enum(['email', 'temp-password']),
-
-    // Initial Organization Admin
-
-    // This user will:
-    // - receive the invitation email
-    // - accept the invitation
-    // - set their password
-    // - login as Organization Admin
+    inviteMethod: z.enum(['email', 'temppassword']),
 
     admin: z.object({
-        name: z
+        firstName: z
             .string()
             .trim()
-            .min(1, 'Admin name is required'),
+            .min(1, 'Admin first name is required'),
+
+        lastName: z
+            .string()
+            .trim()
+            .min(1, 'Admin last name is required'),
 
         email: z
             .string()
@@ -90,10 +85,15 @@ export const editOrganizationSchema = z.object({
 export type EditOrganizationFormValues = z.infer<typeof editOrganizationSchema>;
 
 export const contactPersonSchema = z.object({
-    name: z
+    firstName: z
         .string()
         .trim()
-        .min(1, 'Name is required'),
+        .min(1, 'First name is required'),
+
+    lastName: z
+        .string()
+        .trim()
+        .min(1, 'Last name is required'),
 
     designation: z
         .string()
@@ -134,6 +134,4 @@ export const resetAdminPasswordSchema = z
         }
     );
 
-export type ResetAdminPasswordFormValues = z.infer<
-    typeof resetAdminPasswordSchema
->;
+export type ResetAdminPasswordFormValues = z.infer <typeof resetAdminPasswordSchema>;

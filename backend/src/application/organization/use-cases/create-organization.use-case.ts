@@ -50,7 +50,7 @@ export class CreateOrganizationUseCase {
     @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService,
     @inject(TOKENS.HashService) private hashService: IHashService,
     @inject(TOKENS.OrganizationSubscriptionRepository) private readonly organizationSubscriptionRepository: IOrganizationSubscriptionRepository
-  ) {}
+  ) { }
 
   async execute(input: CreateOrganizationInput): Promise<CreateOrganizationResult> {
     const { data, adminId } = input;
@@ -105,10 +105,9 @@ export class CreateOrganizationUseCase {
       });
     }
 
-    const result =
-      data.inviteMethod === 'temp-password'
-        ? await this.createAdminWithTempPassword(data, organization.id, orgAdminRole)
-        : await this.createAdminWithInviteEmail(data, organization.id, orgAdminRole);
+    const result = data.inviteMethod === 'temp-password'
+      ? await this.createAdminWithTempPassword(data, organization.id, orgAdminRole)
+      : await this.createAdminWithInviteEmail(data, organization.id, orgAdminRole);
 
     await this.auditLogRepo.create({
       adminId,
@@ -126,11 +125,7 @@ export class CreateOrganizationUseCase {
     return { organization, ...result };
   }
 
-  private async createAdminWithInviteEmail(
-    data: CreateOrganizationDto,
-    organizationId: string,
-    orgAdminRole: Role
-  ): Promise<{ admin: User; inviteUrl: string; emailSent: boolean }> {
+  private async createAdminWithInviteEmail( data: CreateOrganizationDto, organizationId: string, orgAdminRole: Role): Promise<{ admin: User; inviteUrl: string; emailSent: boolean }> {
     const inviteToken = crypto.randomBytes(32).toString('hex');
     const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
 

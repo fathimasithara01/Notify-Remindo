@@ -57,8 +57,8 @@ export class OrganizationController {
   getOne = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.orgRepo.findById(req.params.id);
     if (!organization) throw new NotFoundError('Organization not found');
-    const contactPersons = await this.orgRepo.listContactPersons(organization.id);
-    ApiResponse.success(res, { ...organization, contactPersons });
+    // const contactPersons = await this.orgRepo.listContactPersons(organization.id);
+    ApiResponse.success(res, { ...organization, organization });
   };
 
   update = async (req: Request, res: Response): Promise<void> => {
@@ -131,55 +131,55 @@ export class OrganizationController {
     ApiResponse.success(res, organization, 200, 'Salesman assigned');
   };
 
-  addContactPerson = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-    const contact = await this.orgRepo.addContactPerson(req.params.id, req.body);
-    await this.auditLogRepo.create({
-      adminId: req.user.id,
-      action: 'ADD_CONTACT_PERSON',
-      targetType: 'ContactPerson',
-      targetId: contact.id,
-      metadata: { organizationId: req.params.id, name: contact.name },
-    });
-    ApiResponse.created(res, contact);
-  };
+  // addContactPerson = async (req: Request, res: Response): Promise<void> => {
+  //   if (!req.user) throw new UnauthorizedError();
+  //   const contact = await this.orgRepo.addContactPerson(req.params.id, req.body);
+  //   await this.auditLogRepo.create({
+  //     adminId: req.user.id,
+  //     action: 'ADD_CONTACT_PERSON',
+  //     targetType: 'ContactPerson',
+  //     targetId: contact.id,
+  //     metadata: { organizationId: req.params.id, name: contact.name },
+  //   });
+  //   ApiResponse.created(res, contact);
+  // };
 
-  listContactPersons = async (req: Request, res: Response): Promise<void> => {
-    const contacts = await this.orgRepo.listContactPersons(req.params.id);
-    ApiResponse.success(res, contacts);
-  };
+  // listContactPersons = async (req: Request, res: Response): Promise<void> => {
+  //   const contacts = await this.orgRepo.listContactPersons(req.params.id);
+  //   ApiResponse.success(res, contacts);
+  // };
 
-  getContactPerson = async (req: Request, res: Response): Promise<void> => {
-    const contact = await this.orgRepo.getContactPerson(req.params.id, req.params.contactId);
-    if (!contact) throw new NotFoundError('Contact person not found');
-    ApiResponse.success(res, contact);
-  };
+  // getContactPerson = async (req: Request, res: Response): Promise<void> => {
+  //   const contact = await this.orgRepo.getContactPerson(req.params.id, req.params.contactId);
+  //   if (!contact) throw new NotFoundError('Contact person not found');
+  //   ApiResponse.success(res, contact);
+  // };
 
-  updateContactPerson = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-    const contact = await this.orgRepo.updateContactPerson(req.params.id, req.params.contactId, req.body);
-    if (!contact) throw new NotFoundError('Contact person not found');
-    await this.auditLogRepo.create({
-      adminId: req.user.id,
-      action: 'EDIT_CONTACT_PERSON',
-      targetType: 'ContactPerson',
-      targetId: contact.id,
-      metadata: { organizationId: req.params.id, changes: req.body },
-    });
-    ApiResponse.success(res, contact, 200, 'Contact person updated');
-  };
+  // updateContactPerson = async (req: Request, res: Response): Promise<void> => {
+  //   if (!req.user) throw new UnauthorizedError();
+  //   const contact = await this.orgRepo.updateContactPerson(req.params.id, req.params.contactId, req.body);
+  //   if (!contact) throw new NotFoundError('Contact person not found');
+  //   await this.auditLogRepo.create({
+  //     adminId: req.user.id,
+  //     action: 'EDIT_CONTACT_PERSON',
+  //     targetType: 'ContactPerson',
+  //     targetId: contact.id,
+  //     metadata: { organizationId: req.params.id, changes: req.body },
+  //   });
+  //   ApiResponse.success(res, contact, 200, 'Contact person updated');
+  // };
 
-  removeContactPerson = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-    const removed = await this.orgRepo.removeContactPerson(req.params.id, req.params.contactId);
-    if (!removed) throw new NotFoundError('Contact person not found');
-    await this.auditLogRepo.create({
-      adminId: req.user.id,
-      action: 'REMOVE_CONTACT_PERSON',
-      targetType: 'ContactPerson',
-      targetId: req.params.contactId,
-      metadata: { organizationId: req.params.id },
-    });
-    ApiResponse.success(res, null, 200, 'Contact person removed');
-  };
+  // removeContactPerson = async (req: Request, res: Response): Promise<void> => {
+  //   if (!req.user) throw new UnauthorizedError();
+  //   const removed = await this.orgRepo.removeContactPerson(req.params.id, req.params.contactId);
+  //   if (!removed) throw new NotFoundError('Contact person not found');
+  //   await this.auditLogRepo.create({
+  //     adminId: req.user.id,
+  //     action: 'REMOVE_CONTACT_PERSON',
+  //     targetType: 'ContactPerson',
+  //     targetId: req.params.contactId,
+  //     metadata: { organizationId: req.params.id },
+  //   });
+  //   ApiResponse.success(res, null, 200, 'Contact person removed');
+  // };
 }

@@ -19,22 +19,13 @@ export const createOrganizationSchema = z.object({
   planId: z.string().optional(),
   salesmanId: z.string().optional(),
 
-  documents: z
-    .array(
-      z.object({
-        fileName: z.string(),
-        fileUrl: z.string().url(),
-        fileKey: z.string(),
-        mimeType: z.string(),
-        fileSize: z.number(),
-        uploadedAt: z.coerce.date().optional(),
-      })
-    ).optional(),
+  documents: z.array(organizationFileSchema).optional(),
 
-  inviteMethod: z.enum(['email', 'temp-password']).default('email'),
+  inviteMethod: z.enum(['email', 'temppassword']).default('email'),
 
   admin: z.object({
-    name: z.string().min(1, 'Admin name is required'),
+    firstName: z.string().min(1, 'Admin first name is required'),
+    lastName: z.string().min(1, 'Admin last name is required'),
     email: z.string().email('Invalid admin email'),
     phone: z.string().optional(),
   }),
@@ -63,15 +54,16 @@ export const blockCustomerSchema = z.object({
 });
 
 export const addContactPersonSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  firstName: z.string().min(1, 'Admin first name is required'),
+  lastName: z.string().min(1, 'Admin last name is required'),
   designation: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().email().optional(),
 });
 
 export const editContactPersonSchema = z.object({
-  name: z.string().min(1).optional(),
-  designation: z.string().optional(),
+  firstName: z.string().min(1, 'Admin first name is required'),
+  lastName: z.string().min(1, 'Admin last name is required'), designation: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().email().optional(),
 });

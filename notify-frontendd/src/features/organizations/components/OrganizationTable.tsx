@@ -285,7 +285,7 @@ export function OrganizationTable() {
                                   type="button"
                                   variant="ghost"
                                   size="icon"
-                                  aria-label={`Reset password for ${org.admin?.name ?? org.name}`}
+                                  aria-label={`Reset password for ${org.admin?.firstName ?? org.name}`}
                                   disabled={isUpdating}
                                   onClick={() => setResetPasswordOrg(org)}
                                 >
