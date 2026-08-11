@@ -35,7 +35,8 @@ export function RevokeSessionDialog({ user, open, onOpenChange }: RevokeSessionD
         <AlertDialogHeader>
           <AlertDialogTitle>Revoke all sessions?</AlertDialogTitle>
           <AlertDialogDescription>
-            {user?.name} will be signed out on every device immediately and
+              {user?.firstName} {user?.lastName}
+will be signed out on every device immediately and
             will need to log in again. This does not change their access —
             just ends active sessions.
           </AlertDialogDescription>

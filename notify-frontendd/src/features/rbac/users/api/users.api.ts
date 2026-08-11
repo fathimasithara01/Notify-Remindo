@@ -1,13 +1,11 @@
 import { toQueryParams } from '../../shared/query-params';
 import type {
-    AssignRoleDto,
     CreateUserDto,
     CreateUserResponse,
     PaginatedResult,
     UpdateUserDto,
     User,
     UserFilters,
-    UserRole,
     ResendInviteResponse,
     RequestPasswordResetResponse,
 } from '../types/user.types';
@@ -37,15 +35,6 @@ export const usersApi = {
     delete: (id: string): Promise<null> =>
         apiClient.delete<null>(`${BASE_URL}/${id}`),
 
-    revokeSessions: (id: string): Promise<null> =>
-        apiClient.post<null>(`${BASE_URL}/${id}/revoke-sessions`),
-
-    getRoles: (id: string): Promise<UserRole[]> =>
-        apiClient.get<UserRole[]>(`${BASE_URL}/${id}/roles`),
-
-    assignRole: (id: string, payload: AssignRoleDto): Promise<UserRole[]> =>
-        apiClient.post<UserRole[]>(`${BASE_URL}/${id}/roles`, payload),
-
-    removeRole: (id: string, roleId: string): Promise<UserRole[]> =>
-        apiClient.delete<UserRole[]>(`${BASE_URL}/${id}/roles/${roleId}`),
+    revokeSessions: (id: string): Promise<{ message: string }> =>
+        apiClient.post(`${BASE_URL}/${id}/revoke-sessions`),
 };

@@ -27,7 +27,7 @@ import { AcceptInviteUseCase } from '../../application/auth/use-cases/accept-inv
 import { ResendInviteUseCase } from '../../application/organization/use-cases/resend-invite.use-case';
 import { CreateUserUseCase } from '../../application/user/use-cases/create-user.use-case';
 import { EditUserUseCase } from '../../application/user/use-cases/edit-user.use-case';
-import { RevokeSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
+import { RevokeSessionsUseCase } from '../../application/platform-user/use-cases/revoke-sessions.use-case';
 import { CreateRoleUseCase } from '../../application/role/use-cases/create-role.use-case';
 import { EditRoleUseCase } from '../../application/role/use-cases/edit-role.use-case';
 import { DeleteRoleUseCase } from '../../application/role/use-cases/delete-role.use-case';
@@ -70,9 +70,9 @@ import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout
 import { OrganizationSubscriptionRepository } from '../database/repositories/organization-subscription.repository';
 import { SetOrganizationAdminPasswordUseCase } from '../../application/organization/use-cases/set-organization-admin-password.use-case';
 import { CancelInviteUseCase } from '../../application/organization/use-cases/Cancel-invite-use-case';
-import { RequestPasswordResetUseCase } from '../../application/user/use-cases/request-password-reset.use-case';
+import { RequestPasswordResetUseCase } from '../../application/platform-user/use-cases/request-password-reset.use-case';
 import { ResetPasswordUseCase } from '../../application/auth/use-cases/reset-password.use-case';
-import { UserResendInviteUseCase } from '../../application/user/use-cases/resend-invite.use-case';
+import { UserResendInviteUseCase } from '../../application/platform-user/use-cases/resend-invite.use-case';
 import { ChangePasswordUseCase } from '../../application/auth/use-cases/change-password.use-case';
 import { PermissionResolver } from '../services/PermissionResolver';
 import { ListRolesUseCase } from '../../application/role/use-cases/list-roles.use-case';
@@ -83,12 +83,13 @@ import { ListPlatformUsersUseCase } from '../../application/platform-user/use-ca
 import { DeletePlatformUserUseCase } from '../../application/platform-user/use-cases/delete-platform-user.use-case';
 import { PlatformUserController } from '../../presentation/controllers/platform-user.controller';
 import { OrganizationRepository } from '../database/repositories/organization.repository';
+import { RevokeUserSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
 
 export function registerDependencies(): void {
   // Repositories
   container.registerSingleton(TOKENS.UserRepository, UserRepository);
   container.registerSingleton(TOKENS.PlatformRoleRepository, PLatformRoleRepository);
-  container.registerSingleton(TOKENS.OrganizationRepository,OrganizationRepository );
+  container.registerSingleton(TOKENS.OrganizationRepository, OrganizationRepository);
   container.registerSingleton(TOKENS.SubscriptionPlanRepository, SubscriptionPlanRepository);
   container.registerSingleton(TOKENS.FeatureRepository, FeatureRepository);
   container.registerSingleton(TOKENS.NotificationRepository, NotificationRepository);
@@ -96,6 +97,8 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.OrganizationDocumentRepository, OrganizationDocumentRepository);
   container.registerSingleton(TOKENS.PlanFeatureRepository, PlanFeatureRepository),
     container.registerSingleton(TOKENS.OrganizationSubscriptionRepository, OrganizationSubscriptionRepository),
+    container.registerSingleton(TOKENS.RevokeUserSessionsUseCase, RevokeUserSessionsUseCase),
+
 
     // Services
     container.registerSingleton(TOKENS.HashService, BcryptHashService);
@@ -171,11 +174,11 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.PlatformUserRepository, PlatformUserRepository);
 
   // di/register.ts
-container.register(TOKENS.CreatePlatformUserUseCase, { useClass: CreatePlatformUserUseCase });
-container.register(TOKENS.EditPlatformUserUseCase, { useClass: EditPlatformUserUseCase });
-container.register(TOKENS.ListPlatformUsersUseCase, { useClass: ListPlatformUsersUseCase });
-container.register(TOKENS.DeletePlatformUserUseCase, { useClass: DeletePlatformUserUseCase });
-container.registerSingleton(TOKENS.PlatformUserController, PlatformUserController);
+  container.register(TOKENS.CreatePlatformUserUseCase, { useClass: CreatePlatformUserUseCase });
+  container.register(TOKENS.EditPlatformUserUseCase, { useClass: EditPlatformUserUseCase });
+  container.register(TOKENS.ListPlatformUsersUseCase, { useClass: ListPlatformUsersUseCase });
+  container.register(TOKENS.DeletePlatformUserUseCase, { useClass: DeletePlatformUserUseCase });
+  container.registerSingleton(TOKENS.PlatformUserController, PlatformUserController);
 }
 
 export { container };

@@ -1,34 +1,25 @@
-export type UserStatus = 'invited' | 'active' | 'inactive';
+
+export type UserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
 
 export interface User {
   id: string;
-  name: string;
-  email: string;
-  phone?: string | null;
+firstName: string;
+  lastName: string;
+    email: string;
+  phone?: string;
   status: UserStatus;
-  organizationId?: string | null;
+  roleId: string;
+  organizationId: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface UserRole {
-  id: string;
-  userId: string;
-  roleId: string;
-  role: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-  createdAt: string;
-}
-
-/** Fields the create form sends. Backend generates an invite token + sends invite email. */
 export interface CreateUserDto {
-  name: string;
-  email: string;
+firstName: string;
+  lastName: string;
+    email: string;
   phone?: string;
-  roleIds: string[];
+  roleId: string;
 }
 
 export interface CreateUserResponse extends User {
@@ -37,13 +28,11 @@ export interface CreateUserResponse extends User {
 }
 
 export interface UpdateUserDto {
-  name?: string;
-  phone?: string | null;
-  status?: 'active' | 'inactive';
-}
-
-export interface AssignRoleDto {
-  roleId: string;
+firstName?: string;
+  lastName?: string;  
+  phone?: string;
+  status?: UserStatus;
+  roleId?: string;  
 }
 
 export interface UserFilters {
@@ -63,10 +52,13 @@ export interface PaginatedResult<T> {
   };
 }
 
-export interface ApiEnvelope<T> {
-  success: boolean;
-  data: T;
-  message?: string;
+export interface UserRole {
+  id: string;
+firstName: string;
+  lastName: string;}
+
+export interface AssignRoleDto {
+  roleId: string;
 }
 
 export interface ResendInviteResponse {

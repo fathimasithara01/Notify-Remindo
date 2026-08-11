@@ -5,13 +5,11 @@ import { IUserRepository } from '../../domain/repositories/user.repository.inter
 import { IAuditLogRepository } from '../../domain/repositories/audit-log.repository.interface';
 import { CreateUserUseCase } from '../../application/user/use-cases/create-user.use-case';
 import { EditUserUseCase } from '../../application/user/use-cases/edit-user.use-case';
-import { RevokeSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
-import { UserResendInviteUseCase } from '../../application/user/use-cases/resend-invite.use-case';
-import { RequestPasswordResetUseCase } from '../../application/user/use-cases/request-password-reset.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError, UnauthorizedError } from '../../domain/errors/domain.error';
 import { parsePaginationParams } from '../../shared/utils/pagination';
 import { User } from '../../domain/entities/user.entity';
+import { RevokeUserSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
 
 function toSafeUser(user: User) {
   const { id, firstName, lastName, email, status, organizationId, roleId, createdAt } = user;
@@ -22,12 +20,9 @@ function toSafeUser(user: User) {
 export class UserController {
   constructor(
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
-    @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.CreateUserUseCase) private createUserUseCase: CreateUserUseCase,
     @inject(TOKENS.EditUserUseCase) private editUserUseCase: EditUserUseCase,
-    @inject(TOKENS.RevokeSessionsUseCase) private revokeSessionsUseCase: RevokeSessionsUseCase,
-    @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: UserResendInviteUseCase,
-    @inject(TOKENS.RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase
+    @inject(TOKENS.RevokeUserSessionsUseCase) private revokeUserSessionsUseCase: RevokeUserSessionsUseCase,
   ) { }
 
   create = async (req: Request, res: Response): Promise<void> => {
@@ -70,21 +65,12 @@ export class UserController {
     ApiResponse.success(res, null, 200, 'User deleted');
   };
 
-  resendInvite = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-    const result = await this.resendInviteUseCase.execute(req.params.id, req.user.id);
-    ApiResponse.success(res, result, 200, 'Invite resent');
-  };
-
-  requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-    const result = await this.requestPasswordResetUseCase.execute(req.params.id, req.user.id);
-    ApiResponse.success(res, result, 200, 'Password reset link sent');
-  };
-
   revokeSessions = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-    await this.revokeSessionsUseCase.execute({ userId: req.params.id, adminId: req.user.id });
-    ApiResponse.success(res, null, 200, 'All sessions revoked for this user');
+    await this.revokeUserSessionsUseCase.execute({
+      userId: req.params.id,
+      adminId: req.user.id,
+    });
+    ApiResponse.success(res, null, 200, 'Sessions revoked successfully');
   };
 }

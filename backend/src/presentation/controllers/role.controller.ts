@@ -14,7 +14,7 @@ export class RoleController {
     @inject(TOKENS.EditRoleUseCase) private editRoleUseCase: EditRoleUseCase,
     @inject(TOKENS.DeleteRoleUseCase) private deleteRoleUseCase: DeleteRoleUseCase,
     @inject(TOKENS.ListRolesUseCase) private listRolesUseCase: ListRolesUseCase
-  ) {}
+  ) { }
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -57,7 +57,13 @@ export class RoleController {
         search: req.query.search as string | undefined,
         pagination,
       });
-      res.status(200).json({ success: true, data: result.items, meta: result.meta });
+      res.status(200).json({
+        success: true,
+        data: {
+          items: result.items,
+          meta: result.meta,
+        },
+      });
     } catch (err) {
       next(err);
     }

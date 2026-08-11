@@ -28,4 +28,5 @@ export const USER_STATUS_META: Record<UserStatus, { label: string; variant: 'def
   active: { label: 'Active', variant: 'default' },
   invited: { label: 'Invited', variant: 'secondary' },
   inactive: { label: 'Inactive', variant: 'outline' },
+  suspended: { label: 'Suspended', variant: 'destructive' },
 };

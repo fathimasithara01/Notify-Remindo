@@ -3,22 +3,26 @@ import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
 import { TokenRevocationRegistry } from '../../../infrastructure/cache/token-revocation-registry';
-import { NotFoundError } from '../../../domain/errors/domain.error';
+import { NotFoundError, DomainError } from '../../../domain/errors/domain.error';
 
-export interface RevokeSessionsInput {
+export interface RevokeUserSessionsInput {
   userId: string;
   adminId: string;
 }
 
 @injectable()
-export class RevokeSessionsUseCase {
+export class RevokeUserSessionsUseCase {
   constructor(
-    @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
-    @inject(TOKENS.TokenRevocationRegistry) private revocationRegistry: TokenRevocationRegistry,
-    @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository
+    @inject(TOKENS.UserRepository) private readonly userRepo: IUserRepository,
+    @inject(TOKENS.AuditLogRepository) private readonly auditLogRepo: IAuditLogRepository,
+    @inject(TOKENS.TokenRevocationRegistry) private readonly revocationRegistry: TokenRevocationRegistry
   ) {}
 
-  async execute(input: RevokeSessionsInput): Promise<void> {
+  async execute(input: RevokeUserSessionsInput): Promise<void> {
+    if (input.userId === input.adminId) {
+      throw new DomainError('You cannot revoke your own sessions');
+    }
+
     const user = await this.userRepo.findById(input.userId);
     if (!user) {
       throw new NotFoundError('User not found');

@@ -19,9 +19,8 @@ router.get('/', authorize(PERMISSIONS.USER_VIEW), asyncHandler(controller.list))
 router.get('/:id', authorize(PERMISSIONS.USER_VIEW), asyncHandler(controller.getOne));
 router.patch('/:id', authorize(PERMISSIONS.USER_UPDATE), validateRequest(editUserSchema), asyncHandler(controller.update));
 router.delete('/:id', authorize(PERMISSIONS.USER_DELETE), asyncHandler(controller.delete));
+
 router.post('/:id/revoke-sessions', authorize(PERMISSIONS.USER_UPDATE), asyncHandler(controller.revokeSessions));
-router.post('/:id/resend-invite', authorize(PERMISSIONS.USER_INVITE), asyncHandler(controller.resendInvite));
-router.post('/:id/request-password-reset', authorize(PERMISSIONS.USER_UPDATE), asyncHandler(controller.requestPasswordReset));
 // router.get('/:id/roles', authorize(PERMISSIONS.USER_VIEW), asyncHandler(controller.getRoles));
 // router.post('/:id/roles', authorize(PERMISSIONS.ROLE_ASSIGN), validateRequest(assignRoleSchema), asyncHandler(controller.assignRole));
 // router.delete('/:id/roles/:roleId', authorize(PERMISSIONS.ROLE_ASSIGN), asyncHandler(controller.removeRole));

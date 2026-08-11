@@ -6,6 +6,7 @@ import { INotifierService } from '../../../domain/services/notifier.service.inte
 import { DomainError, NotFoundError } from '../../../domain/errors/domain.error';
 import { generateInviteToken, getInviteExpiry } from '../../../shared/utils/token-generator';
 import { env } from '../../../config/env';
+import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
 
 export interface RequestPasswordResetResult {
   resetUrl: string;
@@ -15,13 +16,13 @@ export interface RequestPasswordResetResult {
 @injectable()
 export class RequestPasswordResetUseCase {
   constructor(
-    @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
+    @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.EmailNotifierService) private notifierService: INotifierService
   ) {}
 
   async execute(userId: string, adminId: string): Promise<RequestPasswordResetResult> {
-    const user = await this.userRepo.findById(userId);
+    const user = await this.platformUserRepo.findById(userId);
     if (!user) throw new NotFoundError('User not found');
 
     if (user.status !== 'active') {
@@ -33,7 +34,7 @@ export class RequestPasswordResetUseCase {
     // sensitive since it can take over an already-active account.
     const resetPasswordTokenExpiresAt = getInviteExpiry(1);
 
-    await this.userRepo.update(user.id, { resetPasswordToken, resetPasswordTokenExpiresAt });
+    await this.platformUserRepo.update(user.id, { resetPasswordToken, resetPasswordTokenExpiresAt });
 
     await this.auditLogRepo.create({
       adminId,

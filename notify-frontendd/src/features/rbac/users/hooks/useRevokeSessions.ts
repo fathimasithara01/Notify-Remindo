@@ -1,17 +1,14 @@
-import { useMutation } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { usersApi } from '../api/users.api';
+import { queryKeys } from '@/lib/query/query-keys';
 
 export function useRevokeSessions() {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (id: string) => usersApi.revokeSessions(id),
+    mutationFn: (userId: string) => usersApi.revokeSessions(userId),
     onSuccess: () => {
-      toast.success('All sessions revoked. The user will be signed out everywhere.');
-    },
-    onError: (error: unknown) => {
-      const message =
-        error instanceof Error ? error.message : 'Failed to revoke sessions';
-      toast.error(message);
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.lists() });
     },
   });
 }

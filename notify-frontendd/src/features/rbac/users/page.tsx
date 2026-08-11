@@ -85,7 +85,7 @@ export default function UsersPage() {
       onSuccess: (data) => {
         closeDialog();
         setInviteResult({
-          userName: data.name,
+          userName: `${data.firstName} ${data.lastName}`.trim(),
           inviteUrl: data.inviteUrl,
           emailSent: data.emailSent,
           kind: 'invite',
@@ -98,7 +98,7 @@ export default function UsersPage() {
     resendInvite.mutate(user.id, {
       onSuccess: (data) => {
         setInviteResult({
-          userName: user.name,
+          userName: `${user.firstName} ${user.lastName}`.trim(),
           inviteUrl: data.inviteUrl,
           emailSent: data.emailSent,
           kind: 'resend',
@@ -111,7 +111,7 @@ export default function UsersPage() {
     requestPasswordReset.mutate(user.id, {
       onSuccess: (data) => {
         setInviteResult({
-          userName: user.name,
+          userName: `${user.firstName} ${user.lastName}`.trim(),
           inviteUrl: data.resetUrl,
           emailSent: data.emailSent,
           kind: 'reset',
@@ -252,7 +252,7 @@ export default function UsersPage() {
           open={!!inviteResult}
           onOpenChange={(o) => !o && setInviteResult(null)}
           userName={inviteResult.userName}
-          inviteUrl={inviteResult.inviteUrl}
+          value={inviteResult.inviteUrl}
           emailSent={inviteResult.emailSent}
           kind={inviteResult.kind}
         />
@@ -266,7 +266,7 @@ export default function UsersPage() {
             <AlertDialogDescription>
               {dialog.type === 'delete' && (
                 <>
-                  This will permanently remove <strong>{dialog.user.name}</strong>{' '}
+                  This will permanently remove <strong>{dialog.user.firstName} {dialog.user.lastName}</strong>{' '}
                   and revoke their access. This action cannot be undone.
                 </>
               )}

@@ -11,8 +11,8 @@ import { apiClient } from '@/lib/api/client';
 const BASE_URL = '/roles';
 
 export const rolesApi = {
-  list: (filters: RoleFilters): Promise<PaginatedResult<Role>> =>
-    apiClient.get<PaginatedResult<Role>>(BASE_URL, toQueryParams(filters)),
+ list: (filters: RoleFilters): Promise<PaginatedResult<Role>> =>
+  apiClient.get<PaginatedResult<Role>>(BASE_URL, toQueryParams(filters)),
 
   getOne: (id: string): Promise<Role> =>
     apiClient.get<Role>(`${BASE_URL}/${id}`),

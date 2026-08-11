@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 export const createUserSchema = z.object({
-  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
+  firstName: z.string().trim().min(2, 'First name must be at least 2 characters').max(50),
+  lastName: z.string().trim().min(2, 'Last name must be at least 2 characters').max(50),
   email: z.string().trim().email('Enter a valid email address'),
   phone: z
     .string()
@@ -9,26 +10,27 @@ export const createUserSchema = z.object({
     .regex(/^\+?[0-9]{7,15}$/, 'Enter a valid phone number')
     .optional()
     .or(z.literal('')),
-  roleIds: z.array(z.string()).min(1, 'Select at least one role'),
+  roleId: z.string().min(1, 'A role is required'),
 });
 
 export type CreateUserFormValues = z.infer<typeof createUserSchema>;
 
 export const editUserSchema = z.object({
-  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
+  firstName: z.string().trim().min(2, 'First name must be at least 2 characters').max(50),
+  lastName: z.string().trim().min(2, 'Last name must be at least 2 characters').max(50),
   phone: z
     .string()
     .trim()
     .regex(/^\+?[0-9]{7,15}$/, 'Enter a valid phone number')
     .optional()
     .or(z.literal('')),
-  status: z.enum(['invited', 'active', 'inactive']),
+  status: z.enum(['active', 'inactive']),
 });
 
 export type EditUserFormValues = z.infer<typeof editUserSchema>;
 
-export const assignRoleSchema = z.object({
+export const changeRoleSchema = z.object({
   roleId: z.string().min(1, 'Select a role'),
 });
 
-export type AssignRoleFormValues = z.infer<typeof assignRoleSchema>;
+export type ChangeRoleFormValues = z.infer<typeof changeRoleSchema>;

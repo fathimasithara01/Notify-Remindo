@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Form,
@@ -53,15 +52,17 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
     resolver: zodResolver(isEdit ? editUserSchema : createUserSchema),
     defaultValues: isEdit
       ? {
-          name: user?.name ?? '',
+          firstName: user?.firstName ?? '',
+          lastName: user?.lastName ?? '',
           phone: user?.phone ?? '',
           status: user?.status === 'inactive' ? 'inactive' : 'active',
         }
       : {
-          name: '',
+          firstName: '',
+          lastName: '',
           email: '',
           phone: '',
-          roleIds: [],
+          roleId: '',
         },
   });
 
@@ -70,12 +71,26 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="name"
+          name="firstName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full name</FormLabel>
+              <FormLabel>First name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Fathima Rahman" {...field} />
+                <Input placeholder="e.g. Fathima" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="lastName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Last name</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. Rahman" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,8 +101,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
             login identity, so changing it later goes through a separate
             verification flow, not this form. */}
         {!isEdit && (
-        
-        <FormField
+          <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
@@ -143,52 +157,37 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
         {!isEdit && (
           <FormField
             control={form.control}
-            name="roleIds"
-            render={({ field }) => {
-              const selected = new Set((field.value as string[] | undefined) ?? []);
-              const toggleRole = (roleId: string, checked: boolean) => {
-                const next = new Set(selected);
-                if (checked) next.add(roleId);
-                else next.delete(roleId);
-                field.onChange(Array.from(next));
-              };
-
-              return (
-                <FormItem>
-                  <FormLabel>Roles</FormLabel>
-                  <FormControl>
-                    {rolesLoading ? (
-                      <div className="space-y-2">
-                        <Skeleton className="h-5 w-32" />
-                        <Skeleton className="h-5 w-28" />
-                      </div>
-                    ) : availableRoles.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        No active roles available. Create a role first before inviting a user.
-                      </p>
-                    ) : (
-                      <div className="space-y-2">
-                        {availableRoles.map((role) => (
-                          <label
-                            key={role.id}
-                            className="flex items-center gap-2 text-sm font-normal"
-                          >
-                            <Checkbox
-                              checked={selected.has(role.id)}
-                              onCheckedChange={(checked) =>
-                                toggleRole(role.id, checked === true)
-                              }
-                            />
-                            {role.name}
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              );
-            }}
+            name="roleId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Role</FormLabel>
+                {rolesLoading ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-9 w-full" />
+                  </div>
+                ) : availableRoles.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No active roles available. Create a role first before inviting a user.
+                  </p>
+                ) : (
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableRoles.map((role) => (
+                        <SelectItem key={role.id} value={role.id}>
+                          {role.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
           />
         )}
 

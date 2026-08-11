@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { USER_STATUS_META } from '../../shared/constants';
-import { useUserRoles } from '../hooks/useUserRoles';
+import { useRole } from '../../roles/hooks/useRole';
 import type { User } from '../types/user.types';
 
 interface UserDetailsProps {
@@ -12,13 +12,13 @@ interface UserDetailsProps {
 }
 
 export function UserDetails({ user }: UserDetailsProps) {
-    const { data: roles, isLoading: rolesLoading } = useUserRoles(user.id);
+    const { data: role, isLoading: roleLoading } = useRole(user.roleId);
     const statusMeta = USER_STATUS_META[user.status];
 
     return (
         <div className="space-y-6">
             <div>
-                <h3 className="text-lg font-semibold">{user.name}</h3>
+                <h3 className="text-lg font-semibold">{user?.firstName} {user?.lastName}</h3>
                 <p className="text-sm text-muted-foreground">{user.email}</p>
             </div>
 
@@ -41,22 +41,13 @@ export function UserDetails({ user }: UserDetailsProps) {
             <Separator />
 
             <div>
-                <h4 className="mb-2 text-sm font-medium">Assigned roles</h4>
-                {rolesLoading ? (
-                    <div className="space-y-2">
-                        <Skeleton className="h-6 w-24" />
-                        <Skeleton className="h-6 w-20" />
-                    </div>
-                ) : roles && roles.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                        {roles.map((userRole) => (
-                            <Badge key={userRole.id} variant="outline">
-                                {userRole.role?.name ?? 'Unknown role'}
-                            </Badge>
-                        ))}
-                    </div>
+                <h4 className="mb-2 text-sm font-medium">Role</h4>
+                {roleLoading ? (
+                    <Skeleton className="h-6 w-24" />
+                ) : role ? (
+                    <Badge variant="outline">{role.name}</Badge>
                 ) : (
-                    <p className="text-sm text-muted-foreground">No roles assigned yet.</p>
+                    <p className="text-sm text-muted-foreground">No role assigned.</p>
                 )}
             </div>
         </div>

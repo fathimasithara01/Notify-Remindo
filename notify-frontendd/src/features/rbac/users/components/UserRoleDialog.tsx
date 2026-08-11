@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +10,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -21,10 +19,8 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRoles } from '../../roles/hooks/useRoles';
-import { assignRoleSchema, type AssignRoleFormValues } from '../schemas/user.schema';
-import { useUserRoles } from '../hooks/useUserRoles';
-import { useAssignRole } from '../hooks/useAssignRole';
-import { useRemoveRole } from '../hooks/useRemoveRole';
+import { changeRoleSchema, type ChangeRoleFormValues } from '../schemas/user.schema';
+import { useUpdateUser } from '../hooks/useUpdateUser';
 import type { User } from '../types/user.types';
 
 interface UserRoleDialogProps {
@@ -34,27 +30,26 @@ interface UserRoleDialogProps {
 }
 
 export function UserRoleDialog({ user, open, onOpenChange }: UserRoleDialogProps) {
-  const { data: assignedRoles, isLoading: assignedLoading } = useUserRoles(user?.id);
-  const { data: allRoles } = useRoles({ status: 'active', limit: 100, page: 1 });
-  const assignRole = useAssignRole();
-  const removeRole = useRemoveRole();
+  const { data: allRoles, isLoading: rolesLoading } = useRoles({
+    status: 'active',
+    limit: 100,
+    page: 1,
+  });
 
-  const form = useForm<AssignRoleFormValues>({
-    resolver: zodResolver(assignRoleSchema),
-    defaultValues: { roleId: '' },
+const updateUser = useUpdateUser();
+
+  const form = useForm<ChangeRoleFormValues>({
+    resolver: zodResolver(changeRoleSchema),
+    values: { roleId: user?.roleId ?? '' },
   });
 
   if (!user) return null;
 
-  const assignedRoleIds = new Set(assignedRoles?.map((r) => r.roleId));
-  const availableRoles = (allRoles?.items ?? []).filter(
-    (role) => !assignedRoleIds.has(role.id)
-  );
-
-  const handleAssign = (values: AssignRoleFormValues) => {
-    assignRole.mutate(
-      { userId: user.id, payload: { roleId: values.roleId } },
-      { onSuccess: () => form.reset() }
+  const availableRoles = allRoles?.items ?? [];
+  const handleSubmit = (values: ChangeRoleFormValues) => {
+    updateUser.mutate(
+      { id: user.id, payload: { roleId: values.roleId } },
+      { onSuccess: () => onOpenChange(false) }
     );
   };
 
@@ -62,48 +57,15 @@ export function UserRoleDialog({ user, open, onOpenChange }: UserRoleDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Manage roles — {user.name}</DialogTitle>
+          <DialogTitle>Manage role —{user.firstName} {user.lastName}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <div>
-            <p className="mb-2 text-sm font-medium">Current roles</p>
-            {assignedLoading ? (
-              <Skeleton className="h-8 w-full" />
-            ) : assignedRoles && assignedRoles.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {assignedRoles.map((userRole) => (
-                  <Badge
-                    key={userRole.id}
-                    variant="outline"
-                    className="flex items-center gap-1 pr-1"
-                  >
-                    {userRole.role?.name ?? 'Unknown role'}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        removeRole.mutate({ userId: user.id, roleId: userRole.roleId })
-                      }
-                      disabled={removeRole.isPending}
-                      className="rounded-full p-0.5 hover:bg-muted"
-                       aria-label={`Remove ${userRole.role?.name ?? 'role'}`}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
+            <p className="mb-2 text-sm font-medium">Role</p>
+            {rolesLoading ? (
+              <Skeleton className="h-9 w-full" />
             ) : (
-              <p className="text-sm text-muted-foreground">No roles assigned yet.</p>
-            )}
-          </div>
-
-          <form
-            onSubmit={form.handleSubmit(handleAssign)}
-            className="flex items-end gap-2"
-          >
-            <div className="flex-1">
-              <p className="mb-2 text-sm font-medium">Assign a role</p>
               <Select
                 onValueChange={(value) => form.setValue('roleId', value)}
                 value={form.watch('roleId')}
@@ -114,7 +76,7 @@ export function UserRoleDialog({ user, open, onOpenChange }: UserRoleDialogProps
                 <SelectContent>
                   {availableRoles.length === 0 ? (
                     <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                      No more roles to assign
+                      No active roles available
                     </div>
                   ) : (
                     availableRoles.map((role) => (
@@ -125,18 +87,25 @@ export function UserRoleDialog({ user, open, onOpenChange }: UserRoleDialogProps
                   )}
                 </SelectContent>
               </Select>
-            </div>
-            <Button type="submit" disabled={assignRole.isPending || !form.watch('roleId')}>
-              Assign
-            </Button>
-          </form>
-        </div>
+            )}
+          </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                updateUser.isPending ||
+                !form.watch('roleId') ||
+                form.watch('roleId') === user.roleId
+              }
+            >
+              {updateUser.isPending ? 'Saving...' : 'Save role'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

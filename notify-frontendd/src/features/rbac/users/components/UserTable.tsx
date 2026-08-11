@@ -44,7 +44,7 @@ export function UserTable({
   onDelete,
   onManageRoles,
   onRevokeSessions,
-  onResendInvite ,
+  onResendInvite,
   onRequestPasswordReset,
 }: UserTableProps) {
   if (isLoading) {
@@ -91,7 +91,7 @@ export function UserTable({
                 onClick={() => onView(user)}
               >
                 <TableCell className="font-medium">
-                  {user.name}
+                  {user.firstName} {user.lastName}
                   {isSelf && (
                     <Badge variant="outline" className="ml-2 text-xs">
                       You
@@ -137,10 +137,11 @@ export function UserTable({
                         </DropdownMenuItem>
                       )}
 
-                      <DropdownMenuItem onClick={() => onRevokeSessions(user)}>
+                      <DropdownMenuItem onClick={() => onRevokeSessions(user)} disabled={isSelf}>
                         <LogOut className="mr-2 h-4 w-4" />
                         Revoke sessions
                       </DropdownMenuItem>
+
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => onDelete(user)}
