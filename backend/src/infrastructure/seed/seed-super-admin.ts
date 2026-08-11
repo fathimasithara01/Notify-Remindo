@@ -9,12 +9,14 @@ export async function seedSuperAdmin(): Promise<void> {
   const superAdminRole = await RoleModel.findOneAndUpdate(
     { name: 'Super Admin' },
     {
-      $setOnInsert: {
-        name: 'Super Admin',
+      $set: {
         description: 'Full system access — built-in role',
         isSystem: true,
         status: 'active',
         permissionIds: ALL_PERMISSIONS,
+      },
+      $setOnInsert: {
+        name: 'Super Admin',
         createdBy: 'system',
         deletion: { isDeleted: false },
       },

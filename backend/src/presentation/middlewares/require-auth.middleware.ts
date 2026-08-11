@@ -40,7 +40,8 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
     };
 
     next();
-  } catch {
+  } catch (err) {
+    console.error('Auth middleware error:', err);
     next(new UnauthorizedError('Invalid or expired token'));
   }
 }

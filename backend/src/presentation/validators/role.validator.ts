@@ -2,14 +2,14 @@ import { z } from 'zod';
 import { ALL_PERMISSIONS } from '../../shared/constants/permissions.constant';
 
 export const createRoleSchema = z.object({
-  body: z.object({
-    name: z.string().trim().min(2).max(50),
-    description: z.string().trim().max(200).optional(),
-    organizationId: z.string().optional(),
-    permissionIds: z
-      .array(z.enum(ALL_PERMISSIONS as [string, ...string[]]))
-      .min(1, 'At least one permission required'),
-  }),
+  // body: z.object({
+  name: z.string().trim().min(2).max(50),
+  description: z.string().trim().max(200).optional(),
+  // organizationId: z.string().optional(),
+  permissionIds: z
+    .array(z.enum(ALL_PERMISSIONS as [string, ...string[]]))
+    .min(1, 'At least one permission required'),
+  // }),
 });
 
 export const editRoleSchema = z.object({
