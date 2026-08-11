@@ -10,14 +10,13 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
-import { PERMISSIONS, type Permission } from '@/features/auth/types/auth.types';
+import { PERMISSIONS, type Permission } from '@/config/permissions';
+
 
 export interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
-  // Must exactly match a value in backend PERMISSIONS
-  // (src/shared/constants/permissions.constant.ts). No permission = always visible.
   permission?: Permission;
 }
 

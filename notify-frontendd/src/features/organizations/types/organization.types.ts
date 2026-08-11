@@ -36,7 +36,7 @@ export interface Organization {
   status: OrganizationStatus;
 
   currentPlanId?: string | null;
-   currentPlanName: string | null;
+  currentPlanName: string | null;
   salesmanId?: string | null;
 
   documents?: {
@@ -68,7 +68,7 @@ export interface CreateOrganizationPayload {
   salesmanId?: string;
 
   documents?: OrganizationDocument[];
-    inviteMethod: OrganizationInviteMethod;
+  inviteMethod: OrganizationInviteMethod;
 
   admin: {
     name: string;
