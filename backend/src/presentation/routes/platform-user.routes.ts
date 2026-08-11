@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { container } from 'tsyringe';
 import { TOKENS } from '../../infrastructure/di/tokens';
 import { PlatformUserController } from '../controllers/platform-user.controller';
-import { authenticate } from '../middlewares/authorize.middleware';
+import { authenticate } from '../middlewares/require-auth.middleware';
 import { requirePermission } from '../middlewares/requirePermission.middleware';
 import { PERMISSIONS } from '../../shared/constants/permissions.constant';
 

@@ -16,6 +16,11 @@ export class RoleRepository implements IRoleRepository {
     return doc ? this.toEntity(doc) : null;
   }
 
+  async findByName(name: string): Promise<Role | null> {
+    const doc = await RoleModel.findOne({ name, 'deletion.isDeleted': false });
+    return doc ? this.toEntity(doc) : null;
+  }
+
   async findByIds(ids: string[]): Promise<Role[]> {
     const docs = await RoleModel.find({ _id: { $in: ids }, 'deletion.isDeleted': false });
     return docs.map(this.toEntity);

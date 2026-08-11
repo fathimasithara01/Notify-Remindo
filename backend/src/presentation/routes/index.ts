@@ -8,14 +8,14 @@ import dashboardRoutes from './dashboard.routes';
 import userRoutes from './user.routes';
 import auditLogRoutes from './audit-log.routes';
 // import inviteRoutes from './invite.routes';
-import organizationDocuments from './organization-document.routes'
+// import organizationDocuments from './organization-document.routes'
 
 const router = Router();
 
 router.use('/auth', authRoutes);
 router.use('/roles', roleRoutes);
 router.use('/organizations', organizationRoutes);
-router.use('/organizations',organizationDocuments)
+// router.use('/organizations',organizationDocuments)
 router.use('/subscription-plans', subscriptionRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/dashboard', dashboardRoutes);

@@ -59,7 +59,7 @@ export class AuthController {
   changePassword = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
     await this.changePasswordUseCase.execute({
-      userId: req.user.userId,
+      userId: req.user.id,
       currentPassword: req.body.currentPassword,
       newPassword: req.body.newPassword,
     });
@@ -94,7 +94,7 @@ export class AuthController {
   me = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
 
-    const result = await this.getCurrentUserUseCase.execute(req.user.userId);
+    const result = await this.getCurrentUserUseCase.execute(req.user.id);
     ApiResponse.success(res, result);
   };
 

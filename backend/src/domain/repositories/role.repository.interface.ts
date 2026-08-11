@@ -11,4 +11,5 @@ export interface IRoleRepository {
     filter?: { organizationId?: string; status?: RoleStatus; search?: string },
     pagination?: PaginationParams
   ): Promise<PaginatedResult<Role>>;
+  findByName(name: string): Promise<Role | null>
 }

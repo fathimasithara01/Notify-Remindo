@@ -1,25 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
 import { container } from 'tsyringe';
+import { TOKENS } from '../../infrastructure/di/tokens';
 import { IPermissionResolver } from '../../domain/services/IPermissionResolver';
 import { Permission } from '../../shared/constants/permissions.constant';
+import { UnauthorizedError, ForbiddenError } from '../../domain/errors/domain.error';
 
-// Assumes an earlier auth middleware has already set req.user with { id, roleId, ... }
 export function requirePermission(...requiredPermissions: Permission[]) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = req.user as { id: string; roleId: string } | undefined;
-
-      if (!user?.roleId) {
-        return res.status(401).json({ success: false, message: 'Unauthorized' });
+      if (!req.user?.roleId) {
+        return next(new UnauthorizedError('Authentication required'));
       }
 
-      const resolver = container.resolve<IPermissionResolver>('IPermissionResolver');
-      const permissions = await resolver.resolve(user.roleId);
+      const resolver = container.resolve<IPermissionResolver>(TOKENS.PermissionResolver);
+      const permissions = await resolver.resolve(req.user.roleId);
 
-      const hasAll = requiredPermissions.every((p) => permissions.has(p));
+      const hasAccess =
+        permissions.has('*' as Permission) ||
+        requiredPermissions.every((p) => permissions.has(p));
 
-      if (!hasAll) {
-        return res.status(403).json({ success: false, message: 'Forbidden: insufficient permissions' });
+      if (!hasAccess) {
+        return next(new ForbiddenError(`Missing required permission: ${requiredPermissions.join(', ')}`));
       }
 
       next();

@@ -15,6 +15,7 @@ export interface UserDocument extends Document {
   inviteTokenExpiresAt?: Date;
   resetPasswordToken?: string;
   resetPasswordTokenExpiresAt?: Date;
+  mustChangePassword:boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +35,7 @@ const userSchema = new Schema<UserDocument>(
     resetPasswordTokenExpiresAt: { type: Date },
     tokenVersion: { type: Number, default: 0 },
     lastLoginAt: { type: Date },
+    mustChangePassword: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

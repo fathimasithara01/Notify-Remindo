@@ -57,7 +57,7 @@ export class PlanFeatureController {
       await this.addPlanFeatureUseCase.execute({
 
         adminId:
-          req.user.userId,
+          req.user.id,
 
         data: {
 
@@ -119,7 +119,7 @@ export class PlanFeatureController {
         req.params.featureId,
 
       adminId:
-        req.user.userId,
+        req.user.id,
 
     });
 

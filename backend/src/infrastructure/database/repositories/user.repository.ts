@@ -133,6 +133,7 @@ export class UserRepository implements IUserRepository {
       resetPasswordTokenExpiresAt: doc.resetPasswordTokenExpiresAt,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
+      mustChangePassword:doc.mustChangePassword,
     };
   }
 }

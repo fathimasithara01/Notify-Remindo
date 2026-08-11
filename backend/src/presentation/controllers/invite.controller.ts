@@ -22,7 +22,7 @@ export class InviteController {
 
     const pageItems = invited.items.map((u) => ({
       id: u.id,
-      name: u.name,
+      name: u.firstName,
       email: u.email,
       organizationId: u.organizationId,
       inviteTokenExpiresAt: u.inviteTokenExpiresAt,
@@ -43,7 +43,7 @@ export class InviteController {
       throw new DomainError('organizationId is required');
     }
 
-    await this.resendInviteUseCase.execute({ organizationId, adminId: req.user.userId });
+    await this.resendInviteUseCase.execute({ organizationId, adminId: req.user.id });
     ApiResponse.success(res, null, 200, 'Invite resent');
   };
 
@@ -58,7 +58,7 @@ export class InviteController {
     await this.userRepo.delete(invitedUser.id);
 
     await this.auditLogRepo.create({
-      adminId: req.user.userId,
+      adminId: req.user.id,
       action: 'CANCEL_INVITE',
       targetType: 'User',
       targetId: invitedUser.id,

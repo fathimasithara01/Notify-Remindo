@@ -8,14 +8,13 @@ import { ISubscriptionPlanRepository } from '../../../domain/repositories/subscr
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
-import { IOrganizationSubscriptionRepository }
-  from "../../../domain/repositories/organization-subscription.repository.interface";
+import { IOrganizationSubscriptionRepository } from '../../../domain/repositories/organization-subscription.repository.interface';
 import { IHashService } from '../../../domain/services/hash.service.interface';
-
 import { INotifierService } from '../../../domain/services/notifier.service.interface';
 
 import { Organization } from '../../../domain/entities/organization.entity';
-import { User } from '../../../domain/entities/platformUser.entity';
+import { User } from '../../../domain/entities/user.entity';
+import { Role } from '../../../domain/entities/role.entity';
 import { DomainError } from '../../../domain/errors/domain.error';
 
 import { CreateOrganizationDto } from '../../dtos/organization/create-organization.dto';
@@ -25,6 +24,7 @@ import { generateTempPassword } from '../../../shared/utils/password-generator';
 import { env } from '../../../config/env';
 
 const INVITE_TOKEN_TTL_HOURS = 24;
+const ORG_ADMIN_ROLE_NAME = 'Org Admin';
 
 export interface CreateOrganizationInput {
   data: CreateOrganizationDto;
@@ -34,13 +34,8 @@ export interface CreateOrganizationInput {
 export interface CreateOrganizationResult {
   organization: Organization;
   admin: User;
-  /** Present only when inviteMethod === 'email'. */
   inviteUrl?: string;
-  /** Present only when inviteMethod === 'email'. False if the email send failed. */
   emailSent?: boolean;
-  /** Present only when inviteMethod === 'temp-password'. Plain text — this is
-   * the ONLY time it's ever available outside the hash. Never logged, never
-   * stored anywhere but the response. */
   tempPassword?: string;
 }
 
@@ -54,31 +49,27 @@ export class CreateOrganizationUseCase {
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService,
     @inject(TOKENS.HashService) private hashService: IHashService,
-    @inject(TOKENS.SubscriptionPlanRepository) private readonly organizationSubscriptionRepository: IOrganizationSubscriptionRepository,
+    @inject(TOKENS.OrganizationSubscriptionRepository) private readonly organizationSubscriptionRepository: IOrganizationSubscriptionRepository
   ) { }
 
   async execute(input: CreateOrganizationInput): Promise<CreateOrganizationResult> {
     const { data, adminId } = input;
 
-    // 1. Validate subscription plan if provided
     const plan = data.planId ? await this.planRepo.findById(data.planId) : null;
-    if (data.planId && (!plan || plan.status != 'active')) {
+    if (data.planId && (!plan || plan.status !== 'active')) {
       throw new DomainError('Selected subscription plan is not available');
     }
 
-    // 2. Check whether Admin login email already exists
     const existingUser = await this.userRepo.findByEmail(data.admin.email);
     if (existingUser) {
       throw new DomainError(`An account already exists for ${data.admin.email}.`);
     }
 
-    // 3. Find Organization Admin role
-    const organizationAdminRole = await this.roleRepo.findByName('orgadmin');
-    if (!organizationAdminRole) {
-      throw new DomainError('Organization Admin role is not configured.');
+    const orgAdminRole = await this.roleRepo.findByName(ORG_ADMIN_ROLE_NAME);
+    if (!orgAdminRole) {
+      throw new DomainError('Org Admin role not found — ensure roles are seeded');
     }
 
-    // 4. Create Organization
     const organization = await this.orgRepo.create({
       name: data.name,
       businessEmail: data.businessEmail,
@@ -89,19 +80,18 @@ export class CreateOrganizationUseCase {
       documents: data.documents,
     });
 
-    // 5. Create Subscription if plan exists
     if (plan) {
       const startDate = new Date();
       const endDate = new Date(startDate);
 
       switch (plan.billingInterval) {
-        case "weekly":
+        case 'weekly':
           endDate.setDate(endDate.getDate() + 7);
           break;
-        case "monthly":
+        case 'monthly':
           endDate.setMonth(endDate.getMonth() + 1);
           break;
-        case "yearly":
+        case 'yearly':
           endDate.setFullYear(endDate.getFullYear() + 1);
           break;
       }
@@ -115,23 +105,16 @@ export class CreateOrganizationUseCase {
         priceInMinorUnit: plan.priceInMinorUnit,
         currency: plan.currency,
         billingInterval: plan.billingInterval,
-        paymentProvider: undefined,
-        paymentTransactionId: undefined,
         autoRenew: false,
-        status: "active",
+        status: 'active',
       });
     }
 
-    // 6. Create Organization Admin User — branches based on inviteMethod
     const result =
       data.inviteMethod === 'temp-password'
-        ? await this.createAdminWithTempPassword(data, organization.id)
-        : await this.createAdminWithInviteEmail(data, organization.id);
+        ? await this.createAdminWithTempPassword(data, organization.id, orgAdminRole)
+        : await this.createAdminWithInviteEmail(data, organization.id, orgAdminRole);
 
-    // 7. Assign Organization Admin Role
-    await this.userRepo.assignRole(result.admin.id, organizationAdminRole.id);
-
-    // 8. Audit log
     await this.auditLogRepo.create({
       adminId,
       action: 'CREATE_ORGANIZATION',
@@ -148,32 +131,24 @@ export class CreateOrganizationUseCase {
     return { organization, ...result };
   }
 
-  /** Email-invite path: user stays 'invited' until they click the link and
-   * set their own password. Email delivery is best-effort — failure here
-   * never rolls back the organization/user records already created. */
-  private async createAdminWithInviteEmail(data: CreateOrganizationDto, organizationId: string): Promise<{ admin: User; inviteUrl: string; emailSent: boolean }> {
-
-    const orgAdminRole = await this.roleRepo.findByName('Org Admin');
-    if (!orgAdminRole) {
-      throw new DomainError('Org Admin role not found — ensure roles are seeded');
-    }
-
+  private async createAdminWithInviteEmail(
+    data: CreateOrganizationDto,
+    organizationId: string,
+    orgAdminRole: Role
+  ): Promise<{ admin: User; inviteUrl: string; emailSent: boolean }> {
     const inviteToken = crypto.randomBytes(32).toString('hex');
     const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
 
     const admin = await this.userRepo.create({
-      name: data.admin.name,
+      firstName: data.admin.firstName,
+      lastName: data.admin.lastName,
       email: data.admin.email,
-      phone: data.admin.phone ?? null,
       passwordHash: null,
       status: 'invited',
       organizationId,
       inviteToken,
       inviteTokenExpiresAt,
-      tokenVersion: 0,
-      resetPasswordToken: null,
-      resetPasswordTokenExpiresAt: null,
-      role: orgAdminRole.id,
+      roleId: orgAdminRole.id,
       mustChangePassword: false,
     });
 
@@ -200,31 +175,22 @@ export class CreateOrganizationUseCase {
     return { admin, inviteUrl, emailSent };
   }
 
-  /** Temp-password path: no email is sent at all. The admin creating the
-   * org copies the password from the response and shares it out of band.
-   * User starts 'active' but must change the password on first login. */
-  private async createAdminWithTempPassword(data: CreateOrganizationDto, organizationId: string): Promise<{ admin: User; tempPassword: string }> {
-    const orgAdminRole = await this.roleRepo.findByName('Org Admin');
-    if (!orgAdminRole) {
-      throw new DomainError('Org Admin role not found — ensure roles are seeded');
-    }
-
+  private async createAdminWithTempPassword(
+    data: CreateOrganizationDto,
+    organizationId: string,
+    orgAdminRole: Role
+  ): Promise<{ admin: User; tempPassword: string }> {
     const tempPassword = generateTempPassword();
     const passwordHash = await this.hashService.hash(tempPassword);
 
     const admin = await this.userRepo.create({
-      name: data.admin.name,
+      firstName: data.admin.firstName,
+      lastName: data.admin.lastName,
       email: data.admin.email,
-      phone: data.admin.phone ?? null,
       passwordHash,
       status: 'active',
       organizationId,
-      inviteToken: null,
-      inviteTokenExpiresAt: null,
-      tokenVersion: 0,
-      resetPasswordToken: null,
-      resetPasswordTokenExpiresAt: null,
-      role: orgAdminRole.id,
+      roleId: orgAdminRole.id,
       mustChangePassword: true,
     });
 

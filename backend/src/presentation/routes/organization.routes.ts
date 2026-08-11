@@ -2,9 +2,10 @@ import { Router } from 'express';
 import { container } from '../../infrastructure/di/container';
 import { TOKENS } from '../../infrastructure/di/tokens';
 import { OrganizationController } from '../controllers/organization.controller';
-import { requireAuth } from '../middlewares/require-auth.middleware';
+import { authenticate } from '../middlewares/require-auth.middleware';
 import { authorize } from '../middlewares/authorize.middleware';
 import { validateRequest } from '../middlewares/validate-request.middleware';
+import { PERMISSIONS } from '../../shared/constants/permissions.constant';
 import {
   createOrganizationSchema,
   editOrganizationSchema,
@@ -20,78 +21,45 @@ import { asyncHandler } from '../../shared/utils/async-handler';
 const router = Router();
 const controller = container.resolve<OrganizationController>(TOKENS.OrganizationController);
 
-router.use(requireAuth);
+router.use(authenticate); // applies to all routes below
 
-router.post('/', authorize('organization.create'), validateRequest(createOrganizationSchema), asyncHandler(controller.create));
-router.get('/', authorize('organization.view'), asyncHandler(controller.list));
-router.get('/:id', authorize('organization.view'), asyncHandler(controller.getOne));
+router.post('/', authorize(PERMISSIONS.ORG_CREATE), validateRequest(createOrganizationSchema), asyncHandler(controller.create));
+router.get('/', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.list));
+router.get('/:id', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.getOne));
 
-router.patch(
-  '/:id',
-  authorize('organization.edit'),
-  validateRequest(editOrganizationSchema),
-  asyncHandler(controller.update)
-);
-router.delete('/:id', authorize('organization.delete'), asyncHandler(controller.delete));
+router.patch('/:id', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(editOrganizationSchema), asyncHandler(controller.update));
+router.delete('/:id', authorize(PERMISSIONS.ORG_DELETE), asyncHandler(controller.delete));
 
-
-router.post(
-  '/:id/block',
-  authorize('organization.block'),
-  validateRequest(blockCustomerSchema),
-  asyncHandler(controller.block)
-);
-router.post('/:id/unblock', authorize('organization.block'), asyncHandler(controller.unblock));
+router.post('/:id/block', authorize(PERMISSIONS.ORG_BLOCK), validateRequest(blockCustomerSchema), asyncHandler(controller.block));
+router.post('/:id/unblock', authorize(PERMISSIONS.ORG_BLOCK), asyncHandler(controller.unblock));
 
 router.post(
   '/:id/reset-admin-password',
-  authorize('organization.reset_admin_password'),
+  authorize(PERMISSIONS.ORG_RESET_ADMIN_PASSWORD),
   validateRequest(resetOrganizationAdminPasswordSchema),
   asyncHandler(controller.setAdminPassword)
 );
 
-router.post('/:id/resend-invite', authorize('organization.resend_invite'), asyncHandler(controller.resendInvite));
-router.post('/:id/cancel-invite', authorize('organization.cancel_invite'), asyncHandler(controller.cancelInvite));
+router.post('/:id/resend-invite', authorize(PERMISSIONS.ORG_RESEND_INVITE), asyncHandler(controller.resendInvite));
+router.post('/:id/cancel-invite', authorize(PERMISSIONS.ORG_CANCEL_INVITE), asyncHandler(controller.cancelInvite));
 
 router.post(
   '/:id/upgrade-plan',
-  authorize('organization.upgrade_plan'),
+  authorize(PERMISSIONS.ORG_UPGRADE_PLAN),
   validateRequest(upgradePlanSchema),
   asyncHandler(controller.upgradePlan)
 );
 router.post(
   '/:id/assign-salesman',
-  authorize('organization.assign_salesman'),
+  authorize(PERMISSIONS.ORG_ASSIGN_SALESMAN),
   validateRequest(assignSalesmanSchema),
   asyncHandler(controller.assignSalesman)
 );
 
-router.post(
-  '/:id/contacts',
-  authorize('organization.edit'),
-  validateRequest(addContactPersonSchema),
-  asyncHandler(controller.addContactPerson)
-);
-router.get(
-  '/:id/contacts',
-  authorize('organization.view'),
-  asyncHandler(controller.listContactPersons)
-);
-router.get(
-  '/:id/contacts/:contactId',
-  authorize('organization.view'),
-  asyncHandler(controller.getContactPerson)
-);
-router.patch(
-  '/:id/contacts/:contactId',
-  authorize('organization.edit'),
-  validateRequest(editContactPersonSchema),
-  asyncHandler(controller.updateContactPerson)
-);
-router.delete(
-  '/:id/contacts/:contactId',
-  authorize('organization.edit'),
-  asyncHandler(controller.removeContactPerson)
-);
+router.post('/:id/contacts', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(addContactPersonSchema), asyncHandler(controller.addContactPerson));
+router.get('/:id/contacts', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.listContactPersons));
+router.get('/:id/contacts/:contactId', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.getContactPerson));
+router.patch('/:id/contacts/:contactId', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(editContactPersonSchema), asyncHandler(controller.updateContactPerson));
+router.delete('/:id/contacts/:contactId', authorize(PERMISSIONS.ORG_UPDATE), asyncHandler(controller.removeContactPerson));
 
 export default router;

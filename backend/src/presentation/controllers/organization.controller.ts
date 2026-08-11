@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../infrastructure/di/tokens';
 import { IOrganizationRepository } from '../../domain/repositories/organization.repository.interface';
-import { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { IAuditLogRepository } from '../../domain/repositories/audit-log.repository.interface';
 import { CreateOrganizationUseCase } from '../../application/organization/use-cases/create-organization.use-case';
 import { EditOrganizationUseCase } from '../../application/organization/use-cases/edit-organization.use-case';
@@ -30,15 +29,12 @@ export class OrganizationController {
     @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase,
     @inject(TOKENS.SetOrganizationAdminPasswordUseCase) private setOrganizationAdminPasswordUseCase: SetOrganizationAdminPasswordUseCase,
     @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: ResendInviteUseCase,
-    @inject(TOKENS.CancelInviteUseCase) private cancelInviteUseCase: CancelInviteUseCase,
-  ) { }
+    @inject(TOKENS.CancelInviteUseCase) private cancelInviteUseCase: CancelInviteUseCase
+  ) {}
 
   create = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-    const result = await this.createOrgUseCase.execute({
-      data: req.body,
-      adminId: req.user.userId,
-    });
+    const result = await this.createOrgUseCase.execute({ data: req.body, adminId: req.user.id });
     ApiResponse.created(res, result);
   };
 
@@ -61,88 +57,53 @@ export class OrganizationController {
   getOne = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.orgRepo.findById(req.params.id);
     if (!organization) throw new NotFoundError('Organization not found');
-
     const contactPersons = await this.orgRepo.listContactPersons(organization.id);
     ApiResponse.success(res, { ...organization, contactPersons });
   };
 
   update = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-
     const organization = await this.editOrgUseCase.execute({
       organizationId: req.params.id,
-      adminId: req.user.userId,
+      adminId: req.user.id,
       data: req.body,
     });
     ApiResponse.success(res, organization, 200, 'Organization updated');
   };
 
   setAdminPassword = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) {
-      throw new UnauthorizedError();
-    }
-
+    if (!req.user) throw new UnauthorizedError();
     await this.setOrganizationAdminPasswordUseCase.execute({
       organizationId: req.params.id,
       password: req.body.password,
-      adminId: req.user.userId,
+      adminId: req.user.id,
     });
-
     ApiResponse.success(res, null, 200, 'Organization admin password updated');
   };
 
   resendInvite = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) {
-      throw new UnauthorizedError();
-    }
-
-    await this.resendInviteUseCase.execute({
-      organizationId: req.params.id,
-      adminId: req.user.userId,
-    });
-
-    ApiResponse.success(
-      res,
-      null,
-      200,
-      'Invitation email resent successfully'
-    );
+    if (!req.user) throw new UnauthorizedError();
+    await this.resendInviteUseCase.execute({ organizationId: req.params.id, adminId: req.user.id });
+    ApiResponse.success(res, null, 200, 'Invitation email resent successfully');
   };
 
   cancelInvite = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) {
-      throw new UnauthorizedError();
-    }
-
-    await this.cancelInviteUseCase.execute({
-      organizationId: req.params.id,
-      adminId: req.user.userId,
-    });
-
-    ApiResponse.success(
-      res,
-      null,
-      200,
-      "Invitation cancelled successfully"
-    );
+    if (!req.user) throw new UnauthorizedError();
+    await this.cancelInviteUseCase.execute({ organizationId: req.params.id, adminId: req.user.id });
+    ApiResponse.success(res, null, 200, 'Invitation cancelled successfully');
   };
 
   delete = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-
-    await this.deleteOrgUseCase.execute({
-      organizationId: req.params.id,
-      adminId: req.user.userId,
-    });
+    await this.deleteOrgUseCase.execute({ organizationId: req.params.id, adminId: req.user.id });
     ApiResponse.success(res, null, 200, 'Organization deleted');
   };
-
 
   block = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
     const organization = await this.blockCustomerUseCase.execute({
       organizationId: req.params.id,
-      adminId: req.user.userId,
+      adminId: req.user.id,
       reason: req.body.reason,
     });
     ApiResponse.success(res, organization, 200, 'Organization blocked');
@@ -153,7 +114,6 @@ export class OrganizationController {
     if (!organization) throw new NotFoundError('Organization not found');
     ApiResponse.success(res, organization, 200, 'Organization unblocked');
   };
-
 
   upgradePlan = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.upgradePlanUseCase.execute({
@@ -173,17 +133,14 @@ export class OrganizationController {
 
   addContactPerson = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-
     const contact = await this.orgRepo.addContactPerson(req.params.id, req.body);
-
     await this.auditLogRepo.create({
-      adminId: req.user.userId,
+      adminId: req.user.id,
       action: 'ADD_CONTACT_PERSON',
       targetType: 'ContactPerson',
       targetId: contact.id,
       metadata: { organizationId: req.params.id, name: contact.name },
     });
-
     ApiResponse.created(res, contact);
   };
 
@@ -200,40 +157,29 @@ export class OrganizationController {
 
   updateContactPerson = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-
     const contact = await this.orgRepo.updateContactPerson(req.params.id, req.params.contactId, req.body);
     if (!contact) throw new NotFoundError('Contact person not found');
-
     await this.auditLogRepo.create({
-      adminId: req.user.userId,
+      adminId: req.user.id,
       action: 'EDIT_CONTACT_PERSON',
       targetType: 'ContactPerson',
       targetId: contact.id,
-      metadata: {
-        organizationId: req.params.id,
-        changes: req.body,
-      },
+      metadata: { organizationId: req.params.id, changes: req.body },
     });
-
     ApiResponse.success(res, contact, 200, 'Contact person updated');
   };
 
   removeContactPerson = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-
     const removed = await this.orgRepo.removeContactPerson(req.params.id, req.params.contactId);
     if (!removed) throw new NotFoundError('Contact person not found');
-
     await this.auditLogRepo.create({
-      adminId: req.user.userId,
+      adminId: req.user.id,
       action: 'REMOVE_CONTACT_PERSON',
       targetType: 'ContactPerson',
       targetId: req.params.contactId,
-      metadata: {
-        organizationId: req.params.id,
-      },
+      metadata: { organizationId: req.params.id },
     });
-
     ApiResponse.success(res, null, 200, 'Contact person removed');
   };
 }

@@ -67,7 +67,7 @@ export class FeatureController {
 
         data: req.body,
 
-        adminId: req.user.userId,
+        adminId: req.user.id,
 
       });
 
@@ -163,7 +163,7 @@ updateFeature = async (
         req.params.id,
 
       adminId:
-        req.user.userId,
+        req.user.id,
 
       data:
         req.body,
@@ -193,7 +193,7 @@ updateFeature = async (
         req.params.id,
 
       adminId:
-        req.user.userId,
+        req.user.id,
 
     });
 

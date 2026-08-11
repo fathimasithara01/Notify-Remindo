@@ -1,3 +1,4 @@
+// User.entity.ts
 export type UserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
 
 export interface User {
@@ -9,6 +10,7 @@ export interface User {
   lastName: string;
   roleId: string;
   status: UserStatus;
+  mustChangePassword: boolean;
   tokenVersion: number;
   lastLoginAt?: Date;
   inviteToken?: string;

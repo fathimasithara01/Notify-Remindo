@@ -2,62 +2,28 @@ import { Router } from 'express';
 import { container } from '../../infrastructure/di/container';
 import { TOKENS } from '../../infrastructure/di/tokens';
 import { UserController } from '../controllers/user.controller';
-import { requireAuth } from '../middlewares/require-auth.middleware';
+import { authenticate } from '../middlewares/require-auth.middleware';
 import { authorize } from '../middlewares/authorize.middleware';
 import { validateRequest } from '../middlewares/validate-request.middleware';
 import { createUserSchema, editUserSchema, assignRoleSchema } from '../validators/user.validator';
 import { asyncHandler } from '../../shared/utils/async-handler';
+import { PERMISSIONS } from '../../shared/constants/permissions.constant';
 
 const router = Router();
 const controller = container.resolve<UserController>(TOKENS.UserController);
 
-router.use(requireAuth);
+router.use(authenticate);
 
-router.post(
-  '/',
-  authorize('user.create'),
-  validateRequest(createUserSchema),
-  asyncHandler(controller.create)
-);
-router.get('/', authorize('user.view'), asyncHandler(controller.list));
-router.get('/:id', authorize('user.view'), asyncHandler(controller.getOne));
-router.patch(
-  '/:id',
-  authorize('user.edit'),
-  validateRequest(editUserSchema),
-  asyncHandler(controller.update)
-);
-router.delete('/:id', authorize('user.delete'), asyncHandler(controller.delete));
-
-router.post(
-  '/:id/revoke-sessions',
-  authorize('user.edit'),
-  asyncHandler(controller.revokeSessions)
-);
-
-router.post(
-  '/:id/resend-invite',
-  authorize('user.edit'),
-  asyncHandler(controller.resendInvite)
-);
-
-router.post(
-  '/:id/request-password-reset',
-  authorize('user.edit'),
-  asyncHandler(controller.requestPasswordReset)
-);
-
-router.get('/:id/roles', authorize('user.view'), asyncHandler(controller.getRoles));
-router.post(
-  '/:id/roles',
-  authorize('user.edit'),
-  validateRequest(assignRoleSchema),
-  asyncHandler(controller.assignRole)
-);
-router.delete(
-  '/:id/roles/:roleId',
-  authorize('user.edit'),
-  asyncHandler(controller.removeRole)
-);
+router.post('/', authorize(PERMISSIONS.USER_CREATE), validateRequest(createUserSchema), asyncHandler(controller.create));
+router.get('/', authorize(PERMISSIONS.USER_VIEW), asyncHandler(controller.list));
+router.get('/:id', authorize(PERMISSIONS.USER_VIEW), asyncHandler(controller.getOne));
+router.patch('/:id', authorize(PERMISSIONS.USER_UPDATE), validateRequest(editUserSchema), asyncHandler(controller.update));
+router.delete('/:id', authorize(PERMISSIONS.USER_DELETE), asyncHandler(controller.delete));
+router.post('/:id/revoke-sessions', authorize(PERMISSIONS.USER_UPDATE), asyncHandler(controller.revokeSessions));
+router.post('/:id/resend-invite', authorize(PERMISSIONS.USER_INVITE), asyncHandler(controller.resendInvite));
+router.post('/:id/request-password-reset', authorize(PERMISSIONS.USER_UPDATE), asyncHandler(controller.requestPasswordReset));
+// router.get('/:id/roles', authorize(PERMISSIONS.USER_VIEW), asyncHandler(controller.getRoles));
+// router.post('/:id/roles', authorize(PERMISSIONS.ROLE_ASSIGN), validateRequest(assignRoleSchema), asyncHandler(controller.assignRole));
+// router.delete('/:id/roles/:roleId', authorize(PERMISSIONS.ROLE_ASSIGN), asyncHandler(controller.removeRole));
 
 export default router;

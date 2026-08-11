@@ -49,7 +49,7 @@ export class SubscriptionPlanController {
     if (!req.user) throw new UnauthorizedError();
 
     const plan = await this.createSubscriptionPlanUseCase.execute({
-      adminId: req.user.userId,
+      adminId: req.user.id,
       data: req.body,
     });
 
@@ -85,7 +85,7 @@ export class SubscriptionPlanController {
 
     const updatedPlan = await this.updateSubscriptionPlanUseCase.execute({
       planId: req.params.id,
-      adminId: req.user.userId,
+      adminId: req.user.id,
       data: req.body,
     });
 
@@ -99,7 +99,7 @@ export class SubscriptionPlanController {
 
     await this.deleteSubscriptionPlanUseCase.execute({
       planId: req.params.id,
-      adminId: req.user.userId,
+      adminId: req.user.id,
     });
 
     ApiResponse.success(res, null, 200, "Subscription plan deleted successfully");

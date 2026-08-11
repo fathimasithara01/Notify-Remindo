@@ -6,7 +6,7 @@ import { requirePermission } from '../middlewares/requirePermission.middleware';
 import { PERMISSIONS } from '../../shared/constants/permissions.constant';
 import { createRoleSchema, editRoleSchema } from '../validators/role.validator';
 import { validateRequest } from '../middlewares/validate-request.middleware';
-import { authenticate } from '../middlewares/authenticate.middleware';
+import { authenticate } from '../middlewares/require-auth.middleware';
 
 const router = Router();
 const roleController = container.resolve<RoleController>(TOKENS.RoleController);

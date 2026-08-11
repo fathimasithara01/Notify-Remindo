@@ -2,15 +2,16 @@ import { Router } from 'express';
 import { container } from '../../infrastructure/di/container';
 import { TOKENS } from '../../infrastructure/di/tokens';
 import { DashboardController } from '../controllers/dashboard.controller';
-import { requireAuth } from '../middlewares/require-auth.middleware';
+import { authenticate } from '../middlewares/require-auth.middleware';
 import { authorize } from '../middlewares/authorize.middleware';
 import { asyncHandler } from '../../shared/utils/async-handler';
+import { PERMISSIONS } from '../../shared/constants/permissions.constant';
 
 const router = Router();
 const controller = container.resolve<DashboardController>(TOKENS.DashboardController);
 
-router.use(requireAuth);
+router.use(authenticate);
 
-router.get('/', authorize('dashboard.view'), asyncHandler(controller.getReport));
+router.get('/', authorize(PERMISSIONS.DASHBAORD_VIEW), asyncHandler(controller.getReport));
 
 export default router;

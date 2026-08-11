@@ -4,8 +4,9 @@ import { SubscriptionPlanController } from "../controllers/subscription.controll
 import { FeatureController } from "../controllers/feature.controller";
 import { PlanFeatureController } from "../controllers/plan-feature.controller";
 import { OrganizationSubscriptionController } from "../controllers/organization-subscription.controller";
-import { requireAuth } from "../middlewares/require-auth.middleware";
+import { authenticate } from "../middlewares/require-auth.middleware";
 import { authorize } from "../middlewares/authorize.middleware";
+import { PERMISSIONS } from "../../shared/constants/permissions.constant";
 
 const router = Router();
 
@@ -14,28 +15,29 @@ const featureController = container.resolve(FeatureController);
 const planFeatureController = container.resolve(PlanFeatureController);
 const organizationSubscriptionController = container.resolve(OrganizationSubscriptionController);
 
-router.post("/", requireAuth, authorize("plan.create"), subscriptionPlanController.createPlan);
-router.get("/", requireAuth, authorize("plan.view"), subscriptionPlanController.listPlans);
+router.use(authenticate);
 
-router.post("/features",requireAuth,authorize("plan.create"),featureController.createFeature);
-router.get( "/features",  requireAuth, authorize("plan.view"), featureController.listFeatures);
-router.get("/features/:id",requireAuth,authorize("plan.view"), featureController.getFeatureById);
-router.patch("/features/:id",requireAuth,authorize("plan.edit"),featureController.updateFeature);
-router.delete("/features/:id", requireAuth, authorize("plan.delete"), featureController.deleteFeature);
+router.post("/", authorize(PERMISSIONS.PLAN_CREATE), subscriptionPlanController.createPlan);
+router.get("/", authorize(PERMISSIONS.PLAN_VIEW), subscriptionPlanController.listPlans);
 
-router.post("/plans/:planId/features",requireAuth,authorize("plan.edit"),planFeatureController.addPlanFeature);
-router.get( "/plans/:planId/features", requireAuth, authorize("plan.view"), planFeatureController.listPlanFeatures);
-router.delete( "/plans/:planId/features/:featureId", requireAuth,  authorize("plan.edit"),  planFeatureController.removePlanFeature);
+router.post("/features", authorize(PERMISSIONS.PLAN_CREATE), featureController.createFeature);
+router.get("/features", authorize(PERMISSIONS.PLAN_VIEW), featureController.listFeatures);
+router.get("/features/:id", authorize(PERMISSIONS.PLAN_VIEW), featureController.getFeatureById);
+router.patch("/features/:id", authorize(PERMISSIONS.PLAN_UPDATE), featureController.updateFeature);
+router.delete("/features/:id", authorize(PERMISSIONS.PLAN_DELETE), featureController.deleteFeature);
 
-router.post( "/organization-subscriptions", requireAuth, authorize("subscription.create"), organizationSubscriptionController.createSubscription);
-router.get( "/organizations/:organizationId/subscriptions/active",requireAuth,authorize("subscription.view"),organizationSubscriptionController.getActiveSubscription);
-router.get( "/organizations/:organizationId/subscriptions", requireAuth, authorize("subscription.view"), organizationSubscriptionController.listSubscriptionHistory);
-router.patch("/organization-subscriptions/:id/renew",requireAuth,authorize("subscription.edit"),organizationSubscriptionController.renewSubscription);
-router.patch(  "/organization-subscriptions/:id/cancel",  requireAuth,  authorize("subscription.cancel"),  organizationSubscriptionController.cancelSubscription);
+router.post("/plans/:planId/features", authorize(PERMISSIONS.PLAN_UPDATE), planFeatureController.addPlanFeature);
+router.get("/plans/:planId/features", authorize(PERMISSIONS.PLAN_VIEW), planFeatureController.listPlanFeatures);
+router.delete("/plans/:planId/features/:featureId", authorize(PERMISSIONS.PLAN_UPDATE), planFeatureController.removePlanFeature);
 
+router.post("/organization-subscriptions", authorize(PERMISSIONS.SUBSCRIPTION_CREATE), organizationSubscriptionController.createSubscription);
+router.get("/organizations/:organizationId/subscriptions/active", authorize(PERMISSIONS.SUBSCRIPTION_VIEW), organizationSubscriptionController.getActiveSubscription);
+router.get("/organizations/:organizationId/subscriptions", authorize(PERMISSIONS.SUBSCRIPTION_VIEW), organizationSubscriptionController.listSubscriptionHistory);
+router.patch("/organization-subscriptions/:id/renew", authorize(PERMISSIONS.SUBSCRIPTION_UPDATE), organizationSubscriptionController.renewSubscription);
+router.patch("/organization-subscriptions/:id/cancel", authorize(PERMISSIONS.SUBSCRIPTION_CANCEL), organizationSubscriptionController.cancelSubscription);
 
-router.get("/:id", requireAuth, authorize("plan.view"), subscriptionPlanController.getPlanById);
-router.patch("/:id", requireAuth, authorize("plan.edit"), subscriptionPlanController.updatePlan);
-router.delete("/:id",requireAuth,authorize("plan.delete"),subscriptionPlanController.deletePlan);
+router.get("/:id", authorize(PERMISSIONS.PLAN_VIEW), subscriptionPlanController.getPlanById);
+router.patch("/:id", authorize(PERMISSIONS.PLAN_UPDATE), subscriptionPlanController.updatePlan);
+router.delete("/:id", authorize(PERMISSIONS.PLAN_DELETE), subscriptionPlanController.deletePlan);
 
 export default router;

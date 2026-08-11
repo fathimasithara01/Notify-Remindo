@@ -1,7 +1,7 @@
 export type OrganizationInviteMethod = 'email' | 'temp-password';
 
 export interface CreateOrganizationDto {
-  name: string;
+name:string
 
   businessEmail: string;
   businessPhone: string;
@@ -21,10 +21,10 @@ export interface CreateOrganizationDto {
 
   inviteMethod: OrganizationInviteMethod;
 
-  // Primary contact = initial Organization Admin
   admin: {
-    name: string;
+    firstName: string;
+      lastName:string;
+
     email: string;
-    phone?: string;
   };
 }

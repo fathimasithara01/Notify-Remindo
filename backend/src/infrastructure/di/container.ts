@@ -55,7 +55,7 @@ import { UserController } from '../../presentation/controllers/user.controller';
 import { AuditLogController } from '../../presentation/controllers/audit-log.controller';
 import { InviteController } from '../../presentation/controllers/invite.controller';
 import { S3FileStorageService } from '../storage/s3-file-storage.service';
-import { OrganizationDocumentController } from '../../presentation/controllers/organization-document.controller';
+// import { OrganizationDocumentController } from '../../presentation/controllers/organization-document.controller';
 import { PlanFeatureRepository } from '../database/repositories/plan-feature.repository';
 import { UpdateFeatureUseCase } from '../../application/subscription/use-cases/feature/update-feature.use-case';
 import { DeleteFeatureUseCase } from '../../application/subscription/use-cases/feature/delete-feature.use-case';
@@ -163,7 +163,7 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.UserController, UserController);
   container.registerSingleton(TOKENS.AuditLogController, AuditLogController);
   container.registerSingleton(TOKENS.InviteController, InviteController);
-  container.registerSingleton(TOKENS.OrganizationDocumentController, OrganizationDocumentController);
+  // container.registerSingleton(TOKENS.OrganizationDocumentController, OrganizationDocumentController);
 
 
   container.registerSingleton(TOKENS.PermissionResolver, PermissionResolver);

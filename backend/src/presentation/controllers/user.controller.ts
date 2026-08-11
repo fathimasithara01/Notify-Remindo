@@ -28,7 +28,7 @@ export class UserController {
     @inject(TOKENS.RevokeSessionsUseCase) private revokeSessionsUseCase: RevokeSessionsUseCase,
     @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: UserResendInviteUseCase,
     @inject(TOKENS.RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase
-  ) {}
+  ) { }
 
   create = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
@@ -60,7 +60,7 @@ export class UserController {
   };
 
   update = async (req: Request, res: Response): Promise<void> => {
-    const user = await this.editUserUseCase.execute({ id: req.params.id, ...req.body });
+    const user = await this.editUserUseCase.execute(req.params.id, req.body);
     ApiResponse.success(res, toSafeUser(user), 200, 'User updated');
   };
 

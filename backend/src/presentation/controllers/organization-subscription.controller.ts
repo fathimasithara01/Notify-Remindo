@@ -67,7 +67,7 @@ export class OrganizationSubscriptionController {
 
         data: req.body,
 
-        userId: req.user.userId,
+        userId: req.user.id,
 
       });
 
@@ -162,7 +162,7 @@ export class OrganizationSubscriptionController {
           req.params.id,
 
         userId:
-          req.user.userId,
+          req.user.id,
 
       });
 
@@ -191,7 +191,7 @@ export class OrganizationSubscriptionController {
           req.params.id,
 
         userId:
-          req.user.userId,
+          req.user.id,
 
         reason:
           req.body.reason,
