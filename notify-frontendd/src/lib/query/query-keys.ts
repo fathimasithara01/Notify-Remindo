@@ -33,10 +33,8 @@ export const queryKeys = {
         },
       ] as const,
 
-    // Base key for all organization detail queries
     details: () => ['organizations', 'detail'] as const,
 
-    // Specific organization detail
     detail: (id: string) =>
       [
         'organizations',
@@ -49,52 +47,46 @@ export const queryKeys = {
   },
 
   users: {
-    all: ['rbac', 'users'] as const,
-    lists: () => [...queryKeys.users.all, 'list'] as const,
+    all: () => ['rbac', 'users'] as const,
+    lists: () => [...queryKeys.users.all(), 'list'] as const,
     list: (filters: object) =>
       [...queryKeys.users.lists(), filters] as const,
-    details: () => [...queryKeys.users.all, 'detail'] as const,
+    details: () => [...queryKeys.users.all(), 'detail'] as const,
     detail: (id: string) => [...queryKeys.users.details(), id] as const,
     roles: (id: string) => [...queryKeys.users.detail(id), 'roles'] as const,
   },
+
   roles: {
-    all: ['rbac', 'roles'] as const,
-    lists: () => [...queryKeys.roles.all, 'list'] as const,
+    all: () => ['rbac', 'roles'] as const,
+    lists: () => [...queryKeys.roles.all(), 'list'] as const,
     list: (filters: object) =>
       [...queryKeys.roles.lists(), filters] as const,
-    details: () => [...queryKeys.roles.all, 'detail'] as const,
+    details: () => [...queryKeys.roles.all(), 'detail'] as const,
     detail: (id: string) => [...queryKeys.roles.details(), id] as const,
     permissions: (id: string) =>
       [...queryKeys.roles.detail(id), 'permissions'] as const,
   },
+
   permissions: {
-    all: ['rbac', 'permissions'] as const,
-    lists: () => [...queryKeys.permissions.all, 'list'] as const,
+    all: () => ['rbac', 'permissions'] as const,
+    lists: () => [...queryKeys.permissions.all(), 'list'] as const,
     list: (filters: object) =>
       [...queryKeys.permissions.lists(), filters] as const,
-    details: () => [...queryKeys.permissions.all, 'detail'] as const,
+    details: () => [...queryKeys.permissions.all(), 'detail'] as const,
     detail: (id: string) => [...queryKeys.permissions.details(), id] as const,
   },
 
   subscriptions: {
-    all: () =>
-      ["subscriptions"] as const,
+    all: () => ["subscriptions"] as const,
 
     plans: {
-      all: () =>
-        [
-          "subscriptions",
-          "plans",
-        ] as const,
+      all: () => ["subscriptions", "plans"] as const,
 
       list: (
         filters?: {
           page?: number;
           limit?: number;
-          status?:
-          | "active"
-          | "inactive"
-          | "draft";
+          status?: "active" | "inactive" | "draft";
           search?: string;
         }
       ) =>
@@ -111,20 +103,11 @@ export const queryKeys = {
         ] as const,
 
       detail: (id: string) =>
-        [
-          "subscriptions",
-          "plans",
-          "detail",
-          id,
-        ] as const,
+        ["subscriptions", "plans", "detail", id] as const,
     },
 
     features: {
-      all: () =>
-        [
-          "subscriptions",
-          "features",
-        ] as const,
+      all: () => ["subscriptions", "features"] as const,
 
       list: (
         filters?: {
@@ -147,39 +130,20 @@ export const queryKeys = {
         ] as const,
 
       detail: (id: string) =>
-        [
-          "subscriptions",
-          "features",
-          "detail",
-          id,
-        ] as const,
+        ["subscriptions", "features", "detail", id] as const,
     },
 
     planFeatures: {
-      all: () =>
-        [
-          "subscriptions",
-          "plan-features",
-        ] as const,
+      all: () => ["subscriptions", "plan-features"] as const,
 
       byPlan: (planId: string) =>
-        [
-          "subscriptions",
-          "plan-features",
-          planId,
-        ] as const,
+        ["subscriptions", "plan-features", planId] as const,
     },
 
     organizationSubscriptions: {
-      all: () =>
-        [
-          "subscriptions",
-          "organization-subscriptions",
-        ] as const,
+      all: () => ["subscriptions", "organization-subscriptions"] as const,
 
-      active: (
-        organizationId: string
-      ) =>
+      active: (organizationId: string) =>
         [
           "subscriptions",
           "organization-subscriptions",
@@ -202,42 +166,27 @@ export const queryKeys = {
           {
             page: filters?.page ?? 1,
             limit: filters?.limit ?? 10,
-            status:
-              filters?.status ?? "all",
+            status: filters?.status ?? "all",
           },
         ] as const,
     },
   },
 
   notifications: {
-    all: () =>
-      ['notifications'] as const,
+    all: () => ['notifications'] as const,
 
-    list: (
-      status: string,
-      page: number
-    ) =>
-      [
-        'notifications',
-        status,
-        page,
-      ] as const,
+    list: (status: string, page: number) =>
+      ['notifications', status, page] as const,
   },
 
   invites: {
-    all: () =>
-      ['invites'] as const,
+    all: () => ['invites'] as const,
   },
 
   audit: {
-    all: () =>
-      ['audit-logs'] as const,
+    all: () => ['audit-logs'] as const,
 
     list: (page: number) =>
-      [
-        'audit-logs',
-        'list',
-        page,
-      ] as const,
+      ['audit-logs', 'list', page] as const,
   },
 } as const;

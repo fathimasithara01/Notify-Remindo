@@ -4,7 +4,7 @@ import { createLoginRedirectUrl } from '@/lib/auth/redirect';
 
 const PROTECTED_PREFIX = '/super-admin';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get('accessToken')?.value;
   const isProtectedRoute = pathname.startsWith(PROTECTED_PREFIX);
