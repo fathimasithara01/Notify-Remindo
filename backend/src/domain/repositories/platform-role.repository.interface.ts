@@ -1,7 +1,7 @@
 import { Role, NewRole, RoleStatus } from '../entities/role.entity';
 import { PaginatedResult, PaginationParams } from "../../shared/utils/pagination";
 
-export interface IRoleRepository {
+export interface IPlatformRoleRepository {
   create(data: NewRole): Promise<Role>;
   findById(id: string): Promise<Role | null>;
   findByIds(ids: string[]): Promise<Role[]>;

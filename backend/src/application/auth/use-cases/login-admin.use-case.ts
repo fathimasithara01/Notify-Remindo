@@ -1,27 +1,30 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
-import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
-import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
+import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
 import { IHashService } from '../../../domain/services/hash.service.interface';
 import { ITokenService } from '../../../domain/services/token.service.interface';
 import { UnauthorizedError } from '../../../domain/errors/domain.error';
 import { LoginDto, LoginResult } from '../../dtos/login.dto';
+import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
 @injectable()
 export class LoginAdminUseCase {
   constructor(
-    @inject(TOKENS.UserRepository) private readonly userRepo: IUserRepository,
-    @inject(TOKENS.RoleRepository) private readonly roleRepo: IRoleRepository,
+    @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
+    @inject(TOKENS.PlatformRoleRepository) private readonly platformRoleRepo: IPlatformRoleRepository,
     @inject(TOKENS.HashService) private readonly hashService: IHashService,
     @inject(TOKENS.TokenService) private readonly tokenService: ITokenService
   ) {}
 
   async execute(data: LoginDto): Promise<LoginResult> {
-    const user = await this.userRepo.findByEmail(data.email, data.organizationId);
+    const user = await this.platformUserRepo.findByEmail(data.email);
     if (!user) throw new UnauthorizedError('Invalid email or password');
 
     if (user.status === 'invited') {
-      throw new UnauthorizedError('Please accept your invite and set a password before logging in');
+      throw new UnauthorizedError('Please accept your invite before logging in');
+    }
+    if (user.status === 'suspended') {
+      throw new UnauthorizedError('This account has been suspended. Contact an administrator.');
     }
     if (user.status === 'inactive') {
       throw new UnauthorizedError('This account has been deactivated');
@@ -35,7 +38,7 @@ export class LoginAdminUseCase {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    const role = await this.roleRepo.findById(user.roleId);
+    const role = await this.platformRoleRepo.findById(user.roleId);
     if (!role || role.status !== 'active' || role.deletion.isDeleted) {
       throw new UnauthorizedError('No active role assigned. Contact an administrator.');
     }
@@ -44,14 +47,13 @@ export class LoginAdminUseCase {
       userId: user.id,
       roleId: role.id,
       roleName: role.name,
-      organizationId: user.organizationId,
       tokenVersion: user.tokenVersion,
     };
 
     const accessToken = this.tokenService.signAccessToken(payload);
     const refreshToken = this.tokenService.signRefreshToken(payload);
 
-    await this.userRepo.update(user.id, { lastLoginAt: new Date() });
+    await this.platformUserRepo.update(user.id, { lastLoginAt: new Date() });
 
     return {
       accessToken,

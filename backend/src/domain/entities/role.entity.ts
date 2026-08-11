@@ -5,7 +5,6 @@ export interface Role {
   name: string;
   description?: string;
 
- organizationId?: string;
 permissionIds: string[];
 
   isSystem: boolean;

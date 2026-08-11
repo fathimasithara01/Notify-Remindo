@@ -3,6 +3,7 @@ import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IHashService } from '../../../domain/services/hash.service.interface';
 import { DomainError, NotFoundError, UnauthorizedError } from '../../../domain/errors/domain.error';
+import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
 
 export interface ChangePasswordDto {
   userId: string;
@@ -13,12 +14,12 @@ export interface ChangePasswordDto {
 @injectable()
 export class ChangePasswordUseCase {
   constructor(
-    @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
+    @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
     @inject(TOKENS.HashService) private hashService: IHashService
   ) {}
 
   async execute(data: ChangePasswordDto): Promise<void> {
-    const user = await this.userRepo.findById(data.userId);
+    const user = await this.platformUserRepo.findById(data.userId);
     if (!user) throw new NotFoundError('User not found');
 
     // Even for a forced first-change, we still require the current
@@ -38,7 +39,7 @@ export class ChangePasswordUseCase {
     // resetPassword() bumps tokenVersion internally, which invalidates
     // every other session — appropriate here since we're retiring a
     // temp/shared-knowledge password.
-    await this.userRepo.resetPassword(user.id, newPasswordHash);
-    await this.userRepo.update(user.id, { mustChangePassword: false });
+    await this.platformUserRepo.resetPassword(user.id, newPasswordHash);
+    await this.platformUserRepo.update(user.id, { mustChangePassword: false });
   }
 }

@@ -8,6 +8,7 @@ import { INotifierService } from '../../../domain/services/notifier.service.inte
 import { DomainError, NotFoundError } from '../../../domain/errors/domain.error';
 import { inviteEmailTemplate } from '../../../infrastructure/email-templates/invite-email.template';
 import { env } from '../../../config/env';
+import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
 
 const INVITE_TOKEN_TTL_HOURS = 24;
 
@@ -22,7 +23,9 @@ export class ResendInviteUseCase {
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
-    @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService
+    @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService,
+                @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
+    
   ) { }
 
   async execute(input: ResendInviteInput): Promise<void> {

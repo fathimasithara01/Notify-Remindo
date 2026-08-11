@@ -16,25 +16,10 @@ export class UserRepository implements IUserRepository {
     return doc ? this.toEntity(doc) : null;
   }
 
-  async findByEmail(email: string, organizationId?: string): Promise<User | null> {
-    const query: Record<string, unknown> = { email: email.toLowerCase() };
-    if (organizationId) query.organizationId = organizationId;
-    const doc = await UserModel.findOne(query);
-    return doc ? this.toEntity(doc) : null;
-  }
-
-  async findByInviteToken(token: string): Promise<User | null> {
+  async findByEmail(email: string, organizationId: string): Promise<User | null> {
     const doc = await UserModel.findOne({
-      inviteToken: token,
-      inviteTokenExpiresAt: { $gt: new Date() },
-    });
-    return doc ? this.toEntity(doc) : null;
-  }
-
-  async findByResetPasswordToken(token: string): Promise<User | null> {
-    const doc = await UserModel.findOne({
-      resetPasswordToken: token,
-      resetPasswordTokenExpiresAt: { $gt: new Date() },
+      email: email.toLowerCase().trim(),
+      organizationId,
     });
     return doc ? this.toEntity(doc) : null;
   }
@@ -98,14 +83,6 @@ export class UserRepository implements IUserRepository {
     };
   }
 
-  async findOneByOrganizationAndStatus(
-    organizationId: string,
-    status: UserStatus
-  ): Promise<User | null> {
-    const doc = await UserModel.findOne({ organizationId, status });
-    return doc ? this.toEntity(doc) : null;
-  }
-
   async cancelInvite(userId: string): Promise<boolean> {
     const res = await UserModel.deleteOne({ _id: userId, status: 'invited' });
     return res.deletedCount > 0;
@@ -114,6 +91,12 @@ export class UserRepository implements IUserRepository {
   async countByRoleId(roleId: string): Promise<number> {
     return UserModel.countDocuments({ roleId });
   }
+
+  async findOneByOrganizationAndStatus(organizationId: string, status: UserStatus): Promise<User | null> {
+    const doc = await UserModel.findOne({ organizationId, status });
+    return doc ? this.toEntity(doc) : null;
+  }
+
 
   private toEntity(doc: UserDocument): User {
     return {
@@ -133,7 +116,7 @@ export class UserRepository implements IUserRepository {
       resetPasswordTokenExpiresAt: doc.resetPasswordTokenExpiresAt,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
-      mustChangePassword:doc.mustChangePassword,
+      mustChangePassword: doc.mustChangePassword,
     };
   }
 }

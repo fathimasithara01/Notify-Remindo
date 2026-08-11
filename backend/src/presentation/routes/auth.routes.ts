@@ -16,18 +16,23 @@ router.post('/refresh-token', authRateLimiter, asyncHandler(controller.refreshTo
 
 router.get('/verify-invite-token/:token', asyncHandler(controller.verifyInviteToken));
 router.post(
-    '/accept-invite',
-    authRateLimiter,
-    validateRequest(acceptInviteSchema),
-    asyncHandler(controller.acceptInvite)
+  '/accept-invite',
+  authRateLimiter,
+  validateRequest(acceptInviteSchema),
+  asyncHandler(controller.acceptInvite)
 );
 
+router.post(
+  '/reset-password',
+  authRateLimiter,
+  validateRequest(resetPasswordSchema),
+  asyncHandler(controller.resetPassword)
+);
 
 // Protected
-router.post('/reset-password', authRateLimiter, authenticate, validateRequest(resetPasswordSchema), asyncHandler(controller.resetPassword));
 router.get('/me', authenticate, asyncHandler(controller.me));
 router.post('/logout', authenticate, asyncHandler(controller.logout));
 router.post('/logout-all-devices', authenticate, asyncHandler(controller.logoutAllDevices));
-router.post( '/change-password', authenticate, validateRequest(changePasswordSchema), asyncHandler(controller.changePassword));
+router.post('/change-password', authenticate, validateRequest(changePasswordSchema), asyncHandler(controller.changePassword));
 
 export default router;

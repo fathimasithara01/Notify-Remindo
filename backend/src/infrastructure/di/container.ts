@@ -4,7 +4,7 @@ import { TOKENS } from './tokens';
 
 // Repositories
 import { UserRepository } from '../database/repositories/user.repository';
-import { RoleRepository } from '../database/repositories/role.repository';
+import { PLatformRoleRepository } from '../database/repositories/platform-role.repository';
 import { OrganizationRepository } from '../database/repositories/organization.repository';
 import { SubscriptionPlanRepository } from '../database/repositories/subscription-plan.repository';
 import { FeatureRepository } from '../database/repositories/feature.repository';
@@ -87,7 +87,7 @@ import { PlatformUserController } from '../../presentation/controllers/platform-
 export function registerDependencies(): void {
   // Repositories
   container.registerSingleton(TOKENS.UserRepository, UserRepository);
-  container.registerSingleton(TOKENS.RoleRepository, RoleRepository);
+  container.registerSingleton(TOKENS.PlatformRoleRepository, PLatformRoleRepository);
   container.registerSingleton(TOKENS.OrganizationRepository, OrganizationRepository);
   container.registerSingleton(TOKENS.SubscriptionPlanRepository, SubscriptionPlanRepository);
   container.registerSingleton(TOKENS.FeatureRepository, FeatureRepository);

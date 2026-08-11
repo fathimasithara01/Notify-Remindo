@@ -1,4 +1,4 @@
-import { TokenPayload } from '../../domain/services/token.service.interface';
+import {  } from '../../domain/services/token.service.interface';
 
 declare global {
   namespace Express {
@@ -12,6 +12,3 @@ declare global {
     }
   }
 }
-export {};
-
-export { };

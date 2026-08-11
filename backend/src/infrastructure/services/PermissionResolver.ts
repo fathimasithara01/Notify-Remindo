@@ -2,7 +2,7 @@ import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../di/tokens';
 import { IPermissionResolver } from '../../domain/services/IPermissionResolver';
 import { Permission } from '../../shared/constants/permissions.constant';
-import { IRoleRepository } from '../../domain/repositories/role.repository.interface';
+import { IPlatformRoleRepository } from '../../domain/repositories/platform-role.repository.interface';
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -15,7 +15,7 @@ interface CacheEntry {
 export class PermissionResolver implements IPermissionResolver {
   private cache = new Map<string, CacheEntry>();
 
-  constructor(@inject(TOKENS.RoleRepository) private roleRepository: IRoleRepository) {}
+  constructor(@inject(TOKENS.PlatformRoleRepository) private roleRepository: IPlatformRoleRepository) {}
 
   async resolve(roleId: string): Promise<Set<Permission>> {
     const cached = this.cache.get(roleId);

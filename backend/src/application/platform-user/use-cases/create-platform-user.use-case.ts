@@ -1,10 +1,11 @@
+import { PLatformRoleRepository } from './../../../infrastructure/database/repositories/platform-role.repository';
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
-import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { IHashService } from '../../../domain/services/hash.service.interface';
 import { PlatformUser } from '../../../domain/entities/platformUser.entity';
 import { ConflictError, NotFoundError } from '../../../domain/errors/domain.error';
+import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
 interface CreatePlatformUserInput {
   firstName: string;
@@ -26,7 +27,7 @@ function generateTempPassword(): string {
 export class CreatePlatformUserUseCase {
   constructor(
     @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
-    @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
+    @inject(TOKENS.PlatformRoleRepository) private roleRepo: IPlatformRoleRepository,
     @inject(TOKENS.HashService) private hashService: IHashService
   ) {}
 

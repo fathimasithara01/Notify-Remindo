@@ -1,8 +1,8 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { ALL_PERMISSIONS } from '../../../shared/constants/permissions.constant';
-import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { NewRole, Role } from '../../../domain/entities/role.entity';
+import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
 interface CreateRoleInput {
   name: string;
@@ -14,7 +14,7 @@ interface CreateRoleInput {
 
 @injectable()
 export class CreateRoleUseCase {
-  constructor(@inject(TOKENS.RoleRepository) private roleRepository: IRoleRepository) {}
+  constructor(@inject(TOKENS.PlatformRoleRepository) private roleRepository: IPlatformRoleRepository) {}
 
   async execute(input: CreateRoleInput): Promise<Role> {
     const invalid = input.permissionIds.filter((p) => !ALL_PERMISSIONS.includes(p as any));
@@ -25,7 +25,6 @@ export class CreateRoleUseCase {
     const newRole: NewRole = {
       name: input.name,
       description: input.description,
-      organizationId: input.organizationId,
       permissionIds: input.permissionIds,
       status: 'active',
       createdBy: input.createdBy,

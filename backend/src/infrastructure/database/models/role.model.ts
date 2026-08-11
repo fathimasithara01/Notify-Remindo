@@ -4,7 +4,6 @@ import { RoleStatus } from '../../../domain/entities/role.entity';
 export interface RoleDocument extends Document {
   name: string;
   description?: string;
-  organizationId?: Types.ObjectId;
   permissionIds: string[];
   isSystem: boolean;
   status: RoleStatus;
@@ -22,7 +21,6 @@ const roleSchema = new Schema<RoleDocument>(
   {
     name: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
-    organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', index: true },
     permissionIds: { type: [String], default: [] },
     isSystem: { type: Boolean, default: false },
     status: { type: String, enum: ['active', 'inactive'], default: 'active', index: true },

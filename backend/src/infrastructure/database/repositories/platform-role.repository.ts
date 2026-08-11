@@ -1,11 +1,11 @@
 import { injectable } from 'tsyringe';
-import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { Role, NewRole, RoleStatus } from '../../../domain/entities/role.entity';
 import { RoleModel, RoleDocument } from '../models/role.model';
-import { buildPaginatedResult, getOffset, PaginatedResult, paginationMeta, PaginationParams } from '../../../shared/utils/pagination';
+import { buildPaginatedResult, getOffset, PaginatedResult, PaginationParams } from '../../../shared/utils/pagination';
+import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
 @injectable()
-export class RoleRepository implements IRoleRepository {
+export class PLatformRoleRepository implements IPlatformRoleRepository {
   async create(data: NewRole): Promise<Role> {
     const doc = await RoleModel.create(data);
     return this.toEntity(doc);
@@ -78,7 +78,6 @@ export class RoleRepository implements IRoleRepository {
       id: doc._id.toString(),
       name: doc.name,
       description: doc.description,
-      organizationId: doc.organizationId?.toString(),
       permissionIds: doc.permissionIds,
       isSystem: doc.isSystem,
       status: doc.status,

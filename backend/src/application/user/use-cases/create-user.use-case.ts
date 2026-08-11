@@ -1,7 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
-import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
 import { INotifierService } from '../../../domain/services/notifier.service.interface';
 import { User } from '../../../domain/entities/user.entity';
@@ -9,6 +8,7 @@ import { ConflictError, DomainError, NotFoundError } from '../../../domain/error
 import { CreateUserDto } from '../../dtos/create-user.dto';
 import { generateInviteToken, getInviteExpiry } from '../../../shared/utils/token-generator';
 import { env } from '../../../config/env';
+import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
 export interface CreateUserInput {
   data: CreateUserDto;
@@ -25,7 +25,7 @@ export interface CreateUserResult {
 export class CreateUserUseCase {
   constructor(
     @inject(TOKENS.UserRepository) private readonly userRepo: IUserRepository,
-    @inject(TOKENS.RoleRepository) private readonly roleRepo: IRoleRepository,
+    @inject(TOKENS.PlatformRoleRepository) private readonly roleRepo: IPlatformRoleRepository,
     @inject(TOKENS.AuditLogRepository) private readonly auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.EmailNotifierService) private readonly notifierService: INotifierService
   ) {}

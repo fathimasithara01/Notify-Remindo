@@ -18,4 +18,6 @@ export interface IPlatformUserRepository {
 
   assignRole(userId: string, roleId: string): Promise<void>;
   countByRoleId(roleId: string): Promise<number>;
+    findByInviteToken(token: string): Promise<PlatformUser | null>;
+    findByResetPasswordToken(token: string): Promise<PlatformUser | null>;
 }

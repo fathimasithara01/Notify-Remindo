@@ -1,8 +1,8 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IPermissionResolver } from '../../../domain/services/IPermissionResolver';
-import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
+import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
 interface DeleteRoleInput {
   id: string;
@@ -12,7 +12,7 @@ interface DeleteRoleInput {
 @injectable()
 export class DeleteRoleUseCase {
   constructor(
-    @inject(TOKENS.RoleRepository) private roleRepository: IRoleRepository,
+    @inject(TOKENS.PlatformRoleRepository) private roleRepository: IPlatformRoleRepository,
     @inject(TOKENS.UserRepository) private userRepository: IUserRepository,
     @inject(TOKENS.PermissionResolver) private permissionResolver: IPermissionResolver
   ) {}

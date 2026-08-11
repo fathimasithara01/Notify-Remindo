@@ -1,4 +1,3 @@
-// User.entity.ts
 export type UserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
 
 export interface User {

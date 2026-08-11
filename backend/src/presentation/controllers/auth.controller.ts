@@ -43,7 +43,6 @@ export class AuthController {
 
   ) { }
 
-
   private setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
     res.cookie('accessToken', accessToken, ACCESS_TOKEN_COOKIE);
     res.cookie('refreshToken', refreshToken, REFRESH_TOKEN_COOKIE);

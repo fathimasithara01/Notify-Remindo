@@ -12,14 +12,12 @@ export interface OrganizationAdminSummary {
 export interface IUserRepository {
   create(data: NewUser): Promise<User>;
   findById(id: string): Promise<User | null>;
-  findByEmail(email: string, organizationId?: string): Promise<User | null>;
-  findByInviteToken(token: string): Promise<User | null>;
-  findByResetPasswordToken(token: string): Promise<User | null>;
+  findByEmail(email: string, organizationId: string): Promise<User | null>;
   update(id: string, data: Partial<NewUser>): Promise<User | null>;
   resetPassword(userId: string, passwordHash: string): Promise<boolean>;
   delete(id: string): Promise<boolean>;
 
-  list(filter: {
+  list(filter?: {
     status?: UserStatus;
     organizationId?: string;
     internalOnly?: boolean;

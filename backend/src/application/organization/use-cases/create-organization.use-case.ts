@@ -6,7 +6,6 @@ import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IOrganizationRepository } from '../../../domain/repositories/organization.repository.interface';
 import { ISubscriptionPlanRepository } from '../../../domain/repositories/subscription-plan.repository.interface';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
-import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
 import { IOrganizationSubscriptionRepository } from '../../../domain/repositories/organization-subscription.repository.interface';
 import { IHashService } from '../../../domain/services/hash.service.interface';
@@ -22,6 +21,7 @@ import { CreateOrganizationDto } from '../../dtos/organization/create-organizati
 import { inviteEmailTemplate } from '../../../infrastructure/email-templates/invite-email.template';
 import { generateTempPassword } from '../../../shared/utils/password-generator';
 import { env } from '../../../config/env';
+import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
 const INVITE_TOKEN_TTL_HOURS = 24;
 const ORG_ADMIN_ROLE_NAME = 'Org Admin';
@@ -45,12 +45,12 @@ export class CreateOrganizationUseCase {
     @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
     @inject(TOKENS.SubscriptionPlanRepository) private planRepo: ISubscriptionPlanRepository,
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
-    @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
+    @inject(TOKENS.PlatformRoleRepository) private platformRoleRepo: IPlatformRoleRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService,
     @inject(TOKENS.HashService) private hashService: IHashService,
     @inject(TOKENS.OrganizationSubscriptionRepository) private readonly organizationSubscriptionRepository: IOrganizationSubscriptionRepository
-  ) { }
+  ) {}
 
   async execute(input: CreateOrganizationInput): Promise<CreateOrganizationResult> {
     const { data, adminId } = input;
@@ -60,12 +60,7 @@ export class CreateOrganizationUseCase {
       throw new DomainError('Selected subscription plan is not available');
     }
 
-    const existingUser = await this.userRepo.findByEmail(data.admin.email);
-    if (existingUser) {
-      throw new DomainError(`An account already exists for ${data.admin.email}.`);
-    }
-
-    const orgAdminRole = await this.roleRepo.findByName(ORG_ADMIN_ROLE_NAME);
+    const orgAdminRole = await this.platformRoleRepo.findByName(ORG_ADMIN_ROLE_NAME);
     if (!orgAdminRole) {
       throw new DomainError('Org Admin role not found — ensure roles are seeded');
     }

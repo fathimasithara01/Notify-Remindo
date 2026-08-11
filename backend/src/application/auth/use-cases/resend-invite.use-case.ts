@@ -1,49 +1,50 @@
-import crypto from 'crypto';
-import { injectable, inject } from 'tsyringe';
-import { TOKENS } from '../../../infrastructure/di/tokens';
-import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
-import { IOrganizationRepository } from '../../../domain/repositories/organization.repository.interface';
-import { INotifierService } from '../../../domain/services/notifier.service.interface';
-import { DomainError, NotFoundError } from '../../../domain/errors/domain.error';
-import { env } from '../../../config/env';
+// import crypto from 'crypto';
+// import { injectable, inject } from 'tsyringe';
+// import { TOKENS } from '../../../infrastructure/di/tokens';
+// import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
+// import { IOrganizationRepository } from '../../../domain/repositories/organization.repository.interface';
+// import { INotifierService } from '../../../domain/services/notifier.service.interface';
+// import { DomainError, NotFoundError } from '../../../domain/errors/domain.error';
+// import { env } from '../../../config/env';
+// import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
 
-const INVITE_TOKEN_TTL_HOURS = 24;
+// const INVITE_TOKEN_TTL_HOURS = 24;
 
-@injectable()
-export class ResendInviteUseCase {
-    constructor(
-        @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
-        @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
-        @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService
-    ) { }
+// @injectable()
+// export class ResendInviteUseCase {
+//     constructor(
+//     @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
+//         @inject(TOKENS.OrganizationRepository) private orgRepo: IOrganizationRepository,
+//         @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService
+//     ) { }
 
-    async execute(organizationId: string): Promise<void> {
-        const organization = await this.orgRepo.findById(organizationId);
-        if (!organization) {
-            throw new NotFoundError('Organization not found');
-        }
+//     async execute(organizationId: string): Promise<void> {
+//         const organization = await this.orgRepo.findById(organizationId);
+//         if (!organization) {
+//             throw new NotFoundError('Organization not found');
+//         }
 
-        const orgAdminUser = await this.userRepo.findOneByOrganizationAndStatus(
-            organizationId,
-            'invited'
-        );
+//         const orgAdminUser = await this.platformUserRepo.findOneByOrganizationAndStatus(
+//             organizationId,
+//             'invited'
+//         );
 
-        if (!orgAdminUser) {
-            throw new DomainError(
-                'No pending invite found for this organization — the admin account may already be active.'
-            );
-        }
+//         if (!orgAdminUser) {
+//             throw new DomainError(
+//                 'No pending invite found for this organization — the admin account may already be active.'
+//             );
+//         }
 
-        const inviteToken = crypto.randomBytes(32).toString('hex');
-        const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
+//         const inviteToken = crypto.randomBytes(32).toString('hex');
+//         const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
 
-        await this.userRepo.update(orgAdminUser.id, { inviteToken, inviteTokenExpiresAt });
+//         await this.platformUserRepo.update(orgAdminUser.id, { inviteToken, inviteTokenExpiresAt });
 
-        const inviteUrl = `${env.FRONTEND_URL}/accept-invite/${inviteToken}`;
-        await this.emailNotifier.send({
-            to: orgAdminUser.email,
-            subject: `Reminder: set up your Notify account for ${organization.name}`,
-            message: `Set your password to get started: ${inviteUrl} (link expires in ${INVITE_TOKEN_TTL_HOURS} hours).`,
-        });
-    }
-}
+//         const inviteUrl = `${env.FRONTEND_URL}/accept-invite/${inviteToken}`;
+//         await this.emailNotifier.send({
+//             to: orgAdminUser.email,
+//             subject: `Reminder: set up your Notify account for ${organization.name}`,
+//             message: `Set your password to get started: ${inviteUrl} (link expires in ${INVITE_TOKEN_TTL_HOURS} hours).`,
+//         });
+//     }
+// }

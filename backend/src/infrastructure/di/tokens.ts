@@ -1,7 +1,7 @@
 export const TOKENS = {
   // Repositories (interfaces)
   UserRepository: Symbol('UserRepository'),
-  RoleRepository: Symbol('RoleRepository'),
+  PlatformRoleRepository: Symbol('RoleRepository'),
   OrganizationRepository: Symbol('OrganizationRepository'),
   SubscriptionPlanRepository: Symbol('SubscriptionPlanRepository'),
   FeatureRepository: Symbol('FeatureRepository'),

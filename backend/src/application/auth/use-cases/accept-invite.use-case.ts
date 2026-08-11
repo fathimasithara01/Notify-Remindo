@@ -1,11 +1,11 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
-import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
-import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { IHashService } from '../../../domain/services/hash.service.interface';
 import { ITokenService } from '../../../domain/services/token.service.interface';
 import { DomainError } from '../../../domain/errors/domain.error';
 import { LoginResult } from '../../dtos/login.dto';
+import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
+import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
 export interface AcceptInviteDto {
   token: string;
@@ -15,14 +15,14 @@ export interface AcceptInviteDto {
 @injectable()
 export class AcceptInviteUseCase {
   constructor(
-    @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
-    @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
+    @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
+    @inject(TOKENS.PlatformRoleRepository) private platformRoleRepo: IPlatformRoleRepository,
     @inject(TOKENS.HashService) private hashService: IHashService,
     @inject(TOKENS.TokenService) private tokenService: ITokenService
   ) {}
 
   async execute(data: AcceptInviteDto): Promise<LoginResult> {
-    const user = await this.userRepo.findByInviteToken(data.token);
+    const user = await this.platformUserRepo.findByInviteToken(data.token);
     if (!user || user.status !== 'invited') {
       throw new DomainError('This invite link is invalid or has already been used.');
     }
@@ -32,7 +32,7 @@ export class AcceptInviteUseCase {
 
     const passwordHash = await this.hashService.hash(data.password);
 
-    const updated = await this.userRepo.update(user.id, {
+    const updated = await this.platformUserRepo.update(user.id, {
       passwordHash,
       status: 'active',
       inviteToken: undefined,
@@ -40,14 +40,13 @@ export class AcceptInviteUseCase {
     });
     if (!updated) throw new DomainError('Failed to activate account. Please try again.');
 
-    const role = await this.roleRepo.findById(updated.roleId);
+    const role = await this.platformRoleRepo.findById(updated.roleId);
     if (!role) throw new DomainError('Failed to activate account. Please try again.');
 
     const payload = {
       userId: updated.id,
       roleId: role.id,
       roleName: role.name,
-      organizationId: updated.organizationId,
       tokenVersion: updated.tokenVersion,
     };
 
