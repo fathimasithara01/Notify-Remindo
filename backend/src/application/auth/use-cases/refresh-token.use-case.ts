@@ -1,6 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
+import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { ITokenService } from '../../../domain/services/token.service.interface';
 import { UnauthorizedError } from '../../../domain/errors/domain.error';
 
@@ -13,8 +14,9 @@ export interface RefreshTokenResult {
 export class RefreshTokenUseCase {
   constructor(
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
+    @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
     @inject(TOKENS.TokenService) private tokenService: ITokenService
-  ) { }
+  ) {}
 
   async execute(refreshToken: string): Promise<RefreshTokenResult> {
     let payload;
@@ -33,15 +35,15 @@ export class RefreshTokenUseCase {
       throw new UnauthorizedError('Session has been revoked. Please log in again.');
     }
 
-    const roles = await this.userRepo.findById(user.id);
-    if (!roles) {
+    const role = await this.roleRepo.findById(user.roleId);
+    if (!role || role.status !== 'active') {
       throw new UnauthorizedError('No active role assigned');
     }
 
     const newPayload = {
       userId: user.id,
-      roleId: roles.id,
-      roleNames: roles.name,
+      roleId: role.id,
+      roleName: role.name,
       organizationId: user.organizationId,
       tokenVersion: user.tokenVersion,
     };

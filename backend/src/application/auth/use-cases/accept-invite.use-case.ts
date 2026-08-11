@@ -1,6 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
+import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
 import { IHashService } from '../../../domain/services/hash.service.interface';
 import { ITokenService } from '../../../domain/services/token.service.interface';
 import { DomainError } from '../../../domain/errors/domain.error';
@@ -15,16 +16,16 @@ export interface AcceptInviteDto {
 export class AcceptInviteUseCase {
   constructor(
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
+    @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
     @inject(TOKENS.HashService) private hashService: IHashService,
     @inject(TOKENS.TokenService) private tokenService: ITokenService
-  ) { }
+  ) {}
 
   async execute(data: AcceptInviteDto): Promise<LoginResult> {
     const user = await this.userRepo.findByInviteToken(data.token);
     if (!user || user.status !== 'invited') {
       throw new DomainError('This invite link is invalid or has already been used.');
     }
-
     if (!user.inviteTokenExpiresAt || user.inviteTokenExpiresAt.getTime() < Date.now()) {
       throw new DomainError('This invite link has expired. Ask an admin to resend it.');
     }
@@ -34,21 +35,18 @@ export class AcceptInviteUseCase {
     const updated = await this.userRepo.update(user.id, {
       passwordHash,
       status: 'active',
-      inviteToken: null,
-      inviteTokenExpiresAt: null,
+      inviteToken: undefined,
+      inviteTokenExpiresAt: undefined,
     });
+    if (!updated) throw new DomainError('Failed to activate account. Please try again.');
 
-    if (!updated) {
-      throw new DomainError('Failed to activate account. Please try again.');
-    }
+    const role = await this.roleRepo.findById(updated.roleId);
+    if (!role) throw new DomainError('Failed to activate account. Please try again.');
 
-    const roles = await this.userRepo.findById(updated.id);
-    if (!roles) {
-      throw new DomainError('Failed to activate account. Please try again.');
-    }
     const payload = {
       userId: updated.id,
-      roleId: roles.id,
+      roleId: role.id,
+      roleName: role.name,
       organizationId: updated.organizationId,
       tokenVersion: updated.tokenVersion,
     };
@@ -58,10 +56,9 @@ export class AcceptInviteUseCase {
       refreshToken: this.tokenService.signRefreshToken(payload),
       user: {
         id: updated.id,
-        name: updated.name,
+        name: `${updated.firstName} ${updated.lastName}`,
         email: updated.email,
-        role: roles.name,
-        mustChangePassword: true,
+        role: role.name,
       },
     };
   }

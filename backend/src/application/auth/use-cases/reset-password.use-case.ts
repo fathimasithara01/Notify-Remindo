@@ -14,7 +14,7 @@ export class ResetPasswordUseCase {
   constructor(
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.HashService) private hashService: IHashService
-  ) {}
+  ) { }
 
   async execute(data: ResetPasswordDto): Promise<void> {
     const user = await this.userRepo.findByResetPasswordToken(data.token);
@@ -33,8 +33,8 @@ export class ResetPasswordUseCase {
     // signed out everywhere. Correct behavior for a credential reset.
     await this.userRepo.resetPassword(user.id, passwordHash);
     await this.userRepo.update(user.id, {
-      resetPasswordToken: null,
-      resetPasswordTokenExpiresAt: null,
+      resetPasswordToken: undefined,
+      resetPasswordTokenExpiresAt: undefined,
     });
   }
 }

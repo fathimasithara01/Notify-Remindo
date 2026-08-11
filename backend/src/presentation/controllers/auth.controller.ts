@@ -63,9 +63,6 @@ export class AuthController {
       currentPassword: req.body.currentPassword,
       newPassword: req.body.newPassword,
     });
-    // tokenVersion just bumped server-side (inside resetPassword), so the
-    // access token this request came in on is now stale for future calls —
-    // clear cookies and make the frontend redirect to login.
     res.clearCookie('accessToken', baseCookieOptions);
     res.clearCookie('refreshToken', baseCookieOptions);
     ApiResponse.success(res, null, 200, 'Password changed. Please log in again.');
