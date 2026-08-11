@@ -11,6 +11,7 @@ export interface LoginResult {
     id: string;
     name: string;
     email: string;
-    role: string; 
+    role: string;
+    permissions: string[];
   };
 }

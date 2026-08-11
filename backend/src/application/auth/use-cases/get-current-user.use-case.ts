@@ -19,12 +19,14 @@ export class GetCurrentUserUseCase {
     @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
     @inject(TOKENS.PlatformRoleRepository) private readonly platformRoleRepo: IPlatformRoleRepository,
     @inject(TOKENS.PermissionResolver) private readonly permissionResolver: IPermissionResolver
-  ) {}
+  ) { }
 
   async execute(userId: string): Promise<CurrentUserResult> {
     const user = await this.platformUserRepo.findById(userId);
     if (!user) throw new UnauthorizedError('User no longer exists');
-
+    if (user.status === 'suspended' || user.status === 'inactive') {
+      throw new UnauthorizedError('This account is no longer active');
+    }
     const role = await this.platformRoleRepo.findById(user.roleId);
     if (!role || role.status !== 'active' || role.deletion.isDeleted) {
       throw new UnauthorizedError('No active role assigned');

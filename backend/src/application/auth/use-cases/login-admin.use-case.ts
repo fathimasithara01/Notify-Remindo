@@ -6,6 +6,7 @@ import { ITokenService } from '../../../domain/services/token.service.interface'
 import { UnauthorizedError } from '../../../domain/errors/domain.error';
 import { LoginDto, LoginResult } from '../../dtos/login.dto';
 import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
+import { IPermissionResolver } from '../../../domain/services/IPermissionResolver';
 
 @injectable()
 export class LoginAdminUseCase {
@@ -13,7 +14,8 @@ export class LoginAdminUseCase {
     @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
     @inject(TOKENS.PlatformRoleRepository) private readonly platformRoleRepo: IPlatformRoleRepository,
     @inject(TOKENS.HashService) private readonly hashService: IHashService,
-    @inject(TOKENS.TokenService) private readonly tokenService: ITokenService
+    @inject(TOKENS.TokenService) private readonly tokenService: ITokenService,
+    @inject(TOKENS.PermissionResolver) private readonly permissionResolver: IPermissionResolver
   ) {}
 
   async execute(data: LoginDto): Promise<LoginResult> {
@@ -43,6 +45,8 @@ export class LoginAdminUseCase {
       throw new UnauthorizedError('No active role assigned. Contact an administrator.');
     }
 
+    const permissions = await this.permissionResolver.resolve(role.id);
+
     const payload = {
       userId: user.id,
       roleId: role.id,
@@ -63,6 +67,7 @@ export class LoginAdminUseCase {
         name: `${user.firstName} ${user.lastName}`,
         email: user.email,
         role: role.name,
+        permissions: Array.from(permissions),
       },
     };
   }
