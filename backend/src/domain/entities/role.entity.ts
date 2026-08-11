@@ -2,20 +2,33 @@ export type RoleStatus = 'active' | 'inactive';
 
 export interface Role {
   id: string;
-  name: string; 
-  slug: string; 
+  name: string;
   description?: string;
+
+ organizationId?: string;
+permissionIds: string[];
+
   isSystem: boolean;
   status: RoleStatus;
-  deletedAt?: Date | null;
+
+  createdBy: string;
+
+  deletion: {
+    isDeleted: boolean;
+    deletedBy?: string;
+    deletedAt?: Date;
+  };
+  
+
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type NewRole = Omit<Role, 'id' | 'createdAt' | 'updatedAt' | 'isSystem'> & {
+export type NewRole = Omit<Role, "id" | "createdAt" | "updatedAt" | "isSystem" | "deletion"> & {
   isSystem?: boolean;
+  deletion?: {
+    isDeleted?: boolean;
+    deletedBy?: string;
+    deletedAt?: Date;
+  };
 };
-
-export interface RoleWithPermissions extends Role {
-  permissions: string[];  
-}

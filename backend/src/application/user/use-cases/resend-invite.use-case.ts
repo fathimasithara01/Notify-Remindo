@@ -50,8 +50,8 @@ export class UserResendInviteUseCase {
       await this.notifierService.send({
         to: user.email,
         subject: "You've been invited to Notify",
-        message: `Hi ${user.name}, click the link to set your password: ${inviteUrl}`,
-        html: `<p>Hi ${user.name},</p><p>Click below to set your password:</p><p><a href="${inviteUrl}">${inviteUrl}</a></p><p>This link expires in 7 days.</p>`,
+        message: `Hi ${user.firstName}, click the link to set your password: ${inviteUrl}`,
+        html: `<p>Hi ${user.firstName, user.lastName},</p><p>Click below to set your password:</p><p><a href="${inviteUrl}">${inviteUrl}</a></p><p>This link expires in 7 days.</p>`,
       });
     } catch (error) {
       emailSent = false;

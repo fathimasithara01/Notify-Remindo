@@ -1,261 +1,136 @@
 import { injectable } from 'tsyringe';
-import { Types } from 'mongoose';
 import { IUserRepository, OrganizationAdminSummary } from '../../../domain/repositories/user.repository.interface';
-import { User, NewUser } from '../../../domain/entities/user.entity';
-import { UserRoleAssignment } from '../../../domain/entities/user-role.entity';
+import { User, NewUser, UserStatus } from '../../../domain/entities/user.entity';
 import { UserModel, UserDocument } from '../models/user.model';
-import { UserRoleModel } from '../models/user-role.model';
-import { RoleModel } from '../models/role.model';
-import { getOffset, PaginatedResult, paginationMeta } from '../../../shared/utils/pagination';
+import { PaginatedResult, buildPaginatedResult, getOffset } from '../../../shared/utils/pagination';
 
 @injectable()
 export class UserRepository implements IUserRepository {
-
   async create(data: NewUser): Promise<User> {
     const doc = await UserModel.create(data);
-    return this.toDomain(doc);
+    return this.toEntity(doc);
   }
 
   async findById(id: string): Promise<User | null> {
-    const doc = await UserModel.findOne({ _id: id, deletedAt: null });
-    return doc ? this.toDomain(doc) : null;
+    const doc = await UserModel.findById(id);
+    return doc ? this.toEntity(doc) : null;
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    const doc = await UserModel.findOne({ email, deletedAt: null });
-    return doc ? this.toDomain(doc) : null;
+  async findByEmail(email: string, organizationId?: string): Promise<User | null> {
+    const query: Record<string, unknown> = { email: email.toLowerCase() };
+    if (organizationId) query.organizationId = organizationId;
+    const doc = await UserModel.findOne(query);
+    return doc ? this.toEntity(doc) : null;
   }
 
   async findByInviteToken(token: string): Promise<User | null> {
-    const doc = await UserModel.findOne({ inviteToken: token, deletedAt: null });
-    return doc ? this.toDomain(doc) : null;
+    const doc = await UserModel.findOne({
+      inviteToken: token,
+      inviteTokenExpiresAt: { $gt: new Date() },
+    });
+    return doc ? this.toEntity(doc) : null;
+  }
+
+  async findByResetPasswordToken(token: string): Promise<User | null> {
+    const doc = await UserModel.findOne({
+      resetPasswordToken: token,
+      resetPasswordTokenExpiresAt: { $gt: new Date() },
+    });
+    return doc ? this.toEntity(doc) : null;
   }
 
   async update(id: string, data: Partial<NewUser>): Promise<User | null> {
-    const doc = await UserModel.findByIdAndUpdate(id, data, { new: true });
-    return doc ? this.toDomain(doc) : null;
-  }
-
-  async delete(id: string): Promise<boolean> {
-    const result = await UserModel.findOneAndUpdate(
-      { _id: id, deletedAt: null },
-      { deletedAt: new Date() }
-    );
-    return result !== null;
+    const doc = await UserModel.findByIdAndUpdate(id, { $set: data }, { new: true });
+    return doc ? this.toEntity(doc) : null;
   }
 
   async resetPassword(userId: string, passwordHash: string): Promise<boolean> {
-    const result = await UserModel.findOneAndUpdate(
-      {
-        _id: userId,
-        deletedAt: null,
-      },
-      {
-        $set: {
-          passwordHash,
-        },
-        $inc: {
-          tokenVersion: 1,
-        },
-      }
+    const res = await UserModel.updateOne(
+      { _id: userId },
+      { $set: { passwordHash }, $inc: { tokenVersion: 1 } }
     );
+    return res.modifiedCount > 0;
+  }
 
-    return result !== null;
+  async delete(id: string): Promise<boolean> {
+    const res = await UserModel.deleteOne({ _id: id });
+    return res.deletedCount > 0;
   }
 
   async list(filter: {
-    status?: "invited" | "active" | "inactive";
+    status?: UserStatus;
     organizationId?: string;
     internalOnly?: boolean;
     search?: string;
     page: number;
     limit: number;
   }): Promise<PaginatedResult<User>> {
+    const params = { page: filter.page, limit: filter.limit };
+    const skip = getOffset(params);
 
-    const query: Record<string, unknown> = { deletedAt: null };
-
-
+    const query: Record<string, unknown> = {};
     if (filter.status) query.status = filter.status;
     if (filter.organizationId) query.organizationId = filter.organizationId;
-    if (filter.internalOnly) query.organizationId = null;
-
-
-    if (filter.search?.trim()) {
-      const regex = new RegExp(filter.search.trim(), "i");
-      query.$or = [{ name: regex }, { email: regex }];
-    }
-
-    const skip = getOffset({ page: filter.page, limit: filter.limit });
+    if (filter.search) query.$text = { $search: filter.search };
 
     const [docs, total] = await Promise.all([
-      UserModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(filter.limit),
+      UserModel.find(query).skip(skip).limit(params.limit).sort({ createdAt: -1 }),
       UserModel.countDocuments(query),
     ]);
 
+    return buildPaginatedResult(docs.map(this.toEntity), total, params);
+  }
+
+  async assignRole(userId: string, roleId: string): Promise<void> {
+    await UserModel.updateOne({ _id: userId }, { $set: { roleId } });
+  }
+
+  async findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null> {
+    // NOTE: naive "oldest user" assumption — replace with real admin-role identification logic
+    const doc = await UserModel.findOne({ organizationId }).sort({ createdAt: 1 });
+    if (!doc) return null;
     return {
-      items: docs.map(doc => this.toDomain(doc)),
-      meta: paginationMeta(total, { page: filter.page, limit: filter.limit }),
+      id: doc._id.toString(),
+      name: `${doc.firstName} ${doc.lastName}`,
+      email: doc.email,
+      phone: null,
+      status: doc.status,
     };
-  }
-
-  async listRoles(userId: string): Promise<UserRoleAssignment[]> {
-    const links = await UserRoleModel.find({ userId });
-    const roleIds = links.map((link) => link.roleId);
-    const roleDocs = await RoleModel.find({ _id: { $in: roleIds }, deletedAt: null });
-
-    // Map for O(1) lookup — also lets us silently skip a link whose role
-    // was hard-deleted or is otherwise missing, instead of returning a
-    // broken row with `role: undefined` that crashes the frontend.
-    const roleById = new Map(roleDocs.map((doc) => [doc._id.toString(), doc]));
-
-    return links
-      .filter((link) => roleById.has(link.roleId.toString()))
-      .map((link) => {
-        const roleDoc = roleById.get(link.roleId.toString())!;
-        return {
-          id: link._id.toString(),       // the assignment (UserRole) id
-          userId: link.userId.toString(),
-          roleId: roleDoc._id.toString(),
-          createdAt: link.createdAt,
-          role: {
-            id: roleDoc._id.toString(),
-            name: roleDoc.name,
-            slug: roleDoc.slug,
-            description: roleDoc.description,
-            isSystem: roleDoc.isSystem,
-            status: roleDoc.status,
-            deletedAt: roleDoc.deletedAt,
-            createdAt: roleDoc.createdAt,
-            updatedAt: roleDoc.updatedAt,
-          },
-        };
-      });
-  }
-
-  async findByResetPasswordToken(token: string): Promise<User | null> {
-    const doc = await UserModel.findOne({ resetPasswordToken: token, deletedAt: null });
-    return doc ? this.toDomain(doc) : null;
-  }
-
-  async cancelInvite(userId: string): Promise<boolean> {
-    const result = await UserModel.findOneAndUpdate(
-      {
-        _id: userId,
-        status: "invited",
-        deletedAt: null,
-      },
-      {
-        $set: {
-          status: "inactive",
-          inviteToken: null,
-          inviteTokenExpiresAt: null,
-        },
-      }
-    );
-
-    return result !== null;
   }
 
   async findOneByOrganizationAndStatus(
     organizationId: string,
-    status: "invited" | "active" | "inactive"
+    status: UserStatus
   ): Promise<User | null> {
-    const doc = await UserModel.findOne({ organizationId, status, deletedAt: null });
-    return doc ? this.toDomain(doc) : null;
+    const doc = await UserModel.findOne({ organizationId, status });
+    return doc ? this.toEntity(doc) : null;
   }
 
-  async findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null> {
-
-    const result = await UserRoleModel.aggregate([
-      {
-        $match: {}
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'user'
-        }
-      },
-      {
-        $unwind: '$user'
-      },
-      {
-        $match: {
-          'user.organizationId': new Types.ObjectId(organizationId),
-          'user.deletedAt': null,
-          'user.status': {
-            $in: ['active', 'invited']
-          }
-        }
-      },
-      {
-        $lookup: {
-          from: 'roles',
-          localField: 'roleId',
-          foreignField: '_id',
-          as: 'role'
-        }
-      },
-      {
-        $unwind: '$role'
-      },
-      {
-        $match: {
-          'role.slug': 'orgadmin'
-        }
-      },
-      {
-        $project: {
-          id: '$user._id',
-          name: '$user.name',
-          email: '$user.email',
-          phone: '$user.phone',
-          status: '$user.status'
-        }
-      }
-    ]);
-
-    if (!result.length) return null;
-
-    return {
-      id: result[0].id.toString(),
-      name: result[0].name,
-      email: result[0].email,
-      phone: result[0].phone ?? null,
-      status: result[0].status
-    };
+  async cancelInvite(userId: string): Promise<boolean> {
+    const res = await UserModel.deleteOne({ _id: userId, status: 'invited' });
+    return res.deletedCount > 0;
   }
 
-  async assignRole(userId: string, roleId: string): Promise<void> {
-    await UserRoleModel.findOneAndUpdate(
-      { userId: new Types.ObjectId(userId), roleId: new Types.ObjectId(roleId) },
-      { $setOnInsert: { userId: new Types.ObjectId(userId), roleId: new Types.ObjectId(roleId) } },
-      { upsert: true }
-    );
+  async countByRoleId(roleId: string): Promise<number> {
+    return UserModel.countDocuments({ roleId });
   }
 
-  async removeRole(userId: string, roleId: string): Promise<void> {
-    await UserRoleModel.deleteOne({ userId, roleId });
-  }
-
-  private toDomain(doc: UserDocument): User {
+  private toEntity(doc: UserDocument): User {
     return {
       id: doc._id.toString(),
-      name: doc.name,
+      organizationId: doc.organizationId.toString(),
       email: doc.email,
-      phone: doc.phone,
-      passwordHash: doc.passwordHash,
+      passwordHash: doc.passwordHash ?? null,
+      firstName: doc.firstName,
+      lastName: doc.lastName,
+      roleId: doc.roleId.toString(),
       status: doc.status,
-      organizationId: doc.organizationId ? doc.organizationId.toString() : null,
+      tokenVersion: doc.tokenVersion,
+      lastLoginAt: doc.lastLoginAt,
       inviteToken: doc.inviteToken,
       inviteTokenExpiresAt: doc.inviteTokenExpiresAt,
       resetPasswordToken: doc.resetPasswordToken,
       resetPasswordTokenExpiresAt: doc.resetPasswordTokenExpiresAt,
-      tokenVersion: doc.tokenVersion,
-      mustChangePassword: doc.mustChangePassword ?? false,
-      deletedAt: doc.deletedAt,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     };

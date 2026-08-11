@@ -1,57 +1,44 @@
 import { connectDB, disconnectDB } from '../../config/db';
 import { RoleModel } from '../database/models/role.model';
-import { PermissionModel } from '../database/models/permission.model';
-import { RolePermissionModel } from '../database/models/role-permission.model';
-import { UserModel } from '../database/models/user.model';
-import { UserRoleModel } from '../database/models/user-role.model';
+import { PlatformUserModel } from '../database/models/platform-user.model';
 import { BcryptHashService } from '../services/bcrypt-hash.service';
-import { seedPermissions } from './seed-permissions';
 import { env } from '../../config/env';
+import { ALL_PERMISSIONS } from '../../shared/constants/permissions.constant';
 
 export async function seedSuperAdmin(): Promise<void> {
-  await seedPermissions();
-
-  const role = await RoleModel.findOneAndUpdate(
-    { slug: 'superadmin' },
+  const superAdminRole = await RoleModel.findOneAndUpdate(
+    { name: 'Super Admin' },
     {
       $setOnInsert: {
         name: 'Super Admin',
-        slug: 'superadmin',
         description: 'Full system access — built-in role',
         isSystem: true,
         status: 'active',
+        permissionIds: ALL_PERMISSIONS,
+        createdBy: 'system',
+        deletion: { isDeleted: false },
       },
     },
     { upsert: true, new: true }
   );
 
   await RoleModel.findOneAndUpdate(
-    { slug: 'orgadmin' },
+    { name: 'Org Admin' },
     {
       $setOnInsert: {
         name: 'Org Admin',
-        slug: 'orgadmin',
         description: 'Administrator for a subscribing organization',
         isSystem: true,
         status: 'active',
+        permissionIds: [],
+        createdBy: 'system',
+        deletion: { isDeleted: false },
       },
     },
     { upsert: true }
   );
 
-  const allPermissions = await PermissionModel.find({});
-  const ops = allPermissions.map((permission) => ({
-    updateOne: {
-      filter: { roleId: role._id, permissionId: permission._id },
-      update: { $setOnInsert: { roleId: role._id, permissionId: permission._id } },
-      upsert: true,
-    },
-  }));
-  if (ops.length > 0) {
-    await RolePermissionModel.bulkWrite(ops);
-  }
-
-  const existing = await UserModel.findOne({ email: env.SUPER_ADMIN_EMAIL });
+  const existing = await PlatformUserModel.findOne({ email: env.SUPER_ADMIN_EMAIL });
   if (existing) {
     console.log('Super Admin user already exists — skipping user creation');
     return;
@@ -60,19 +47,15 @@ export async function seedSuperAdmin(): Promise<void> {
   const hashService = new BcryptHashService();
   const passwordHash = await hashService.hash(env.SUPER_ADMIN_PASSWORD);
 
-  const user = await UserModel.create({
-    name: env.SUPER_ADMIN_NAME,
+  await PlatformUserModel.create({
+    firstName: env.SUPER_ADMIN_FIRST_NAME,
+    lastName: env.SUPER_ADMIN_LAST_NAME,
     email: env.SUPER_ADMIN_EMAIL,
     passwordHash,
     status: 'active',
-
+    mustChangePassword: false,
+    roleId: superAdminRole!._id,
   });
-
-  await UserRoleModel.findOneAndUpdate(
-    { userId: user._id, roleId: role!._id },
-    { $setOnInsert: { userId: user._id, roleId: role!._id } },
-    { upsert: true }
-  );
 
   console.log(`Super Admin user created: ${env.SUPER_ADMIN_EMAIL}`);
 }

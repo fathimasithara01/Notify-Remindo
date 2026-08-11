@@ -1,22 +1,24 @@
-export type UserStatus = 'invited' | 'active' | 'inactive';
+export type UserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
 
 export interface User {
   id: string;
-  name: string;
+  organizationId: string;
   email: string;
-  phone?: string | null;
   passwordHash: string | null;
+  firstName: string;
+  lastName: string;
+  roleId: string;
   status: UserStatus;
-  organizationId?: string | null;
-  inviteToken: string | null;
-  inviteTokenExpiresAt: Date | null;
-  resetPasswordToken: string | null;
-  resetPasswordTokenExpiresAt: Date | null;
-  mustChangePassword: boolean;
   tokenVersion: number;
-  deletedAt?: Date | null;
+  lastLoginAt?: Date;
+  inviteToken?: string;
+  inviteTokenExpiresAt?: Date;
+  resetPasswordToken?: string;
+  resetPasswordTokenExpiresAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type NewUser = Omit<User, 'id' | 'createdAt' | 'updatedAt'>;
+export type NewUser = Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'tokenVersion'> & {
+  tokenVersion?: number;
+};

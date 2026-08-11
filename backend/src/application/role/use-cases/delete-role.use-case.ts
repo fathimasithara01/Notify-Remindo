@@ -1,40 +1,38 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
+import { IPermissionResolver } from '../../../domain/services/IPermissionResolver';
 import { IRoleRepository } from '../../../domain/repositories/role.repository.interface';
-import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
-import { DomainError } from '../../../domain/errors/domain.error';
-import { RolePermissionCache } from '../../../infrastructure/cache/role-permission-cache';
+import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 
-export interface DeleteRoleInput {
-  roleId: string;
-  adminId: string;
+interface DeleteRoleInput {
+  id: string;
+  deletedBy: string;
 }
 
 @injectable()
 export class DeleteRoleUseCase {
   constructor(
-    @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
-    @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
-    @inject(TOKENS.RolePermissionCache) private cache: RolePermissionCache
+    @inject(TOKENS.RoleRepository) private roleRepository: IRoleRepository,
+    @inject(TOKENS.UserRepository) private userRepository: IUserRepository,
+    @inject(TOKENS.PermissionResolver) private permissionResolver: IPermissionResolver
   ) {}
 
   async execute(input: DeleteRoleInput): Promise<void> {
-    const deleted = await this.roleRepo.delete(input.roleId);
-    if (!deleted) {
-      const role = await this.roleRepo.findById(input.roleId);
-      if (role?.isSystem) {
-        throw new DomainError('Built-in system roles cannot be deleted');
-      }
-      throw new DomainError('Role not found or could not be deleted');
+    const role = await this.roleRepository.findById(input.id);
+    if (!role) throw new Error('Role not found');
+
+    if (role.isSystem) {
+      throw new Error('System roles cannot be deleted');
     }
 
-    this.cache.invalidate(input.roleId);
+    const usersWithRole = await this.userRepository.countByRoleId(input.id);
+    if (usersWithRole > 0) {
+      throw new Error(`Cannot delete role: ${usersWithRole} user(s) still assigned`);
+    }
 
-    await this.auditLogRepo.create({
-      adminId: input.adminId,
-      action: 'DELETE_ROLE',
-      targetType: 'Role',
-      targetId: input.roleId,
-    });
+    const success = await this.roleRepository.softDelete(input.id, input.deletedBy);
+    if (!success) throw new Error('Delete failed');
+
+    this.permissionResolver.invalidate(input.id);
   }
 }

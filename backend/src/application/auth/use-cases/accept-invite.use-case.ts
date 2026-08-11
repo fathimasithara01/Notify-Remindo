@@ -17,7 +17,7 @@ export class AcceptInviteUseCase {
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.HashService) private hashService: IHashService,
     @inject(TOKENS.TokenService) private tokenService: ITokenService
-  ) {}
+  ) { }
 
   async execute(data: AcceptInviteDto): Promise<LoginResult> {
     const user = await this.userRepo.findByInviteToken(data.token);
@@ -42,13 +42,13 @@ export class AcceptInviteUseCase {
       throw new DomainError('Failed to activate account. Please try again.');
     }
 
-    const roles = await this.userRepo.listRoles(updated.id);
-    const activeRoles = roles.filter((r) => r.role.status === 'active');
-
+    const roles = await this.userRepo.findById(updated.id);
+    if (!roles) {
+      throw new DomainError('Failed to activate account. Please try again.');
+    }
     const payload = {
       userId: updated.id,
-      roleIds: activeRoles.map((r) => r.id),
-      roleSlugs: activeRoles.map((r) => r.role.slug),
+      roleId: roles.id,
       organizationId: updated.organizationId,
       tokenVersion: updated.tokenVersion,
     };
@@ -60,8 +60,8 @@ export class AcceptInviteUseCase {
         id: updated.id,
         name: updated.name,
         email: updated.email,
-        roles: activeRoles.map((r) => r.role.slug),
-        mustChangePassword:true,
+        role: roles.name,
+        mustChangePassword: true,
       },
     };
   }

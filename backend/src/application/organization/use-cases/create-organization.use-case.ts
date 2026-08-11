@@ -15,7 +15,7 @@ import { IHashService } from '../../../domain/services/hash.service.interface';
 import { INotifierService } from '../../../domain/services/notifier.service.interface';
 
 import { Organization } from '../../../domain/entities/organization.entity';
-import { User } from '../../../domain/entities/user.entity';
+import { User } from '../../../domain/entities/platformUser.entity';
 import { DomainError } from '../../../domain/errors/domain.error';
 
 import { CreateOrganizationDto } from '../../dtos/organization/create-organization.dto';
@@ -73,7 +73,7 @@ export class CreateOrganizationUseCase {
     }
 
     // 3. Find Organization Admin role
-    const organizationAdminRole = await this.roleRepo.findBySlug('orgadmin');
+    const organizationAdminRole = await this.roleRepo.findByName('orgadmin');
     if (!organizationAdminRole) {
       throw new DomainError('Organization Admin role is not configured.');
     }
@@ -151,10 +151,13 @@ export class CreateOrganizationUseCase {
   /** Email-invite path: user stays 'invited' until they click the link and
    * set their own password. Email delivery is best-effort — failure here
    * never rolls back the organization/user records already created. */
-  private async createAdminWithInviteEmail(
-    data: CreateOrganizationDto,
-    organizationId: string
-  ): Promise<{ admin: User; inviteUrl: string; emailSent: boolean }> {
+  private async createAdminWithInviteEmail(data: CreateOrganizationDto, organizationId: string): Promise<{ admin: User; inviteUrl: string; emailSent: boolean }> {
+
+    const orgAdminRole = await this.roleRepo.findByName('Org Admin');
+    if (!orgAdminRole) {
+      throw new DomainError('Org Admin role not found — ensure roles are seeded');
+    }
+
     const inviteToken = crypto.randomBytes(32).toString('hex');
     const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
 
@@ -170,6 +173,7 @@ export class CreateOrganizationUseCase {
       tokenVersion: 0,
       resetPasswordToken: null,
       resetPasswordTokenExpiresAt: null,
+      role: orgAdminRole.id,
       mustChangePassword: false,
     });
 
@@ -199,10 +203,12 @@ export class CreateOrganizationUseCase {
   /** Temp-password path: no email is sent at all. The admin creating the
    * org copies the password from the response and shares it out of band.
    * User starts 'active' but must change the password on first login. */
-  private async createAdminWithTempPassword(
-    data: CreateOrganizationDto,
-    organizationId: string
-  ): Promise<{ admin: User; tempPassword: string }> {
+  private async createAdminWithTempPassword(data: CreateOrganizationDto, organizationId: string): Promise<{ admin: User; tempPassword: string }> {
+    const orgAdminRole = await this.roleRepo.findByName('Org Admin');
+    if (!orgAdminRole) {
+      throw new DomainError('Org Admin role not found — ensure roles are seeded');
+    }
+
     const tempPassword = generateTempPassword();
     const passwordHash = await this.hashService.hash(tempPassword);
 
@@ -218,6 +224,7 @@ export class CreateOrganizationUseCase {
       tokenVersion: 0,
       resetPasswordToken: null,
       resetPasswordTokenExpiresAt: null,
+      role: orgAdminRole.id,
       mustChangePassword: true,
     });
 

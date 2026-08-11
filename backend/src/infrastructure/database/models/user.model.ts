@@ -1,40 +1,45 @@
-import { Schema, model, Types, Document } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
+import { UserStatus } from '../../../domain/entities/user.entity';
 
 export interface UserDocument extends Document {
-  name: string;
+  organizationId: Types.ObjectId;
   email: string;
-  phone: string;
   passwordHash: string | null;
-  status: 'invited' | 'active' | 'inactive';
-  organizationId: Types.ObjectId | null;
-  inviteToken: string | null;
-  inviteTokenExpiresAt: Date | null;
+  firstName: string;
+  lastName: string;
+  roleId: Types.ObjectId;
+  status: UserStatus;
   tokenVersion: number;
-  resetPasswordToken: string | null;
-  resetPasswordTokenExpiresAt: Date | null;
-  mustChangePassword: boolean;
-  deletedAt?: Date | null;
+  lastLoginAt?: Date;
+  inviteToken?: string;
+  inviteTokenExpiresAt?: Date;
+  resetPasswordToken?: string;
+  resetPasswordTokenExpiresAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const userSchema = new Schema<UserDocument>(
   {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    phone: { type: String, trim: true, default: null },
-    passwordHash: { type: String, default: null },
-    status: { type: String, enum: ['invited', 'active', 'inactive'], default: 'active' },
-    organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', default: null },
-    inviteToken: { type: String, default: null, index: true },
-    inviteTokenExpiresAt: { type: Date, default: null },
+    organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true, index: true },
+    email: { type: String, required: true, lowercase: true, trim: true },
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
+    roleId: { type: Schema.Types.ObjectId, ref: 'Role', required: true, index: true },
+    status: { type: String, enum: ['invited', 'active', 'inactive', 'suspended'], default: 'invited', index: true },
+    passwordHash: { type: String },
+    inviteToken: { type: String, index: true, sparse: true },
+    inviteTokenExpiresAt: { type: Date },
+    resetPasswordToken: { type: String, index: true, sparse: true },
+    resetPasswordTokenExpiresAt: { type: Date },
     tokenVersion: { type: Number, default: 0 },
-    resetPasswordToken: { type: String, default: null },
-    resetPasswordTokenExpiresAt: { type: Date, default: null },
-    mustChangePassword: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
+    lastLoginAt: { type: Date },
   },
   { timestamps: true }
 );
+
+// email unique per organization (multi-tenant — same email across different orgs allowed)
+userSchema.index({ organizationId: 1, email: 1 }, { unique: true });
+userSchema.index({ firstName: 'text', lastName: 'text', email: 'text' });
 
 export const UserModel = model<UserDocument>('User', userSchema);

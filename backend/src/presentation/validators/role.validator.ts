@@ -1,20 +1,39 @@
 import { z } from 'zod';
+import { ALL_PERMISSIONS } from '../../shared/constants/permissions.constant';
 
 export const createRoleSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  slug: z
-    .string()
-    .min(1, 'Slug is required')
-    .regex(/^[a-z0-9_-]+$/, 'Slug must be lowercase letters, numbers, hyphens, or underscores'),
-  description: z.string().optional(),
+  body: z.object({
+    name: z.string().trim().min(2).max(50),
+    description: z.string().trim().max(200).optional(),
+    organizationId: z.string().optional(),
+    permissionIds: z
+      .array(z.enum(ALL_PERMISSIONS as [string, ...string[]]))
+      .min(1, 'At least one permission required'),
+  }),
 });
 
 export const editRoleSchema = z.object({
-  name: z.string().min(1).optional(),
-  description: z.string().optional(),
-  status: z.enum(['active', 'inactive']).optional(),
+  params: z.object({
+    id: z.string().min(1),
+  }),
+  body: z
+    .object({
+      name: z.string().trim().min(2).max(50).optional(),
+      description: z.string().trim().max(200).optional(),
+      permissionIds: z.array(z.enum(ALL_PERMISSIONS as [string, ...string[]])).min(1).optional(),
+      status: z.enum(['active', 'inactive']).optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+      message: 'At least one field must be provided',
+    }),
 });
 
-export const addPermissionSchema = z.object({
-  permissionId: z.string().min(1, 'permissionId is required'),
+export const listRolesQuerySchema = z.object({
+  query: z.object({
+    organizationId: z.string().optional(),
+    status: z.enum(['active', 'inactive']).optional(),
+    search: z.string().optional(),
+    page: z.string().optional(),
+    limit: z.string().optional(),
+  }),
 });

@@ -1,6 +1,7 @@
 export interface LoginDto {
   email: string;
   password: string;
+  organizationId?: string;
 }
 
 export interface LoginResult {
@@ -10,7 +11,6 @@ export interface LoginResult {
     id: string;
     name: string;
     email: string;
-    roles: string[]; 
-    mustChangePassword:boolean;
+    role: string; 
   };
 }

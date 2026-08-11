@@ -50,8 +50,8 @@ export class RequestPasswordResetUseCase {
       await this.notifierService.send({
         to: user.email,
         subject: 'Reset your Notify password',
-        message: `Hi ${user.name}, click this link to set a new password: ${resetUrl}`,
-        html: `<p>Hi ${user.name},</p><p>Click below to set a new password:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>This link expires in 24 hours. If you didn't request this, you can ignore it.</p>`,
+        message: `Hi ${user.firstName}, click this link to set a new password: ${resetUrl}`,
+        html: `<p>Hi ${user.lastName},</p><p>Click below to set a new password:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>This link expires in 24 hours. If you didn't request this, you can ignore it.</p>`,
       });
     } catch (error) {
       emailSent = false;

@@ -2,7 +2,6 @@ export const TOKENS = {
   // Repositories (interfaces)
   UserRepository: Symbol('UserRepository'),
   RoleRepository: Symbol('RoleRepository'),
-  PermissionRepository: Symbol('PermissionRepository'),
   OrganizationRepository: Symbol('OrganizationRepository'),
   SubscriptionPlanRepository: Symbol('SubscriptionPlanRepository'),
   FeatureRepository: Symbol('FeatureRepository'),
@@ -18,15 +17,15 @@ export const TOKENS = {
   ChangePasswordUseCase: Symbol('ChangePasswordUseCase'),
 
   // Services (interfaces)
-  HashService: Symbol('HashService'),
+    HashService: Symbol('HashService'),
   TokenService: Symbol('TokenService'),
   WhatsAppNotifierService: Symbol('WhatsAppNotifierService'),
   EmailNotifierService: Symbol('EmailNotifierService'),
   InAppNotifierService: Symbol('InAppNotifierService'),
   NotifierMap: Symbol('NotifierMap'),
-  RolePermissionCache: Symbol('RolePermissionCache'),
   TokenRevocationRegistry: Symbol('TokenRevocationRegistry'),
   FileStorageService: Symbol('FileStorageService'),
+  PermissionResolver: Symbol('PermissionResolver'),
 
   // Use-cases (concrete classes, registered for discoverability/consistency)
   LoginAdminUseCase: Symbol('LoginAdminUseCase'),
@@ -39,7 +38,6 @@ export const TOKENS = {
   EditUserUseCase: Symbol('EditUserUseCase'),
   RevokeSessionsUseCase: Symbol('RevokeSessionsUseCase'),
   CreateRoleUseCase: Symbol('CreateRoleUseCase'),
-  AssignPermissionsUseCase: Symbol('AssignPermissionsUseCase'),
   EditRoleUseCase: Symbol('EditRoleUseCase'),
   DeleteRoleUseCase: Symbol('DeleteRoleUseCase'),
   CreateOrganizationUseCase: Symbol('CreateOrganizationUseCase'),
@@ -70,7 +68,6 @@ export const TOKENS = {
   // Controllers
   AuthController: Symbol('AuthController'),
   RoleController: Symbol('RoleController'),
-  PermissionController: Symbol('PermissionController'),
   OrganizationController: Symbol('OrganizationController'),
   NotificationController: Symbol('NotificationController'),
   DashboardController: Symbol('DashboardController'),
@@ -78,4 +75,14 @@ export const TOKENS = {
   AuditLogController: Symbol('AuditLogController'),
   InviteController: Symbol('InviteController'),
   OrganizationDocumentController: Symbol('OrganizationDocumentController'),
+  ListRolesUseCase: Symbol('ListRolesUseCase'), 
+  PlatformUserRepository: Symbol('PlatformUserRepository'),
+
+
+  // tokens.ts
+CreatePlatformUserUseCase: Symbol('CreatePlatformUserUseCase'),
+EditPlatformUserUseCase: Symbol('EditPlatformUserUseCase'),
+ListPlatformUsersUseCase: Symbol('ListPlatformUsersUseCase'),
+DeletePlatformUserUseCase: Symbol('DeletePlatformUserUseCase'),
+PlatformUserController: Symbol('PlatformUserController'),
 } as const;

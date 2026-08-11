@@ -6,16 +6,16 @@ import { IAuditLogRepository } from '../../domain/repositories/audit-log.reposit
 import { CreateUserUseCase } from '../../application/user/use-cases/create-user.use-case';
 import { EditUserUseCase } from '../../application/user/use-cases/edit-user.use-case';
 import { RevokeSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
+import { UserResendInviteUseCase } from '../../application/user/use-cases/resend-invite.use-case';
+import { RequestPasswordResetUseCase } from '../../application/user/use-cases/request-password-reset.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError, UnauthorizedError } from '../../domain/errors/domain.error';
 import { parsePaginationParams } from '../../shared/utils/pagination';
 import { User } from '../../domain/entities/user.entity';
-import { UserResendInviteUseCase } from '../../application/user/use-cases/resend-invite.use-case';
-import { RequestPasswordResetUseCase } from '../../application/user/use-cases/request-password-reset.use-case';
 
 function toSafeUser(user: User) {
-  const { id, name, email, status, organizationId, createdAt } = user;
-  return { id, name, email, status, organizationId, createdAt };
+  const { id, firstName, lastName, email, status, organizationId, roleId, createdAt } = user;
+  return { id, firstName, lastName, email, status, organizationId, roleId, createdAt };
 }
 
 @injectable()
@@ -26,30 +26,31 @@ export class UserController {
     @inject(TOKENS.CreateUserUseCase) private createUserUseCase: CreateUserUseCase,
     @inject(TOKENS.EditUserUseCase) private editUserUseCase: EditUserUseCase,
     @inject(TOKENS.RevokeSessionsUseCase) private revokeSessionsUseCase: RevokeSessionsUseCase,
-    @inject(TOKENS.UserResendInviteUseCase) private resendInviteUseCase: UserResendInviteUseCase,
-    @inject(TOKENS.RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase,
-
-  ) { }
+    @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: UserResendInviteUseCase,
+    @inject(TOKENS.RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase
+  ) {}
 
   create = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-    const { user, inviteUrl, emailSent } = await this.createUserUseCase.execute({ data: req.body, adminId: req.user.userId, });
+    const { user, inviteUrl, emailSent } = await this.createUserUseCase.execute({
+      data: req.body,
+      adminId: req.user.id,
+    });
     ApiResponse.created(res, { ...toSafeUser(user), inviteUrl, emailSent });
   };
 
   list = async (req: Request, res: Response): Promise<void> => {
     const { search, status } = req.query;
-
     const pagination = parsePaginationParams(req.query as Record<string, unknown>);
 
     const internalUsers = await this.userRepo.list({
       internalOnly: true,
       search: search as string | undefined,
-      status: status as "active" | "inactive" | undefined,
+      status: status as 'invited' | 'active' | 'inactive' | 'suspended' | undefined,
       ...pagination,
     });
 
-    ApiResponse.success(res, internalUsers)
+    ApiResponse.success(res, internalUsers);
   };
 
   getOne = async (req: Request, res: Response): Promise<void> => {
@@ -59,7 +60,7 @@ export class UserController {
   };
 
   update = async (req: Request, res: Response): Promise<void> => {
-    const user = await this.editUserUseCase.execute(req.params.id, req.body);
+    const user = await this.editUserUseCase.execute({ id: req.params.id, ...req.body });
     ApiResponse.success(res, toSafeUser(user), 200, 'User updated');
   };
 
@@ -71,67 +72,19 @@ export class UserController {
 
   resendInvite = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-    const result = await this.resendInviteUseCase.execute(req.params.id, req.user.userId);
+    const result = await this.resendInviteUseCase.execute(req.params.id, req.user.id);
     ApiResponse.success(res, result, 200, 'Invite resent');
   };
 
   requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-    const result = await this.requestPasswordResetUseCase.execute(req.params.id, req.user.userId);
+    const result = await this.requestPasswordResetUseCase.execute(req.params.id, req.user.id);
     ApiResponse.success(res, result, 200, 'Password reset link sent');
   };
 
   revokeSessions = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
-    await this.revokeSessionsUseCase.execute({
-      userId: req.params.id,
-      adminId: req.user.userId,
-    });
+    await this.revokeSessionsUseCase.execute({ userId: req.params.id, adminId: req.user.id });
     ApiResponse.success(res, null, 200, 'All sessions revoked for this user');
-  };
-
-  getRoles = async (req: Request, res: Response): Promise<void> => {
-    const roles = await this.userRepo.listRoles(req.params.id);
-    ApiResponse.success(res, roles);
-  };
-
-  assignRole = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-
-    const user = await this.userRepo.findById(req.params.id);
-    if (!user) throw new NotFoundError('User not found');
-
-    await this.userRepo.assignRole(req.params.id, req.body.roleId);
-
-    await this.auditLogRepo.create({
-      adminId: req.user.userId,
-      action: 'ASSIGN_ROLE',
-      targetType: 'User',
-      targetId: req.params.id,
-      metadata: { roleId: req.body.roleId },
-    });
-
-    const roles = await this.userRepo.listRoles(req.params.id);
-    ApiResponse.success(res, roles, 200, 'Role assigned');
-  };
-
-  removeRole = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-
-    const user = await this.userRepo.findById(req.params.id);
-    if (!user) throw new NotFoundError('User not found');
-
-    await this.userRepo.removeRole(req.params.id, req.params.roleId);
-
-    await this.auditLogRepo.create({
-      adminId: req.user.userId,
-      action: 'REMOVE_ROLE',
-      targetType: 'User',
-      targetId: req.params.id,
-      metadata: { roleId: req.params.roleId },
-    });
-
-    const roles = await this.userRepo.listRoles(req.params.id);
-    ApiResponse.success(res, roles, 200, 'Role removed');
   };
 }

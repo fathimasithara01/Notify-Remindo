@@ -1,26 +1,34 @@
 import { Router } from 'express';
-import { container } from '../../infrastructure/di/container';
+import { container } from 'tsyringe';
 import { TOKENS } from '../../infrastructure/di/tokens';
 import { RoleController } from '../controllers/role.controller';
-import { requireAuth } from '../middlewares/require-auth.middleware';
-import { authorize } from '../middlewares/authorize.middleware';
+import { requirePermission } from '../middlewares/requirePermission.middleware';
+import { PERMISSIONS } from '../../shared/constants/permissions.constant';
+import { createRoleSchema, editRoleSchema } from '../validators/role.validator';
 import { validateRequest } from '../middlewares/validate-request.middleware';
-import { createRoleSchema, editRoleSchema, addPermissionSchema } from '../validators/role.validator';
-import { asyncHandler } from '../../shared/utils/async-handler';
+import { authenticate } from '../middlewares/authenticate.middleware';
 
 const router = Router();
-const controller = container.resolve<RoleController>(TOKENS.RoleController);
+const roleController = container.resolve<RoleController>(TOKENS.RoleController);
 
-router.use(requireAuth);
+router.post(
+  '/',
+  authenticate,
+  requirePermission(PERMISSIONS.ROLE_CREATE),
+  validateRequest(createRoleSchema),
+  roleController.create
+);
 
-router.post('/',authorize('role.create'),validateRequest(createRoleSchema),asyncHandler(controller.create));
-router.get('/', authorize('role.view'), asyncHandler(controller.list));
-router.get('/:id', authorize('role.view'), asyncHandler(controller.getOne));
-router.patch( '/:id', authorize('role.edit'), validateRequest(editRoleSchema), asyncHandler(controller.update));
-router.delete('/:id', authorize('role.delete'), asyncHandler(controller.delete));
+router.get('/', authenticate, requirePermission(PERMISSIONS.ROLE_VIEW), roleController.list);
 
-router.get('/:id/permissions', authorize('role.view'), asyncHandler(controller.getPermissions));
-router.post('/:id/permissions',authorize('role.edit'),validateRequest(addPermissionSchema),asyncHandler(controller.addPermission));
-router.delete('/:id/permissions/:permissionId',authorize('role.edit'),asyncHandler(controller.removePermission));
+router.patch(
+  '/:id',
+  authenticate,
+  requirePermission(PERMISSIONS.ROLE_UPDATE),
+  validateRequest(editRoleSchema),
+  roleController.update
+);
+
+router.delete('/:id', authenticate, requirePermission(PERMISSIONS.ROLE_DELETE), roleController.delete);
 
 export default router;

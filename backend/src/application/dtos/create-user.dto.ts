@@ -1,11 +1,13 @@
 export interface CreateUserDto {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone?: string;
-  roleIds: string[];
+  roleId: string;
 }
 
 export interface EditUserDto {
-  name?: string;
-  status?: 'active' | 'inactive';
+  firstName?: string;
+  lastName?: string;
+  status?: 'active' | 'inactive' | 'suspended';
+  roleId?: string;
 }

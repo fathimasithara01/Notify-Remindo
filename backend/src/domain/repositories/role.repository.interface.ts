@@ -1,13 +1,14 @@
-import { Role, NewRole, RoleWithPermissions } from '../entities/role.entity';
-import { PaginatedResult } from "../../shared/utils/pagination";
+import { Role, NewRole, RoleStatus } from '../entities/role.entity';
+import { PaginatedResult, PaginationParams } from "../../shared/utils/pagination";
 
 export interface IRoleRepository {
   create(data: NewRole): Promise<Role>;
   findById(id: string): Promise<Role | null>;
-  findBySlug(slug: string): Promise<Role | null>;
+  findByIds(ids: string[]): Promise<Role[]>;
   update(id: string, data: Partial<NewRole>): Promise<Role | null>;
-  delete(id: string): Promise<boolean>;
-  list(filter?: { status?: 'active' | 'inactive'; search?: string }): Promise<PaginatedResult<Role>>;
-
-  findWithPermissions(id: string): Promise<RoleWithPermissions | null>;
+  softDelete(id: string, deletedBy: string): Promise<boolean>;
+  list(
+    filter?: { organizationId?: string; status?: RoleStatus; search?: string },
+    pagination?: PaginationParams
+  ): Promise<PaginatedResult<Role>>;
 }

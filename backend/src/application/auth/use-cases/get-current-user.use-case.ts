@@ -7,12 +7,12 @@ export interface CurrentUserResult {
   id: string;
   name: string;
   email: string;
-  roles: string[];
+  role: string;
 }
 
 @injectable()
 export class GetCurrentUserUseCase {
-  constructor(@inject(TOKENS.UserRepository) private userRepo: IUserRepository) { }
+  constructor(@inject(TOKENS.UserRepository) private readonly userRepo: IUserRepository) {}
 
   async execute(userId: string): Promise<CurrentUserResult> {
     const user = await this.userRepo.findById(userId);
@@ -20,13 +20,15 @@ export class GetCurrentUserUseCase {
       throw new UnauthorizedError('User no longer exists');
     }
 
-    const roles = await this.userRepo.listRoles(user.id);
+    if (user.role?.status !== 'active' || user.role.deletion.isDeleted) {
+      throw new UnauthorizedError('No active role assigned');
+    }
 
     return {
       id: user.id,
       name: user.name,
       email: user.email,
-      roles: roles.map((r) => r.role.slug),
+      role: user.role.name,
     };
   }
 }

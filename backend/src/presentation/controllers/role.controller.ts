@@ -1,100 +1,65 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../infrastructure/di/tokens';
-import { IRoleRepository } from '../../domain/repositories/role.repository.interface';
-import { IPermissionRepository } from '../../domain/repositories/permission.repository.interface';
 import { CreateRoleUseCase } from '../../application/role/use-cases/create-role.use-case';
 import { EditRoleUseCase } from '../../application/role/use-cases/edit-role.use-case';
 import { DeleteRoleUseCase } from '../../application/role/use-cases/delete-role.use-case';
-import { ApiResponse } from '../../shared/utils/api-response';
-import { NotFoundError, UnauthorizedError } from '../../domain/errors/domain.error';
-import {  parsePaginationParams  } from '../../shared/utils/pagination';
-import { RolePermissionCache } from '../../infrastructure/cache/role-permission-cache';
-import { container } from '../../infrastructure/di/container';
+import { ListRolesUseCase } from '../../application/role/use-cases/list-roles.use-case';
+import { parsePaginationParams } from '../../shared/utils/pagination';
 
 @injectable()
 export class RoleController {
   constructor(
-    @inject(TOKENS.RoleRepository) private roleRepo: IRoleRepository,
-    @inject(TOKENS.PermissionRepository) private permissionRepo: IPermissionRepository,
     @inject(TOKENS.CreateRoleUseCase) private createRoleUseCase: CreateRoleUseCase,
     @inject(TOKENS.EditRoleUseCase) private editRoleUseCase: EditRoleUseCase,
-    @inject(TOKENS.DeleteRoleUseCase) private deleteRoleUseCase: DeleteRoleUseCase
-  ) { }
+    @inject(TOKENS.DeleteRoleUseCase) private deleteRoleUseCase: DeleteRoleUseCase,
+    @inject(TOKENS.ListRolesUseCase) private listRolesUseCase: ListRolesUseCase
+  ) {}
 
-  create = async (req: Request, res: Response): Promise<void> => {
-    const role = await this.createRoleUseCase.execute(req.body);
-    ApiResponse.created(res, role);
+  create = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const currentUser = req.user as { id: string };
+      const role = await this.createRoleUseCase.execute({
+        ...req.body,
+        createdBy: currentUser.id,
+      });
+      res.status(201).json({ success: true, data: role });
+    } catch (err) {
+      next(err);
+    }
   };
 
-  list = async (req: Request, res: Response): Promise<void> => {
-    const { search, status } = req.query;
-
-    const pagination = parsePaginationParams(
-      req.query as Record<string, unknown>
-    );
-
-    const result = await this.roleRepo.list({
-      search: search as string | undefined,
-      status: status as "active" | "inactive" | undefined,
-      ...pagination,
-    });
-
-    ApiResponse.success(res,result)
+  update = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const role = await this.editRoleUseCase.execute({ id: req.params.id, ...req.body });
+      res.status(200).json({ success: true, data: role });
+    } catch (err) {
+      next(err);
+    }
   };
 
-  getOne = async (req: Request, res: Response): Promise<void> => {
-    const role = await this.roleRepo.findWithPermissions(req.params.id);
-    if (!role) throw new NotFoundError('Role not found');
-    ApiResponse.success(res, role);
+  delete = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const currentUser = req.user as { id: string };
+      await this.deleteRoleUseCase.execute({ id: req.params.id, deletedBy: currentUser.id });
+      res.status(200).json({ success: true, message: 'Role deleted' });
+    } catch (err) {
+      next(err);
+    }
   };
 
-  update = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-
-    const role = await this.editRoleUseCase.execute({
-      roleId: req.params.id,
-      adminId: req.user.userId,
-      data: req.body,
-    });
-    ApiResponse.success(res, role, 200, 'Role updated');
-  };
-
-  delete = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-
-    await this.deleteRoleUseCase.execute({
-      roleId: req.params.id,
-      adminId: req.user.userId,
-    });
-    ApiResponse.success(res, null, 200, 'Role deleted');
-  };
-
-
-  getPermissions = async (req: Request, res: Response): Promise<void> => {
-    const permissions = await this.permissionRepo.listByRole(req.params.id);
-    ApiResponse.success(res, permissions);
-  };
-
-  addPermission = async (req: Request, res: Response): Promise<void> => {
-    const role = await this.roleRepo.findById(req.params.id);
-    if (!role) throw new NotFoundError('Role not found');
-
-    await this.permissionRepo.assignToRole(req.params.id, [req.body.permissionId]);
-    container.resolve<RolePermissionCache>(TOKENS.RolePermissionCache).invalidate(req.params.id);
-
-    const permissions = await this.permissionRepo.listByRole(req.params.id);
-    ApiResponse.success(res, permissions, 200, 'Permission added');
-  };
-
-  removePermission = async (req: Request, res: Response): Promise<void> => {
-    const role = await this.roleRepo.findById(req.params.id);
-    if (!role) throw new NotFoundError('Role not found');
-
-    await this.permissionRepo.removeFromRole(req.params.id, [req.params.permissionId]);
-    container.resolve<RolePermissionCache>(TOKENS.RolePermissionCache).invalidate(req.params.id);
-
-    const permissions = await this.permissionRepo.listByRole(req.params.id);
-    ApiResponse.success(res, permissions, 200, 'Permission removed');
+  list = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const pagination = parsePaginationParams(req.query);
+      const result = await this.listRolesUseCase.execute({
+        organizationId: req.query.organizationId as string | undefined,
+        status: req.query.status as any,
+        search: req.query.search as string | undefined,
+        pagination,
+      });
+      res.status(200).json({ success: true, data: result.items, meta: result.meta });
+    } catch (err) {
+      next(err);
+    }
   };
 }

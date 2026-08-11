@@ -68,7 +68,7 @@ export class OrganizationRepository implements IOrganizationRepository {
             // 5. Only Organization Admin
             {
               $match: {
-                'userRoles.slug': 'orgadmin',
+                'userRoles.name': 'orgadmin',
               },
             },
 
@@ -271,7 +271,7 @@ export class OrganizationRepository implements IOrganizationRepository {
             // 5. Only Organization Admin
             {
               $match: {
-                'userRoles.slug': 'orgadmin',
+                'userRoles.name': 'orgadmin',
               },
             },
 

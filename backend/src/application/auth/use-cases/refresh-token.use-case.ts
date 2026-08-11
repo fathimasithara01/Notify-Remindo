@@ -33,16 +33,15 @@ export class RefreshTokenUseCase {
       throw new UnauthorizedError('Session has been revoked. Please log in again.');
     }
 
-    const roles = await this.userRepo.listRoles(user.id);
-    const activeRoles = roles.filter((r) => r.role.status === 'active');
-    if (activeRoles.length === 0) {
+    const roles = await this.userRepo.findById(user.id);
+    if (!roles) {
       throw new UnauthorizedError('No active role assigned');
     }
 
     const newPayload = {
       userId: user.id,
-      roleIds: activeRoles.map((r) => r.roleId),
-      roleSlugs: activeRoles.map((r) => r.role.slug),
+      roleId: roles.id,
+      roleNames: roles.name,
       organizationId: user.organizationId,
       tokenVersion: user.tokenVersion,
     };

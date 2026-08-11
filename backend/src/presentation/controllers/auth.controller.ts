@@ -43,10 +43,6 @@ export class AuthController {
 
   ) { }
 
-  //   export class AuthController {
-  //   private loginUseCase = new LoginAdminUseCase();
-  //   private refreshTokenUseCase = new RefreshTokenUseCase();
-  // }
 
   private setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
     res.cookie('accessToken', accessToken, ACCESS_TOKEN_COOKIE);

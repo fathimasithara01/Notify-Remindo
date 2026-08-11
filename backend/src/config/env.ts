@@ -28,7 +28,9 @@ export const env = {
 
   COOKIE_SECRET: required('COOKIE_SECRET'),
 
-  SUPER_ADMIN_NAME: process.env.SUPER_ADMIN_NAME ?? 'Super Admin',
+  SUPER_ADMIN_FIRST_NAME: process.env.SUPER_ADMIN_FIRST_NAME ?? 'Super',
+    SUPER_ADMIN_LAST_NAME: process.env.SUPER_ADMIN_LAST_NAME ?? 'Admin',
+
   SUPER_ADMIN_EMAIL: required('SUPER_ADMIN_EMAIL'),
   SUPER_ADMIN_PASSWORD: required('SUPER_ADMIN_PASSWORD'),
 

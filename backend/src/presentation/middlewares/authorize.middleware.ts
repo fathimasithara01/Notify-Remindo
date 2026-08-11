@@ -1,78 +1,33 @@
 import { Request, Response, NextFunction } from 'express';
-import { container } from '../../infrastructure/di/container';
+import { container } from 'tsyringe';
 import { TOKENS } from '../../infrastructure/di/tokens';
-import { IRoleRepository } from '../../domain/repositories/role.repository.interface';
-import { RolePermissionCache } from '../../infrastructure/cache/role-permission-cache';
+import { IPermissionResolver } from '../../domain/services/IPermissionResolver';
+import { Permission } from '../../shared/constants/permissions.constant';
 import { UnauthorizedError, ForbiddenError } from '../../domain/errors/domain.error';
 
-export function authorize(requiredPermission: string) {
-
+export function authorize(...requiredPermissions: Permission[]) {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
-      if (!req.user) {
+      if (!req.user?.roleId) {
+        return next(new UnauthorizedError('Authentication required'));
+      }
+
+      const resolver = container.resolve<IPermissionResolver>(TOKENS.PermissionResolver);
+      const permissions = await resolver.resolve(req.user.roleId);
+
+      const hasAccess =
+        permissions.has('*' as Permission) ||
+        requiredPermissions.every((p) => permissions.has(p));
+
+      if (!hasAccess) {
         return next(
-          new UnauthorizedError('Authentication required')
+          new ForbiddenError(`Missing required permission: ${requiredPermissions.join(', ')}`)
         );
       }
 
-      const cache = container.resolve<RolePermissionCache>(TOKENS.RolePermissionCache);
-      const roleRepo = container.resolve<IRoleRepository>(TOKENS.RoleRepository);
-
-      let hasActiveRole = false;
-
-      for (const roleId of req.user.roleIds ?? []) { //If the left side is null or undefined, use the right side.
-        if (!roleId) continue;
-        let role = cache.get(roleId);
-
-        if (!role) {
-          const fetched = await roleRepo.findWithPermissions(roleId);
-
-          console.log('Fetched role:', fetched);
-
-
-          if (!fetched) continue;
-          cache.set(roleId, fetched);
-
-          role = fetched;
-        }
-
-        if (role.status !== 'active') {
-          continue;
-        }
-
-        hasActiveRole = true;
-
-        const permissions = role.permissions ?? [];
-
-        if (
-          permissions.includes('*') ||
-          permissions.includes(requiredPermission)
-        ) {
-          return next();
-        }
-      }
-
-
-      if (!hasActiveRole) {
-        return next(
-          new ForbiddenError(
-            'No active role assigned'
-          )
-        );
-      }
-
-
-      return next(
-        new ForbiddenError(
-          `Missing required permission: ${requiredPermission}`
-        )
-      );
-
-
+      next();
     } catch (error) {
-
       next(error);
-
     }
   };
 }
