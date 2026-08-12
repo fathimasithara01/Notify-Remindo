@@ -10,70 +10,102 @@ const organizationFileSchema = z.object({
 });
 
 export const createOrganizationSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-
-  businessEmail: z.string().email('Invalid business email'),
-  businessPhone: z.string().min(1, 'Business phone is required'),
-  address: z.string().min(1, 'Address is required'),
-
-  planId: z.string().optional(),
-  salesmanId: z.string().optional(),
-
-  documents: z.array(organizationFileSchema).optional(),
-
-  inviteMethod: z.enum(['email', 'temppassword']).default('email'),
-
-  admin: z.object({
-    firstName: z.string().min(1, 'Admin first name is required'),
-    lastName: z.string().min(1, 'Admin last name is required'),
-    email: z.string().email('Invalid admin email'),
-    phone: z.string().optional(),
+  body: z.object({
+    name: z.string().min(1, 'Name is required'),
+    businessEmail: z.string().email('Invalid business email'),
+    businessPhone: z.string().min(1, 'Business phone is required'),
+    address: z.string().min(1, 'Address is required'),
+    planId: z.string().optional(),
+    salesmanId: z.string().optional(),
+    documents: z.array(organizationFileSchema).optional(),
+    inviteMethod: z.enum(['email', 'temppassword']).default('email'),
+    admin: z.object({
+      firstName: z.string().min(1, 'Admin first name is required'),
+      lastName: z.string().min(1, 'Admin last name is required'),
+      email: z.string().email('Invalid admin email'),
+      phone: z.string().optional(),
+    }),
   }),
-})
+});
 
 export const editOrganizationSchema = z.object({
-  name: z.string().min(1).optional(),
-
-  businessEmail: z.string().email().optional(),
-  businessPhone: z.string().min(1).optional(),
-  address: z.string().optional(),
-
-  documents: z.array(organizationFileSchema).optional(),
+  params: z.object({
+    id: z.string().min(1),
+  }),
+  body: z.object({
+    name: z.string().min(1).optional(),
+    businessEmail: z.string().email().optional(),
+    businessPhone: z.string().min(1).optional(),
+    address: z.string().optional(),
+    documents: z.array(organizationFileSchema).optional(),
+  }),
 });
 
 export const upgradePlanSchema = z.object({
-  newPlanId: z.string().min(1, 'newPlanId is required'),
+  params: z.object({
+    id: z.string().min(1),
+  }),
+  body: z.object({
+    newPlanId: z.string().min(1, 'newPlanId is required'),
+  }),
 });
 
 export const assignSalesmanSchema = z.object({
-  salesmanId: z.string().min(1, 'salesmanId is required'),
+  params: z.object({
+    id: z.string().min(1),
+  }),
+  body: z.object({
+    salesmanId: z.string().min(1, 'salesmanId is required'),
+  }),
 });
 
 export const blockCustomerSchema = z.object({
-  reason: z.string().optional(),
+  params: z.object({
+    id: z.string().min(1),
+  }),
+  body: z.object({
+    reason: z.string().optional(),
+  }),
 });
 
 export const addContactPersonSchema = z.object({
-  firstName: z.string().min(1, 'Admin first name is required'),
-  lastName: z.string().min(1, 'Admin last name is required'),
-  designation: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email().optional(),
+  params: z.object({
+    id: z.string().min(1),
+  }),
+  body: z.object({
+    firstName: z.string().min(1, 'Admin first name is required'),
+    lastName: z.string().min(1, 'Admin last name is required'),
+    designation: z.string().optional(),
+    phone: z.string().optional(),
+    email: z.string().email().optional(),
+  }),
 });
 
 export const editContactPersonSchema = z.object({
-  firstName: z.string().min(1, 'Admin first name is required'),
-  lastName: z.string().min(1, 'Admin last name is required'), designation: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email().optional(),
+  params: z.object({
+    id: z.string().min(1),
+    contactId: z.string().min(1),
+  }),
+  body: z.object({
+    firstName: z.string().min(1, 'Admin first name is required'),
+    lastName: z.string().min(1, 'Admin last name is required'),
+    designation: z.string().optional(),
+    phone: z.string().optional(),
+    email: z.string().email().optional(),
+  }),
 });
 
 export const resetOrganizationAdminPasswordSchema = z.object({
-  password: z
-    .string()
-    .min(8, 'Password must contain minimum 8 characters')
-    .regex(/[A-Z]/, 'Password must contain uppercase letter')
-    .regex(/[a-z]/, 'Password must contain lowercase letter')
-    .regex(/[0-9]/, 'Password must contain number')
-    .regex(/[^A-Za-z0-9]/, 'Password must contain special character'),
+  params: z.object({
+    id: z.string().min(1),
+  }),
+  body: z.object({
+    password: z
+      .string()
+      .min(8, 'Password must contain minimum 8 characters')
+      .regex(/[A-Z]/, 'Password must contain uppercase letter')
+      .regex(/[a-z]/, 'Password must contain lowercase letter')
+      .regex(/[0-9]/, 'Password must contain number')
+      .regex(/[^A-Za-z0-9]/, 'Password must contain special character'),
+  }),
 });

@@ -52,9 +52,9 @@ export class GetBusinessReportUseCase {
     }));
 
     return {
-      totalOrganizations: allOrgsResult.total,
-      activeOrganizations: activeOrgsResult.total,
-      blockedOrganizations: blockedOrgsResult.total,
+      totalOrganizations: allOrgsResult.meta.total,
+      activeOrganizations: activeOrgsResult.meta.total,
+      blockedOrganizations: blockedOrgsResult.meta.total,
       totalActivePlans: activePlans.length,
       organizationsByPlan,
     };

@@ -20,7 +20,7 @@ router.post(
 );
 
 router.get('/', authenticate, requirePermission(PERMISSIONS.ROLE_VIEW), roleController.list);
-
+router.get('/:id', authenticate,requirePermission(PERMISSIONS.ROLE_VIEW), roleController.getOne);
 router.patch(
   '/:id',
   authenticate,

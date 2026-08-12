@@ -64,7 +64,7 @@ export function RoleTable({
                 <TableHeader>
                     <TableRow>
                         <TableHead>Name</TableHead>
-=                        <TableHead>Description</TableHead>
+                       <TableHead>Description</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="w-12" />
                     </TableRow>

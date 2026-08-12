@@ -84,35 +84,6 @@ export const editOrganizationSchema = z.object({
 
 export type EditOrganizationFormValues = z.infer<typeof editOrganizationSchema>;
 
-export const contactPersonSchema = z.object({
-    firstName: z
-        .string()
-        .trim()
-        .min(1, 'First name is required'),
-
-    lastName: z
-        .string()
-        .trim()
-        .min(1, 'Last name is required'),
-
-    designation: z
-        .string()
-        .trim()
-        .optional(),
-
-    contactPhone: z
-        .string()
-        .optional(),
-
-    contactEmail: z
-        .string()
-        .email('Enter a valid email address')
-        .optional()
-        .or(z.literal('')),
-});
-
-export type ContactPersonFormValues = z.infer<typeof contactPersonSchema>;
-
 export const resetAdminPasswordSchema = z
     .object({
         password: z

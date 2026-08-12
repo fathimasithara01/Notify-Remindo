@@ -6,6 +6,8 @@ import { EditRoleUseCase } from '../../application/role/use-cases/edit-role.use-
 import { DeleteRoleUseCase } from '../../application/role/use-cases/delete-role.use-case';
 import { ListRolesUseCase } from '../../application/role/use-cases/list-roles.use-case';
 import { parsePaginationParams } from '../../shared/utils/pagination';
+import { IPlatformRoleRepository } from '../../domain/repositories/platform-role.repository.interface';
+import { NotFoundError } from '../../domain/errors/domain.error';
 
 @injectable()
 export class RoleController {
@@ -13,7 +15,9 @@ export class RoleController {
     @inject(TOKENS.CreateRoleUseCase) private createRoleUseCase: CreateRoleUseCase,
     @inject(TOKENS.EditRoleUseCase) private editRoleUseCase: EditRoleUseCase,
     @inject(TOKENS.DeleteRoleUseCase) private deleteRoleUseCase: DeleteRoleUseCase,
-    @inject(TOKENS.ListRolesUseCase) private listRolesUseCase: ListRolesUseCase
+    @inject(TOKENS.ListRolesUseCase) private listRolesUseCase: ListRolesUseCase,
+        @inject(TOKENS.PlatformRoleRepository) private roleRepository: IPlatformRoleRepository
+
   ) { }
 
   create = async (req: Request, res: Response, next: NextFunction) => {
@@ -43,6 +47,18 @@ export class RoleController {
       const currentUser = req.user as { id: string };
       await this.deleteRoleUseCase.execute({ id: req.params.id, deletedBy: currentUser.id });
       res.status(200).json({ success: true, message: 'Role deleted' });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+ getOne = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const role = await this.roleRepository.findById(req.params.id);
+      if (!role) {
+        throw new NotFoundError('Role not found');
+      }
+      res.status(200).json({ success: true, data: role });
     } catch (err) {
       next(err);
     }

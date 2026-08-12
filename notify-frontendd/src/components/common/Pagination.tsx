@@ -10,12 +10,10 @@ interface PaginationProps {
 }
 
 export function Pagination({ meta, onPageChange }: PaginationProps) {
-    if (meta.totalPages <= 1) return null;
-
     return (
         <div className="flex items-center justify-between border-t px-4 py-3">
             <p className="text-sm text-muted-foreground">
-                Page {meta.page} of {meta.totalPages} · {meta.total} total
+                Page {meta.page} of {meta.totalPages || 1} · {meta.total} total
             </p>
             <div className="flex gap-2">
                 <Button

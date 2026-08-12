@@ -17,6 +17,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { useOrganizations } from "../hooks/useOrganizations";
 
 import {
@@ -55,6 +63,7 @@ import { ResetAdminPasswordDialog } from "./ResetAdminPasswordDialog";
 export function OrganizationTable() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<"all" | "active" | "blocked">("all");
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
   const [resetPasswordOrg, setResetPasswordOrg] = useState<Organization | null>(null);
   const resendInviteMutation = useResendInvite();
@@ -67,6 +76,7 @@ export function OrganizationTable() {
     page,
     limit: DEFAULT_PAGE_SIZE,
     search,
+    status: status === "all" ? undefined : status,
   });
 
   const blockMutation = useBlockOrganization();
@@ -75,6 +85,11 @@ export function OrganizationTable() {
 
   const handleSearch = (value: string) => {
     setSearch(value);
+    setPage(1);
+  };
+
+  const handleStatusChange = (value: "all" | "active" | "blocked") => {
+    setStatus(value);
     setPage(1);
   };
 
@@ -88,10 +103,23 @@ export function OrganizationTable() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
 
-        <SearchInput
-          placeholder="Search organizations..."
-          onSearch={handleSearch}
-        />
+        <div className="flex items-center gap-3">
+          <SearchInput
+            placeholder="Search organizations..."
+            onSearch={handleSearch}
+          />
+
+          <Select value={status} onValueChange={handleStatusChange}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="blocked">Blocked</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         {isFetching && (
           <span className="text-sm text-muted-foreground">
@@ -119,7 +147,6 @@ export function OrganizationTable() {
 
             <Table>
 
-
               <TableHeader>
 
                 <TableRow>
@@ -140,7 +167,6 @@ export function OrganizationTable() {
                     Plan Name
                   </TableHead>
 
-
                   <TableHead className="min-w-[100px] font-semibold">
                     Status
                   </TableHead>
@@ -152,8 +178,6 @@ export function OrganizationTable() {
                 </TableRow>
 
               </TableHeader>
-
-
 
               <TableBody>
 
@@ -181,10 +205,6 @@ export function OrganizationTable() {
                     isDeleting ||
                     isResending;
 
-                  // Reset password should be available whenever there's an
-                  // admin account to reset — gating on admin.status === "active"
-                  // hid the action for any admin whose status was pending,
-                  // undefined, or anything else.
                   const canResetPassword = Boolean(org.admin?.email);
 
                   return (
@@ -195,14 +215,12 @@ export function OrganizationTable() {
                     >
 
                       <TableCell>
-
                         <Link
                           href={ROUTES.organizations.detail(org.id)}
                           className="font-medium hover:text-primary hover:underline"
                         >
                           {org.name}
                         </Link>
-
                       </TableCell>
 
                       <TableCell className="text-muted-foreground">
@@ -218,7 +236,6 @@ export function OrganizationTable() {
                       </TableCell>
 
                       <TableCell>
-
                         <Badge
                           variant={
                             org.status === "active"
@@ -228,15 +245,12 @@ export function OrganizationTable() {
                         >
                           {org.status}
                         </Badge>
-
                       </TableCell>
-
 
                       <TableCell>
                         <div className="flex justify-end gap-1">
 
                           {/* EDIT */}
-
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
@@ -250,12 +264,10 @@ export function OrganizationTable() {
                                 <Pencil className="h-4 w-4" />
                               </Button>
                             </TooltipTrigger>
-
                             <TooltipContent>Edit</TooltipContent>
                           </Tooltip>
 
                           {/* RESEND INVITE */}
-
                           <ConfirmDialog
                             tooltip="Resend invitation"
                             trigger={
@@ -277,7 +289,6 @@ export function OrganizationTable() {
                           />
 
                           {/* RESET PASSWORD */}
-
                           {canResetPassword && (
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -292,7 +303,6 @@ export function OrganizationTable() {
                                   <KeyRound className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
-
                               <TooltipContent>
                                 Reset password
                               </TooltipContent>
@@ -300,7 +310,6 @@ export function OrganizationTable() {
                           )}
 
                           {/* BLOCK / UNBLOCK */}
-
                           {org.status === "active" ? (
                             <ConfirmDialog
                               tooltip="Block organization"
@@ -346,7 +355,6 @@ export function OrganizationTable() {
                           )}
 
                           {/* DELETE */}
-
                           <ConfirmDialog
                             tooltip="Delete organization"
                             trigger={
@@ -382,27 +390,17 @@ export function OrganizationTable() {
 
           </div>
 
-          {/* ========================= */}
-          {/* PAGINATION */}
-          {/* ========================= */}
-
           {data?.meta && (
             <div className="border-t">
-
               <Pagination
                 meta={data.meta}
                 onPageChange={setPage}
               />
-
             </div>
           )}
 
         </div>
       )}
-
-      {/* ========================= */}
-      {/* EDIT DIALOG */}
-      {/* ========================= */}
 
       <EditOrganizationDialog
         organization={editingOrg}

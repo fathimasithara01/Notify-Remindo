@@ -13,10 +13,12 @@ export interface OrganizationListFilters {
 
 export interface OrganizationListResult {
   items: OrganizationWithAdmin[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
 
 export interface IOrganizationRepository {
