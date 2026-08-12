@@ -1,11 +1,8 @@
+// components/features/feature-toolbar.tsx
 "use client";
 
-import { Search, Plus, RotateCw } from "lucide-react";
-
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
-
 import {
   Select,
   SelectContent,
@@ -13,180 +10,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FeatureStatus } from "../../types/feature.types";
+import { useDebouncedValue } from "../../hooks/features/use-debounced-value";
+import { useEffect, useState } from "react";
 
 interface FeatureToolbarProps {
-
   search: string;
-
   onSearchChange: (value: string) => void;
-
-  status: string;
-
-  onStatusChange: (
-    value: string
-  ) => void;
-
-  onRefresh: () => void;
-
+  status: FeatureStatus | "all";
+  onStatusChange: (value: FeatureStatus | "all") => void;
   onCreate: () => void;
-
-  isRefreshing?: boolean;
-
 }
 
 export function FeatureToolbar({
-
   search,
-
   onSearchChange,
-
   status,
-
   onStatusChange,
-
-  onRefresh,
-
   onCreate,
-
-  isRefreshing = false,
-
 }: FeatureToolbarProps) {
+  const [value, setValue] = useState(search);
+  const debounced = useDebouncedValue(value, 400);
+
+  useEffect(() => {
+    onSearchChange(debounced);
+  }, [debounced]);
 
   return (
-
-    <div
-      className="
-        flex
-        flex-col
-        gap-4
-        md:flex-row
-        md:items-center
-        md:justify-between
-      "
-    >
-
-      {/* Search + Filter */}
-
-      <div
-        className="
-          flex
-          flex-1
-          flex-col
-          gap-3
-          sm:flex-row
-        "
-      >
-
-        <div className="relative flex-1">
-
-          <Search
-            className="
-              absolute
-              left-3
-              top-1/2
-              h-4
-              w-4
-              -translate-y-1/2
-              text-muted-foreground
-            "
-          />
-
-          <Input
-
-            value={search}
-
-            onChange={(e) =>
-              onSearchChange(
-                e.target.value
-              )
-            }
-
-            placeholder="Search features..."
-
-            className="pl-10"
-
-          />
-
-        </div>
-
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2">
+        <Input
+          placeholder="Search features..."
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="w-64"
+        />
         <Select
-
           value={status}
-
-          onValueChange={
-            onStatusChange
-          }
-
+          onValueChange={(v) => onStatusChange(v as FeatureStatus | "all")}
         >
-
-          <SelectTrigger
-            className="w-full sm:w-44"
-          >
-
-            <SelectValue />
-
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder="Status" />
           </SelectTrigger>
-
           <SelectContent>
-
-            <SelectItem value="all">
-              All Status
-            </SelectItem>
-
-            <SelectItem value="active">
-              Active
-            </SelectItem>
-
-            <SelectItem value="inactive">
-              Inactive
-            </SelectItem>
-
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value={FeatureStatus.ACTIVE}>Active</SelectItem>
+            <SelectItem value={FeatureStatus.INACTIVE}>Inactive</SelectItem>
           </SelectContent>
-
         </Select>
-
       </div>
-
-      {/* Actions */}
-
-      <div className="flex gap-2">
-
-        <Button
-
-          variant="outline"
-
-          onClick={onRefresh}
-
-          disabled={isRefreshing}
-
-        >
-
-          <RotateCw
-            className={`mr-2 h-4 w-4 ${
-              isRefreshing
-                ? "animate-spin"
-                : ""
-            }`}
-          />
-
-          Refresh
-
-        </Button>
-
-        <Button
-          onClick={onCreate}
-        >
-
-          <Plus className="mr-2 h-4 w-4" />
-
-          New Feature
-
-        </Button>
-
-      </div>
-
+      <Button onClick={onCreate}>Add Feature</Button>
     </div>
-
   );
-
 }

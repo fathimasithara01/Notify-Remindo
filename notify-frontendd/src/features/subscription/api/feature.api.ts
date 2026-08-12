@@ -1,53 +1,36 @@
 import { apiClient } from '@/lib/api/client';
-import { CreateFeatureInput, Feature } from '../types/feature.types';
-import { toQueryParams } from '@/features/rbac/shared/query-params';
-
-const BASE_URL = '/subscription-plans/features';
-
-export interface FeatureListParams {
-  page?: number;
-  limit?: number;
-  status?: 'active' | 'inactive';
-  search?: string;
-}
-
-export interface FeatureListResponse {
-  items: Feature[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+import { PaginatedResult } from '@/types/pagination';
+import {
+  Feature,
+  CreateFeatureInput,
+  UpdateFeatureInput,
+  FeatureFilters,
+} from '../types/feature.types';
 
 export const featureApi = {
-  list: (params?: FeatureListParams): Promise<FeatureListResponse> =>
-    apiClient.get<FeatureListResponse>(
-      BASE_URL,
-      toQueryParams(params ?? {}),
-    ),
+  list: (filters?: FeatureFilters) =>
+    apiClient.get<PaginatedResult<Feature>>('/features', {
+      status: filters?.status,
+      search: filters?.search,
+      page: filters?.page?.toString(),
+      limit: filters?.limit?.toString(),
+    }),
 
-  findById: (id: string): Promise<Feature> =>
-    apiClient.get<Feature>(
-      `${BASE_URL}/${id}`
-    ),
+  getOne: (id: string) =>
+    apiClient.get<Feature>(`/features/${id}`),
 
-  create: (data: CreateFeatureInput): Promise<Feature> =>
-    apiClient.post<Feature>(
-      BASE_URL,
-      data
-    ),
+  create: (payload: CreateFeatureInput) =>
+    apiClient.post<Feature>('/features', payload),
 
-  update: (
-    id: string,
-    data: Partial<CreateFeatureInput>
-  ): Promise<Feature> =>
-    apiClient.patch<Feature>(
-      `${BASE_URL}/${id}`,
-      data
-    ),
+  update: (id: string, payload: UpdateFeatureInput) =>
+    apiClient.patch<Feature>(`/features/${id}`, payload),
 
-  remove: (id: string): Promise<void> =>
-    apiClient.delete<void>(
-      `${BASE_URL}/${id}`
-    ),
+  delete: (id: string) =>
+    apiClient.delete<null>(`/features/${id}`),
+
+  block: (id: string) =>
+    apiClient.post<Feature>(`/features/${id}/block`),
+
+  unblock: (id: string) =>
+    apiClient.post<Feature>(`/features/${id}/unblock`),
 };

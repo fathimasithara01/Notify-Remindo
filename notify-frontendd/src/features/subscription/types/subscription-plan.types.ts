@@ -1,66 +1,45 @@
 export const SubscriptionPlanStatus = {
-  DRAFT: "draft",
   ACTIVE: "active",
   INACTIVE: "inactive",
 } as const;
 
-export type SubscriptionPlanStatus = typeof SubscriptionPlanStatus[keyof typeof SubscriptionPlanStatus];
+export type SubscriptionPlanStatus =
+  (typeof SubscriptionPlanStatus)[keyof typeof SubscriptionPlanStatus];
 
-export type Currency =
-  | "USD"
-  | "EUR"
-  | "INR";
-
-export type BillingInterval =
-  | "weekly"
-  | "monthly"
-  | "yearly";
+export type Currency = "USD" | "EUR" | "INR";
 
 export interface SubscriptionPlan {
-  id:string;
-  name:string;
-  description?:string;
-  priceInMinorUnit:number; //Payment gateways (Razorpay, Stripe, etc.) um usually minor units aanu expect cheyyunnath. priceInMinorUnit ennathu subscription plan inte price, currency-yude smallest unit-il store cheyyunnath aanu.
-  currency:Currency;
-  billingInterval:BillingInterval;
-  trialDays?:number;
-  status:SubscriptionPlanStatus;
-  deletedAt: Date | null;
-  createdAt:Date;
-  updatedAt:Date;
+  id: string;
+  title: string;
+  description?: string;
+  amountValue: number;
+  currency: Currency;
+  userLimit: number;
+  storageLimit: number;
+  featureIds: string[];
+  status: SubscriptionPlanStatus;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface CreateSubscriptionPlanInput {
-  name:string;
-  description?:string;
-  priceInMinorUnit:number;
-  currency:Currency;
-  billingInterval:BillingInterval;
-  trialDays?:number;
-  status?:SubscriptionPlanStatus;
-}
+export type CreateSubscriptionPlanInput = Omit<SubscriptionPlan,
+  "id" | "status" | "createdAt" | "updatedAt" | "deletedAt"
+>;
 
-export interface UpdateSubscriptionPlanInput {
-  name?:string;
-  description?:string;
-  priceInMinorUnit?:number;
-  currency?:Currency;
-  billingInterval?:BillingInterval;
-  trialDays?:number;
-  status?:SubscriptionPlanStatus;
-}
+export type UpdateSubscriptionPlanInput = Partial<CreateSubscriptionPlanInput>;
 
-export interface SubscriptionPlanListFilters {
-  page?:number;
-  limit?:number;
+export interface SubscriptionPlanFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
   status?: SubscriptionPlanStatus;
-  search?:string;
+  currency?: Currency;
 }
 
-export interface SubscriptionPlanListResponse {
-  items:SubscriptionPlan[];
-  total:number;
-  page:number;
-  limit:number;
-  totalPages:number;
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
 }

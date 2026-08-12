@@ -1,54 +1,27 @@
 import { z } from "zod";
+import { FeatureStatus } from "../types/feature.types";
 
-export const createFeatureSchema =
-  z.object({
+export const createFeatureSchema = z.object({
+  title: z
+    .string()
+    .min(2, "Title must be at least 2 characters")
+    .max(100, "Title must be under 100 characters"),
+  description: z
+    .string()
+    .max(500, "Description must be under 500 characters")
+    .optional(),
+  category: z
+    .string()
+    .max(50, "Category must be under 50 characters")
+    .optional(),
+});
 
-    key: z
-      .string()
-      .min(2, "Key is required")
-      .max(100),
+export const updateFeatureSchema = createFeatureSchema.partial();
 
-    label: z
-      .string()
-      .min(2, "Label is required")
-      .max(100),
+export const featureStatusSchema = z.enum([
+  FeatureStatus.ACTIVE,
+  FeatureStatus.INACTIVE,
+]);
 
-    description: z
-      .string()
-      .max(500)
-      .optional(),
-
-    category: z
-      .string()
-      .max(100)
-      .optional(),
-
-    dataType: z.enum([
-      "boolean",
-      "string",
-      "number",
-    ]),
-
-    displayOrder: z
-      .number()
-      .min(0)
-      .optional(),
-
-    status: z.enum([
-      "active",
-      "inactive",
-    ]),
-  });
-
-export const updateFeatureSchema =
-  createFeatureSchema.partial();
-
-export type CreateFeatureFormData =
-  z.infer<
-    typeof createFeatureSchema
-  >;
-
-export type UpdateFeatureFormData =
-  z.infer<
-    typeof updateFeatureSchema
-  >;
+export type CreateFeatureFormValues = z.infer<typeof createFeatureSchema>;
+export type UpdateFeatureFormValues = z.infer<typeof updateFeatureSchema>;

@@ -1,64 +1,37 @@
 import { apiClient } from '@/lib/api/client';
-import { toQueryParams } from '@/features/rbac/shared/query-params';
+import { PaginatedResult } from '@/types/pagination';
 import {
   SubscriptionPlan,
   CreateSubscriptionPlanInput,
+  UpdateSubscriptionPlanInput,
+  SubscriptionPlanFilters,
 } from '../types/subscription-plan.types';
 
-const BASE_URL = '/subscription-plans';
-
-export interface SubscriptionPlanListParams {
-  page?: number;
-  limit?: number;
-  status?: 'draft' | 'active' | 'inactive';
-  search?: string;
-}
-
-export interface SubscriptionPlanListResponse {
-  items: SubscriptionPlan[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
 export const subscriptionPlanApi = {
-  list: (
-    params?: SubscriptionPlanListParams
-  ): Promise<SubscriptionPlanListResponse> =>
-    apiClient.get<SubscriptionPlanListResponse>(
-      BASE_URL,
-      toQueryParams(params ?? {})
-    ),
+  list: (filters?: SubscriptionPlanFilters) =>
+    apiClient.get<PaginatedResult<SubscriptionPlan>>('/subscription-plans', {
+      status: filters?.status,
+      currency: filters?.currency,
+      search: filters?.search,
+      page: filters?.page?.toString(),
+      limit: filters?.limit?.toString(),
+    }),
 
-  findById: (
-    id: string
-  ): Promise<SubscriptionPlan> =>
-    apiClient.get<SubscriptionPlan>(
-      `${BASE_URL}/${id}`
-    ),
+  getOne: (id: string) =>
+    apiClient.get<SubscriptionPlan>(`/subscription-plans/${id}`),
 
-  create: (
-    data: CreateSubscriptionPlanInput
-  ): Promise<SubscriptionPlan> =>
-    apiClient.post<SubscriptionPlan>(
-      BASE_URL,
-      data
-    ),
+  create: (payload: CreateSubscriptionPlanInput) =>
+    apiClient.post<SubscriptionPlan>('/subscription-plans', payload),
 
-  update: (
-    id: string,
-    data: Partial<CreateSubscriptionPlanInput>
-  ): Promise<SubscriptionPlan> =>
-    apiClient.patch<SubscriptionPlan>(
-      `${BASE_URL}/${id}`,
-      data
-    ),
+  update: (id: string, payload: UpdateSubscriptionPlanInput) =>
+    apiClient.patch<SubscriptionPlan>(`/subscription-plans/${id}`, payload),
 
-  remove: (
-    id: string
-  ): Promise<void> =>
-    apiClient.delete<void>(
-      `${BASE_URL}/${id}`
-    ),
+  delete: (id: string) =>
+    apiClient.delete<null>(`/subscription-plans/${id}`),
+
+  block: (id: string) =>
+    apiClient.post<SubscriptionPlan>(`/subscription-plans/${id}/block`),
+
+  unblock: (id: string) =>
+    apiClient.post<SubscriptionPlan>(`/subscription-plans/${id}/unblock`),
 };

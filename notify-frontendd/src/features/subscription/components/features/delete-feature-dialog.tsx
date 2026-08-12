@@ -1,28 +1,24 @@
+// components/features/delete-feature-dialog.tsx
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
-import { Button } from "@/components/ui/button";
-
-import { Loader2, Trash2 } from "lucide-react";
-
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Feature } from "../../types/feature.types";
-
-import {
-  useDeleteFeature,
-} from "../../hooks/features/use-delete-feature";
+import { useDeleteFeature } from "../../hooks/features/useFeature";
+import { toast } from "sonner";
 
 interface DeleteFeatureDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  feature?: Feature;
+  feature: Feature | null;
 }
 
 export function DeleteFeatureDialog({
@@ -30,99 +26,40 @@ export function DeleteFeatureDialog({
   onOpenChange,
   feature,
 }: DeleteFeatureDialogProps) {
+  const deleteFeature = useDeleteFeature();
 
-  const deleteMutation =
-    useDeleteFeature();
-
-  const handleDelete = () => {
-
+  const onConfirm = () => {
     if (!feature) return;
-
-    deleteMutation.mutate(
-      feature.id,
-      {
-        onSuccess: () => {
-          onOpenChange(false);
-        },
-      }
-    );
-
+    deleteFeature.mutate(feature.id, {
+      onSuccess: () => {
+        toast.success("Feature deleted");
+        onOpenChange(false);
+      },
+      onError: () => toast.error("Failed to delete feature"),
+    });
   };
 
   return (
-
-    <Dialog
-      open={open}
-      onOpenChange={onOpenChange}
-    >
-
-      <DialogContent className="sm:max-w-md">
-
-        <DialogHeader>
-
-          <DialogTitle className="flex items-center gap-2">
-
-            <Trash2 className="h-5 w-5 text-destructive" />
-
-            Delete Feature
-
-          </DialogTitle>
-
-          <DialogDescription>
-
-            This action cannot be undone.
-
-            <br />
-
-            Are you sure you want to delete
-
-            <span className="font-semibold">
-              {" "}
-              {feature?.label}
-            </span>
-
-            ?
-
-          </DialogDescription>
-
-        </DialogHeader>
-
-        <DialogFooter>
-
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={deleteMutation.isPending}
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete feature?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete "{feature?.title}". This action
+            cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={onConfirm}
+            disabled={deleteFeature.isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Cancel
-          </Button>
-
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-          >
-
-            {deleteMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deleting...
-              </>
-            ) : (
-              <>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Feature
-              </>
-            )}
-
-          </Button>
-
-        </DialogFooter>
-
-      </DialogContent>
-
-    </Dialog>
-
+            {deleteFeature.isPending ? "Deleting..." : "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
-
 }

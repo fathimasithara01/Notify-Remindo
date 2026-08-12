@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { useCreateOrganization } from "../hooks/useOrganizationMutations";
-import { useSubscriptionPlans } from "@/features/subscription/hooks/plans/use-subscription-plans";
+import { useSubscriptionPlans } from "@/features/subscription/hooks/plans/useSubscriptionPlan";
 
 import {
   createOrganizationSchema,

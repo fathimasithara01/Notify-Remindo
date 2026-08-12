@@ -10,99 +10,55 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-import { Loader2 } from "lucide-react";
-
 import { SubscriptionPlan } from "../../types/subscription-plan.types";
+import { useDeleteSubscriptionPlan } from "../../hooks/plans/useSubscriptionPlan";
+import { toast } from "sonner";
 
 interface DeleteSubscriptionPlanDialogProps {
   open: boolean;
-  plan?: SubscriptionPlan | null;
-  loading?: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  plan: SubscriptionPlan | null;
 }
 
 export function DeleteSubscriptionPlanDialog({
   open,
-  plan,
-  loading = false,
   onOpenChange,
-  onConfirm,
+  plan,
 }: DeleteSubscriptionPlanDialogProps) {
+  const deletePlan = useDeleteSubscriptionPlan();
+
+  const onConfirm = () => {
+    if (!plan) return;
+    deletePlan.mutate(plan.id, {
+      onSuccess: () => {
+        toast.success("Plan deleted");
+        onOpenChange(false);
+      },
+      onError: () => toast.error("Failed to delete plan"),
+    });
+  };
+
   return (
-    <AlertDialog
-      open={open}
-      onOpenChange={onOpenChange}
-    >
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
-
         <AlertDialogHeader>
-
-          <AlertDialogTitle>
-            Delete Subscription Plan
-          </AlertDialogTitle>
-
+          <AlertDialogTitle>Delete plan?</AlertDialogTitle>
           <AlertDialogDescription>
-
-            Are you sure you want to delete
-
-            <span className="font-semibold">
-              {" "}
-              "{plan?.name}"
-            </span>
-
-            ?
-
-            <br />
-            <br />
-
-            This action cannot be undone.
-
+            This will permanently delete "{plan?.title}". This action cannot
+            be undone.
           </AlertDialogDescription>
-
         </AlertDialogHeader>
-
         <AlertDialogFooter>
-
-          <AlertDialogCancel
-            disabled={loading}
-          >
-            Cancel
-          </AlertDialogCancel>
-
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            disabled={loading}
-            onClick={(e) => {
-              e.preventDefault();
-              onConfirm();
-            }}
-            className="
-              bg-destructive
-              hover:bg-destructive/90
-            "
+            onClick={onConfirm}
+            disabled={deletePlan.isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {loading && (
-              <Loader2
-                className="
-                  mr-2
-                  h-4
-                  w-4
-                  animate-spin
-                "
-              />
-            )}
-
-            {loading
-              ? "Deleting..."
-              : "Delete"}
-
+            {deletePlan.isPending ? "Deleting..." : "Delete"}
           </AlertDialogAction>
-
         </AlertDialogFooter>
-
       </AlertDialogContent>
-
     </AlertDialog>
   );
 }

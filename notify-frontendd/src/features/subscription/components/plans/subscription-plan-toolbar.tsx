@@ -1,11 +1,9 @@
+// components/plans/subscription-plan-toolbar.tsx
 "use client";
 
-import { Search, RotateCw, Plus } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -13,165 +11,73 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-export interface SubscriptionPlanFilters {
-  search: string;
-  status: "all" | "draft" | "active" | "inactive";
-}
+import { SubscriptionPlanStatus, Currency } from "../../types/subscription-plan.types";
+import { useDebouncedValue } from "../../hooks/features/use-debounced-value";
 
 interface SubscriptionPlanToolbarProps {
-  filters: SubscriptionPlanFilters;
-
-  total: number;
-
-  isRefreshing?: boolean;
-
-  onFiltersChange: (
-    filters: SubscriptionPlanFilters
-  ) => void;
-
-  onRefresh: () => void;
-
+  search: string;
+  onSearchChange: (value: string) => void;
+  status: SubscriptionPlanStatus | "all";
+  onStatusChange: (value: SubscriptionPlanStatus | "all") => void;
+  currency: Currency | "all";
+  onCurrencyChange: (value: Currency | "all") => void;
   onCreate: () => void;
 }
 
 export function SubscriptionPlanToolbar({
-  filters,
-  total,
-  isRefreshing = false,
-  onFiltersChange,
-  onRefresh,
+  search,
+  onSearchChange,
+  status,
+  onStatusChange,
+  currency,
+  onCurrencyChange,
   onCreate,
 }: SubscriptionPlanToolbarProps) {
+  const [value, setValue] = useState(search);
+  const debounced = useDebouncedValue(value, 400);
+
+  useEffect(() => {
+    onSearchChange(debounced);
+  }, [debounced]);
+
   return (
-    <div className="flex flex-col gap-4 rounded-lg border bg-background p-4">
-
-      {/* Header */}
-
-      <div className="flex items-center justify-between">
-
-        <div>
-
-          <h2 className="text-xl font-semibold">
-            Subscription Plans
-          </h2>
-
-          <p className="text-sm text-muted-foreground">
-            Manage subscription plans available for organizations.
-          </p>
-
-        </div>
-
-        <Button
-          onClick={onCreate}
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2">
+        <Input
+          placeholder="Search plans..."
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="w-64"
+        />
+        <Select
+          value={status}
+          onValueChange={(v) => onStatusChange(v as SubscriptionPlanStatus | "all")}
         >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Plan
-        </Button>
-
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value={SubscriptionPlanStatus.ACTIVE}>Active</SelectItem>
+            <SelectItem value={SubscriptionPlanStatus.INACTIVE}>Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={currency}
+          onValueChange={(v) => onCurrencyChange(v as Currency | "all")}
+        >
+          <SelectTrigger className="w-28">
+            <SelectValue placeholder="Currency" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="USD">USD</SelectItem>
+            <SelectItem value="EUR">EUR</SelectItem>
+            <SelectItem value="INR">INR</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-
-      {/* Filters */}
-
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-
-        <div className="flex flex-1 gap-3">
-
-          {/* Search */}
-
-          <div className="relative w-full max-w-sm">
-
-            <Search
-              className="
-                absolute
-                left-3
-                top-1/2
-                h-4
-                w-4
-                -translate-y-1/2
-                text-muted-foreground
-              "
-            />
-
-            <Input
-              placeholder="Search plans..."
-              value={filters.search}
-              onChange={(e) =>
-                onFiltersChange({
-                  ...filters,
-                  search: e.target.value,
-                })
-              }
-              className="pl-9"
-            />
-
-          </div>
-
-          {/* Status */}
-
-          <Select
-            value={filters.status}
-            onValueChange={(value) =>
-              onFiltersChange({
-                ...filters,
-                status: value as SubscriptionPlanFilters["status"],
-              })
-            }
-          >
-
-            <SelectTrigger className="w-44">
-              <SelectValue />
-            </SelectTrigger>
-
-            <SelectContent>
-
-              <SelectItem value="all">
-                All Status
-              </SelectItem>
-
-              <SelectItem value="active">
-                Active
-              </SelectItem>
-
-              <SelectItem value="draft">
-                Draft
-              </SelectItem>
-
-              <SelectItem value="inactive">
-                Inactive
-              </SelectItem>
-
-            </SelectContent>
-
-          </Select>
-
-        </div>
-
-        <div className="flex items-center gap-3">
-
-          <span className="text-sm text-muted-foreground">
-            {total} Plans
-          </span>
-
-          <Button
-            variant="outline"
-            size="icon"
-            disabled={isRefreshing}
-            onClick={onRefresh}
-          >
-            <RotateCw
-              className={`h-4 w-4 ${
-                isRefreshing
-                  ? "animate-spin"
-                  : ""
-              }`}
-            />
-          </Button>
-
-        </div>
-
-      </div>
-
+      <Button onClick={onCreate}>Add Plan</Button>
     </div>
   );
 }

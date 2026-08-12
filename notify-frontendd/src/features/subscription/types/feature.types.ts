@@ -3,45 +3,36 @@ export const FeatureStatus = {
   INACTIVE: "inactive",
 } as const;
 
-export type FeatureStatus = typeof FeatureStatus[keyof typeof FeatureStatus];
+export type FeatureStatus = (typeof FeatureStatus)[keyof typeof FeatureStatus];
 
-export const FeatureDataType = {
-  BOOLEAN: "boolean",
-  STRING: "string",
-  NUMBER: "number",
-} as const;
 
-export type FeatureDataType =typeof FeatureDataType[keyof typeof FeatureDataType];
+export interface FeatureFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: FeatureStatus;
+}
 
 export interface Feature {
   id: string;
-
-  key: string;
-
-  label: string;
-
+  title: string;
   description?: string;
-
   category?: string;
-
-  dataType: FeatureDataType;
-
-  displayOrder?: number;
-
   status: FeatureStatus;
-
-  deletedAt: Date | null;
-
-  createdAt: Date;
-
-  updatedAt: Date;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export type CreateFeatureInput =
-  Omit<
-    Feature,
-    | "id"
-    | "deletedAt"
-    | "createdAt"
-    | "updatedAt"
-  >;
+export type CreateFeatureInput = Omit<Feature,
+  "id" | "status" | "createdAt" | "updatedAt" | "deletedAt"
+>;
+
+export type UpdateFeatureInput = Partial<CreateFeatureInput>;
+
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
