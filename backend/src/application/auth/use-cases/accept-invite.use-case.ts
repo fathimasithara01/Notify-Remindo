@@ -29,17 +29,14 @@ export class AcceptInviteUseCase {
     if (!user || user.status !== 'invited') {
       throw new DomainError('This invite link is invalid or has already been used.');
     }
-    if (!user.inviteTokenExpiresAt || user.inviteTokenExpiresAt.getTime() < Date.now()) {
-      throw new DomainError('This invite link has expired. Ask an admin to resend it.');
-    }
+
 
     const passwordHash = await this.hashService.hash(data.password);
 
     const updated = await this.platformUserRepo.update(user.id, {
       passwordHash,
       status: 'active',
-      inviteToken: undefined,
-      inviteTokenExpiresAt: undefined,
+
     });
     if (!updated) throw new DomainError('Failed to activate account. Please try again.');
 

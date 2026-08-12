@@ -6,16 +6,15 @@ import type {
     UpdateUserDto,
     User,
     UserFilters,
-    ResendInviteResponse,
     RequestPasswordResetResponse,
 } from '../types/user.types';
 import { apiClient } from '@/lib/api/client';
 
-const BASE_URL = '/users';
+const BASE_URL = '/admin';
 
 export const usersApi = {
-    list: (filters: UserFilters): Promise<PaginatedResult<User>> =>
-        apiClient.get<PaginatedResult<User>>(BASE_URL, toQueryParams(filters)),
+    list: (filters: UserFilters): Promise<User> =>
+        apiClient.get<User>(BASE_URL, toQueryParams(filters)),
 
     getOne: (id: string): Promise<User> =>
         apiClient.get<User>(`${BASE_URL}/${id}`),
@@ -25,9 +24,6 @@ export const usersApi = {
 
     update: (id: string, payload: UpdateUserDto): Promise<User> =>
         apiClient.patch<User>(`${BASE_URL}/${id}`, payload),
-
-    resendInvite: (id: string): Promise<ResendInviteResponse> =>
-        apiClient.post<ResendInviteResponse>(`${BASE_URL}/${id}/resend-invite`),
 
     requestPasswordReset: (id: string): Promise<RequestPasswordResetResponse> =>
         apiClient.post<RequestPasswordResetResponse>(`${BASE_URL}/${id}/request-password-reset`),

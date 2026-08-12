@@ -8,9 +8,9 @@ import { DeletePlatformUserUseCase } from '../../application/platform-user/use-c
 import { parsePaginationParams } from '../../shared/utils/pagination';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { RevokeSessionsUseCase } from '../../application/platform-user/use-cases/revoke-sessions.use-case';
-import { UserResendInviteUseCase } from '../../application/platform-user/use-cases/resend-invite.use-case';
 import { RequestPasswordResetUseCase } from '../../application/platform-user/use-cases/request-password-reset.use-case';
 import { UnauthorizedError } from '../../domain/errors/domain.error';
+import { GetPlatformUserUseCase } from '../../application/platform-user/use-cases/get-platform-user.use-case';
 
 @injectable()
 export class PlatformUserController {
@@ -19,16 +19,18 @@ export class PlatformUserController {
         @inject(TOKENS.EditPlatformUserUseCase) private editUseCase: EditPlatformUserUseCase,
         @inject(TOKENS.ListPlatformUsersUseCase) private listUseCase: ListPlatformUsersUseCase,
         @inject(TOKENS.DeletePlatformUserUseCase) private deleteUseCase: DeletePlatformUserUseCase,
+        @inject(TOKENS.GetPlatformUserUseCase) private getOneUseCase: GetPlatformUserUseCase,
         @inject(TOKENS.RevokeSessionsUseCase) private revokeSessionsUseCase: RevokeSessionsUseCase,
-        @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: UserResendInviteUseCase,
-        @inject(TOKENS.RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase
+        @inject(TOKENS.RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase,
+
     ) { }
 
     create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { user, temporaryPassword } = await this.createUseCase.execute(req.body);
-            // TODO: send temporaryPassword via email using EmailNotifierService, do not return it in response
-            res.status(201).json({ success: true, data: user });
+            const { firstName, lastName, email, phone, roleId, password } = req.body;
+            const user = await this.createUseCase.execute({ firstName, lastName, email, phone, roleId, password });
+            const { passwordHash, ...safeUser } = user;
+            res.status(201).json({ success: true, data: safeUser });
         } catch (err) {
             next(err);
         }
@@ -37,6 +39,16 @@ export class PlatformUserController {
     update = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = await this.editUseCase.execute({ id: req.params.id, ...req.body });
+            const { passwordHash, ...safeUser } = user;
+            res.status(200).json({ success: true, data: safeUser });
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    getOne = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await this.getOneUseCase.execute(req.params.id);
             res.status(200).json({ success: true, data: user });
         } catch (err) {
             next(err);
@@ -67,12 +79,6 @@ export class PlatformUserController {
         }
     };
 
-    resendInvite = async (req: Request, res: Response): Promise<void> => {
-        if (!req.user) throw new UnauthorizedError();
-        const result = await this.resendInviteUseCase.execute(req.params.id, req.user.id);
-        ApiResponse.success(res, result, 200, 'Invite resent');
-    };
-
     requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
         if (!req.user) throw new UnauthorizedError();
         const result = await this.requestPasswordResetUseCase.execute(req.params.id, req.user.id);
@@ -84,4 +90,6 @@ export class PlatformUserController {
         await this.revokeSessionsUseCase.execute({ userId: req.params.id, adminId: req.user.id });
         ApiResponse.success(res, null, 200, 'All sessions revoked for this user');
     };
+
+
 }

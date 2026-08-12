@@ -1,8 +1,9 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
-import { PlatformUser, PlatformUserStatus } from '../../../domain/entities/platformUser.entity';
+import { PlatformUserStatus } from '../../../domain/entities/platformUser.entity';
 import { PaginatedResult, PaginationParams } from '../../../shared/utils/pagination';
+import { PlatformUserWithRole } from '../../dtos/platform-user.dto';
 
 interface ListPlatformUsersInput {
   status?: PlatformUserStatus;
@@ -14,7 +15,7 @@ interface ListPlatformUsersInput {
 export class ListPlatformUsersUseCase {
   constructor(@inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository) {}
 
-  async execute(input: ListPlatformUsersInput): Promise<PaginatedResult<PlatformUser>> {
+  async execute(input: ListPlatformUsersInput): Promise<PaginatedResult<PlatformUserWithRole>> {
     return this.platformUserRepo.list({
       status: input.status,
       search: input.search,

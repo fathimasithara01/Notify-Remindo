@@ -22,7 +22,6 @@ import { TokenRevocationRegistry } from '../cache/token-revocation-registry';
 import { LoginAdminUseCase } from '../../application/auth/use-cases/login-admin.use-case';
 import { RefreshTokenUseCase } from '../../application/auth/use-cases/refresh-token.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-current-user.use-case';
-import { VerifyInviteTokenUseCase } from '../../application/auth/use-cases/verify-invite-token.use-case';
 import { AcceptInviteUseCase } from '../../application/auth/use-cases/accept-invite.use-case';
 import { ResendInviteUseCase } from '../../application/organization/use-cases/resend-invite.use-case';
 import { CreateUserUseCase } from '../../application/user/use-cases/create-user.use-case';
@@ -72,7 +71,6 @@ import { SetOrganizationAdminPasswordUseCase } from '../../application/organizat
 import { CancelInviteUseCase } from '../../application/organization/use-cases/Cancel-invite-use-case';
 import { RequestPasswordResetUseCase } from '../../application/platform-user/use-cases/request-password-reset.use-case';
 import { ResetPasswordUseCase } from '../../application/auth/use-cases/reset-password.use-case';
-import { UserResendInviteUseCase } from '../../application/platform-user/use-cases/resend-invite.use-case';
 import { ChangePasswordUseCase } from '../../application/auth/use-cases/change-password.use-case';
 import { PermissionResolver } from '../services/PermissionResolver';
 import { ListRolesUseCase } from '../../application/role/use-cases/list-roles.use-case';
@@ -84,6 +82,7 @@ import { DeletePlatformUserUseCase } from '../../application/platform-user/use-c
 import { PlatformUserController } from '../../presentation/controllers/platform-user.controller';
 import { OrganizationRepository } from '../database/repositories/organization.repository';
 import { RevokeUserSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
+import { GetPlatformUserUseCase } from '../../application/platform-user/use-cases/get-platform-user.use-case';
 
 export function registerDependencies(): void {
   // Repositories
@@ -108,7 +107,6 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.TokenRevocationRegistry, TokenRevocationRegistry);
   container.registerSingleton(TOKENS.FileStorageService, S3FileStorageService);
 
-  container.registerSingleton(TOKENS.UserResendInviteUseCase, UserResendInviteUseCase);
   container.registerSingleton(TOKENS.RequestPasswordResetUseCase, RequestPasswordResetUseCase);
   container.registerSingleton(TOKENS.ResetPasswordUseCase, ResetPasswordUseCase);
   container.registerSingleton(TOKENS.ChangePasswordUseCase, ChangePasswordUseCase);
@@ -123,7 +121,6 @@ export function registerDependencies(): void {
   container.register(TOKENS.LoginAdminUseCase, { useClass: LoginAdminUseCase });
   container.register(TOKENS.RefreshTokenUseCase, { useClass: RefreshTokenUseCase });
   container.register(TOKENS.GetCurrentUserUseCase, { useClass: GetCurrentUserUseCase });
-  container.register(TOKENS.VerifyInviteTokenUseCase, { useClass: VerifyInviteTokenUseCase });
   container.register(TOKENS.AcceptInviteUseCase, { useClass: AcceptInviteUseCase });
   container.register(TOKENS.ResendInviteUseCase, { useClass: ResendInviteUseCase });
   container.register(TOKENS.CreateUserUseCase, { useClass: CreateUserUseCase });
@@ -156,6 +153,8 @@ export function registerDependencies(): void {
   container.register(TOKENS.LogoutAllDevicesUseCase, LogoutAllDevicesUseCase);
   container.register(TOKENS.SetOrganizationAdminPasswordUseCase, SetOrganizationAdminPasswordUseCase);
   container.register(TOKENS.CancelInviteUseCase, CancelInviteUseCase);
+    container.register(TOKENS.GetPlatformUserUseCase, GetPlatformUserUseCase);
+
 
   // Controllers
   container.registerSingleton(TOKENS.AuthController, AuthController);
@@ -179,6 +178,8 @@ export function registerDependencies(): void {
   container.register(TOKENS.ListPlatformUsersUseCase, { useClass: ListPlatformUsersUseCase });
   container.register(TOKENS.DeletePlatformUserUseCase, { useClass: DeletePlatformUserUseCase });
   container.registerSingleton(TOKENS.PlatformUserController, PlatformUserController);
+
+  
 }
 
 export { container };

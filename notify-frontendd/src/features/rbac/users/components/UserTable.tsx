@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { USER_STATUS_META } from '../../shared/constants';
+// import { useRole } from '../../roles/hooks/useRole';
 import type { User } from '../types/user.types';
 
 interface UserTableProps {
@@ -31,9 +32,20 @@ interface UserTableProps {
   onDelete: (user: User) => void;
   onManageRoles: (user: User) => void;
   onRevokeSessions: (user: User) => void;
-  onResendInvite: (user: User) => void;
   onRequestPasswordReset: (user: User) => void;
 }
+
+/** Renders a single row's role badge. Split out so useRole (one call per
+ * row) doesn't violate the rules of hooks inside users.map(). */
+// function RoleCell({ roleId }: { roleId: string }) {
+//   const { data: role, isLoading } = useRole(roleId);
+//   if (isLoading) return <Skeleton className="h-5 w-16" />;
+//   return role ? (
+//     <Badge variant="outline">{role.name}</Badge>
+//   ) : (
+//     <span className="text-muted-foreground">—</span>
+//   );
+// }
 
 export function UserTable({
   users,
@@ -44,7 +56,6 @@ export function UserTable({
   onDelete,
   onManageRoles,
   onRevokeSessions,
-  onResendInvite,
   onRequestPasswordReset,
 }: UserTableProps) {
   if (isLoading) {
@@ -76,6 +87,7 @@ export function UserTable({
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
+            <TableHead>Role</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="w-12" />
           </TableRow>
@@ -100,7 +112,14 @@ export function UserTable({
                 </TableCell>
                 <TableCell className="text-muted-foreground">{user.email}</TableCell>
                 <TableCell className="text-muted-foreground">
-                  {user.phone ?? '—'}
+                  {user.phone || '—'}
+                </TableCell>
+               <TableCell>
+                  {user.role ? (
+                    <Badge variant="outline">{user.role.name}</Badge>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Badge variant={statusMeta.variant}>{statusMeta.label}</Badge>
@@ -122,13 +141,6 @@ export function UserTable({
                         <ShieldCheck className="mr-2 h-4 w-4" />
                         Manage roles
                       </DropdownMenuItem>
-
-                      {user.status === 'invited' && (
-                        <DropdownMenuItem onClick={() => onResendInvite(user)}>
-                          <Mail className="mr-2 h-4 w-4" />
-                          Resend invite
-                        </DropdownMenuItem>
-                      )}
 
                       {user.status === 'active' && (
                         <DropdownMenuItem onClick={() => onRequestPasswordReset(user)}>

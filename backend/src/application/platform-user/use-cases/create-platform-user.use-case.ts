@@ -11,16 +11,9 @@ interface CreatePlatformUserInput {
   firstName: string;
   lastName: string;
   email: string;
+  phone:string;
   roleId: string;
-}
-
-interface CreatePlatformUserOutput {
-  user: PlatformUser;
-  temporaryPassword: string;
-}
-
-function generateTempPassword(): string {
-  return Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
+  password: string;
 }
 
 @injectable()
@@ -31,7 +24,7 @@ export class CreatePlatformUserUseCase {
     @inject(TOKENS.HashService) private hashService: IHashService
   ) {}
 
-  async execute(input: CreatePlatformUserInput): Promise<CreatePlatformUserOutput> {
+  async execute(input: CreatePlatformUserInput): Promise<PlatformUser> {
     const existing = await this.platformUserRepo.findByEmail(input.email);
     if (existing) throw new ConflictError('A platform user with this email already exists');
 
@@ -40,19 +33,18 @@ export class CreatePlatformUserUseCase {
       throw new NotFoundError('Role not found or inactive');
     }
 
-    const temporaryPassword = generateTempPassword();
-    const passwordHash = await this.hashService.hash(temporaryPassword);
+    const passwordHash = await this.hashService.hash(input.password);
 
     const user = await this.platformUserRepo.create({
       firstName: input.firstName,
       lastName: input.lastName,
       email: input.email,
+      phone:input.phone,
       passwordHash,
       roleId: input.roleId,
       status: 'active',
-      mustChangePassword: true,
     });
 
-    return { user, temporaryPassword };
+    return user;
   }
 }

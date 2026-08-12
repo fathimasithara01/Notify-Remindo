@@ -6,18 +6,34 @@ import { authenticate } from '../middlewares/require-auth.middleware';
 import { requirePermission } from '../middlewares/requirePermission.middleware';
 import { PERMISSIONS } from '../../shared/constants/permissions.constant';
 import { asyncHandler } from '../../shared/utils/async-handler';
+import { validateRequest } from '../middlewares/validate-request.middleware';
+import { createPlatformUserSchema } from '../validators/platfromUser.validator';
 
 const router = Router();
 const controller = container.resolve<PlatformUserController>(TOKENS.PlatformUserController);
 
-router.post('/', authenticate, requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), controller.create);
-router.get('/', authenticate, requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), controller.list);
-router.patch('/:id', authenticate, requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), controller.update);
-router.delete('/:id', authenticate, requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), controller.delete);
+router.use(authenticate);
 
-router.post('/:id/revoke-sessions',authenticate, requirePermission(PERMISSIONS.USER_UPDATE), asyncHandler(controller.revokeSessions));
-router.post('/:id/resend-invite', authenticate,requirePermission(PERMISSIONS.USER_INVITE), asyncHandler(controller.resendInvite));
-router.post('/:id/request-password-reset',authenticate, requirePermission(PERMISSIONS.USER_UPDATE), asyncHandler(controller.requestPasswordReset));
+router.post(
+  '/',
+  requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
+  validateRequest(createPlatformUserSchema),
+  asyncHandler(controller.create)
+);
+router.get('/', requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), asyncHandler(controller.list));
+router.get('/:id', requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), asyncHandler(controller.getOne));
+router.patch('/:id', requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), asyncHandler(controller.update));
+router.delete('/:id', requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), asyncHandler(controller.delete));
 
+router.post(
+  '/:id/revoke-sessions',
+  requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
+  asyncHandler(controller.revokeSessions)
+);
+router.post(
+  '/:id/request-password-reset',
+  requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
+  asyncHandler(controller.requestPasswordReset)
+);
 
 export default router;

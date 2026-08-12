@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -39,9 +41,11 @@ interface UserFormProps {
 
 export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserFormProps) {
   const isEdit = mode === 'edit';
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Roles are only offered at invite time — editing roles afterward
-  // happens through UserRoleDialog, so this fetch is skipped in edit mode.
+  // Roles are offered at creation time — editing roles afterward happens
+  // through UserRoleDialog, so this fetch is skipped in edit mode.
   const { data: rolesResult, isLoading: rolesLoading } = useRoles(
     { status: 'active', limit: 100, page: 1 },
     { enabled: !isEdit }
@@ -63,6 +67,8 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
           email: '',
           phone: '',
           roleId: '',
+          password: '',
+          confirmPassword: '',
         },
   });
 
@@ -97,9 +103,9 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
           )}
         />
 
-        {/* Email is only collected at invite time. It becomes the user's
-            login identity, so changing it later goes through a separate
-            verification flow, not this form. */}
+        {/* Email is collected directly at creation time — no invite email is
+            sent. It becomes the user's login identity, so changing it later
+            goes through a separate verification flow, not this form. */}
         {!isEdit && (
           <FormField
             control={form.control}
@@ -191,6 +197,68 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
           />
         )}
 
+        {!isEdit && (
+          <>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Min 8 characters"
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        tabIndex={-1}
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="Re-enter password"
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        tabIndex={-1}
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
@@ -200,7 +268,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
               ? 'Saving...'
               : isEdit
                 ? 'Save changes'
-                : 'Send invite'}
+                : 'Create user'}
           </Button>
         </div>
       </form>

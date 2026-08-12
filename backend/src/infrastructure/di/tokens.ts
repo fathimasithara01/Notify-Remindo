@@ -87,4 +87,5 @@ EditPlatformUserUseCase: Symbol('EditPlatformUserUseCase'),
 ListPlatformUsersUseCase: Symbol('ListPlatformUsersUseCase'),
 DeletePlatformUserUseCase: Symbol('DeletePlatformUserUseCase'),
 PlatformUserController: Symbol('PlatformUserController'),
+GetPlatformUserUseCase: Symbol('GetPlatformUserUseCase')
 } as const;

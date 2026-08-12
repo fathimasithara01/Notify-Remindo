@@ -14,7 +14,6 @@ const controller = container.resolve<AuthController>(TOKENS.AuthController);
 router.post('/login', authRateLimiter, validateRequest(loginSchema), asyncHandler(controller.login));
 router.post('/refresh-token', authRateLimiter, asyncHandler(controller.refreshToken));
 
-router.get('/verify-invite-token/:token', asyncHandler(controller.verifyInviteToken));
 router.post(
   '/accept-invite',
   authRateLimiter,

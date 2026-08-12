@@ -1,43 +1,47 @@
+export type PlatformUserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
 
-export type UserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
+export interface UserRoleSummary {
+  id: string;
+  name: string;
+}
 
 export interface User {
   id: string;
-firstName: string;
+  firstName: string;
   lastName: string;
-    email: string;
-  phone?: string;
-  status: UserStatus;
+  email: string;
+  phone: string;
+  status: PlatformUserStatus;
   roleId: string;
-  organizationId: string;
+  role: UserRoleSummary | null;
+  tokenVersion: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateUserDto {
-firstName: string;
+  firstName: string;
   lastName: string;
-    email: string;
+  email: string;
   phone?: string;
   roleId: string;
 }
 
 export interface CreateUserResponse extends User {
-  inviteUrl: string;
   emailSent: boolean;
 }
 
 export interface UpdateUserDto {
-firstName?: string;
-  lastName?: string;  
+  firstName?: string;
+  lastName?: string;
   phone?: string;
-  status?: UserStatus;
-  roleId?: string;  
+  status?: PlatformUserStatus;
+  roleId?: string;
 }
 
 export interface UserFilters {
   search?: string;
-  status?: UserStatus | 'all';
+  status?: PlatformUserStatus | 'all';
   page?: number;
   limit?: number;
 }
@@ -51,11 +55,6 @@ export interface PaginatedResult<T> {
     totalPages: number;
   };
 }
-
-export interface UserRole {
-  id: string;
-firstName: string;
-  lastName: string;}
 
 export interface AssignRoleDto {
   roleId: string;

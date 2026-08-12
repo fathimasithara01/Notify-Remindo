@@ -6,7 +6,13 @@ import { queryKeys } from '@/lib/query/query-keys';
 export function useUsers(filters: UserFilters) {
   return useQuery({
     queryKey: queryKeys.users.list(filters),
-    queryFn: () => usersApi.list(filters),
-    placeholderData: (previousData) => previousData, // keep old page visible while next loads
+    queryFn: async () => {
+      const result = await usersApi.list(filters);
+      return {
+        items: Array.isArray(result) ? result : result.items,
+        meta: (result as any).meta,
+      };
+    },
+    placeholderData: (previousData) => previousData,
   });
 }

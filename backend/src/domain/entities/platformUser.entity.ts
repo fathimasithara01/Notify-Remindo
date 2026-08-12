@@ -2,16 +2,14 @@ export type PlatformUserStatus = 'invited' | 'active' | 'inactive' | 'suspended'
 
 export interface PlatformUser {
   id: string;
-  email: string;
   passwordHash: string | null;
   firstName: string;
   lastName: string;
+  email: string;
   roleId: string;
+  phone?: string;
   status: PlatformUserStatus;
-  mustChangePassword: boolean;
   tokenVersion: number;
-  inviteToken?: string;
-  inviteTokenExpiresAt?: Date;
   resetPasswordToken?: string;
   resetPasswordTokenExpiresAt?: Date;
   lastLoginAt?: Date;

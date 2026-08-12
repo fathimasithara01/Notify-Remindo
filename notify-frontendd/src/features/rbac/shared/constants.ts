@@ -1,6 +1,6 @@
 import { PERMISSIONS, type Permission } from '@/config/permissions';
 import type { RoleStatus } from '../roles/types/role.types';
-import type { UserStatus } from '../users/types/user.types'; 
+import type { PlatformUserStatus } from '../users/types/user.types'; 
 
 export const DEFAULT_PAGE_SIZE = 10;
 
@@ -24,7 +24,7 @@ export const ROLE_STATUS_META: Record<RoleStatus, { label: string; variant: 'def
   inactive: { label: 'Inactive', variant: 'secondary' },
 };
 
-export const USER_STATUS_META: Record<UserStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+export const USER_STATUS_META: Record<PlatformUserStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   active: { label: 'Active', variant: 'default' },
   invited: { label: 'Invited', variant: 'secondary' },
   inactive: { label: 'Inactive', variant: 'outline' },

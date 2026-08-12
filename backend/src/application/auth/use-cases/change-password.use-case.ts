@@ -40,6 +40,5 @@ export class ChangePasswordUseCase {
     // every other session — appropriate here since we're retiring a
     // temp/shared-knowledge password.
     await this.platformUserRepo.resetPassword(user.id, newPasswordHash);
-    await this.platformUserRepo.update(user.id, { mustChangePassword: false });
   }
 }
