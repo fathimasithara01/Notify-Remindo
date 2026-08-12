@@ -105,7 +105,7 @@ export class CreateOrganizationUseCase {
       });
     }
 
-    const result = data.inviteMethod === 'temp-password'
+    const result = data.inviteMethod === 'temppassword'
       ? await this.createAdminWithTempPassword(data, organization.id, orgAdminRole)
       : await this.createAdminWithInviteEmail(data, organization.id, orgAdminRole);
 

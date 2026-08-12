@@ -57,7 +57,7 @@ import { SearchInput } from "@/components/common/SearchInput";
 import { EditOrganizationDialog } from "./EditOrganizationDialog";
 
 import { ROUTES } from "@/config/routes";
-import { DEFAULT_PAGE_SIZE } from "@/features/audit-log/constants/app";
+import { DEFAULT_PAGE_SIZE } from "@/constants/app";
 import { ResetAdminPasswordDialog } from "./ResetAdminPasswordDialog";
 
 export function OrganizationTable() {

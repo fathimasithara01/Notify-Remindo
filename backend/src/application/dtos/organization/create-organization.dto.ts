@@ -1,4 +1,4 @@
-export type OrganizationInviteMethod = 'email' | 'temp-password';
+export type OrganizationInviteMethod = 'email' | 'temppassword';
 
 export interface CreateOrganizationDto {
 name:string

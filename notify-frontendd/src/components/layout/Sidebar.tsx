@@ -10,7 +10,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 
 import { ROUTES } from "@/config/routes";
-import { APP_NAME } from "@/features/audit-log/constants/app";
+import { APP_NAME } from "@/constants/app";
 import { NAV_ITEMS, type NavItem } from "@/config/nav-config";
 
 import { cn } from "@/lib/utils/utils";
