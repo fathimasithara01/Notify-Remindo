@@ -83,6 +83,8 @@ import { PlatformUserController } from '../../presentation/controllers/platform-
 import { OrganizationRepository } from '../database/repositories/organization.repository';
 import { RevokeUserSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
 import { GetPlatformUserUseCase } from '../../application/platform-user/use-cases/get-platform-user.use-case';
+import { BlockPlatformUserUseCase } from '../../application/platform-user/use-cases/block-platform-user.use-case';
+import { UnblockPlatformUserUseCase } from '../../application/platform-user/use-cases/unblock-platform-user.use-cas';
 
 export function registerDependencies(): void {
   // Repositories
@@ -99,8 +101,10 @@ export function registerDependencies(): void {
     container.registerSingleton(TOKENS.RevokeUserSessionsUseCase, RevokeUserSessionsUseCase),
 
 
-    // Services
-    container.registerSingleton(TOKENS.HashService, BcryptHashService);
+    container.register(TOKENS.BlockPlatformUserUseCase, { useClass: BlockPlatformUserUseCase });
+  container.register(TOKENS.UnblockPlatformUserUseCase, { useClass: UnblockPlatformUserUseCase });
+  // Services
+  container.registerSingleton(TOKENS.HashService, BcryptHashService);
   container.registerSingleton(TOKENS.TokenService, JwtTokenService);
   container.registerSingleton(TOKENS.WhatsAppNotifierService, WhatsAppNotifierService);
   container.registerSingleton(TOKENS.EmailNotifierService, EmailNotifierService);
@@ -153,7 +157,7 @@ export function registerDependencies(): void {
   container.register(TOKENS.LogoutAllDevicesUseCase, LogoutAllDevicesUseCase);
   container.register(TOKENS.SetOrganizationAdminPasswordUseCase, SetOrganizationAdminPasswordUseCase);
   container.register(TOKENS.CancelInviteUseCase, CancelInviteUseCase);
-    container.register(TOKENS.GetPlatformUserUseCase, GetPlatformUserUseCase);
+  container.register(TOKENS.GetPlatformUserUseCase, GetPlatformUserUseCase);
 
 
   // Controllers
@@ -179,7 +183,7 @@ export function registerDependencies(): void {
   container.register(TOKENS.DeletePlatformUserUseCase, { useClass: DeletePlatformUserUseCase });
   container.registerSingleton(TOKENS.PlatformUserController, PlatformUserController);
 
-  
+
 }
 
 export { container };

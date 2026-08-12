@@ -36,4 +36,15 @@ router.post(
   asyncHandler(controller.requestPasswordReset)
 );
 
+router.post(
+  '/:id/block',
+  requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
+  asyncHandler(controller.block)
+);
+router.post(
+  '/:id/unblock',
+  requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
+  asyncHandler(controller.unblock)
+);
+
 export default router;

@@ -28,6 +28,9 @@ import { useCreateUser } from './hooks/useCreateUser';
 import { useUpdateUser } from './hooks/useUpdateUser';
 import { useDeleteUser } from './hooks/useDeleteUser';
 import { useRequestPasswordReset } from './hooks/useRequestPasswordReset';
+import { useBlockUser } from './hooks/useBlockUser';
+import { useUnblockUser } from './hooks/useUnblockUser';
+
 import { useCurrentUser } from '@/features/auth/hooks/useCurrentUser';
 import { ROUTES } from '@/config/routes';
 
@@ -65,6 +68,16 @@ export default function UsersPage() {
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
   const requestPasswordReset = useRequestPasswordReset();
+  const blockUser = useBlockUser();
+  const unblockUser = useUnblockUser();
+
+  const handleBlock = (user: User) => {
+    blockUser.mutate(user.id);
+  };
+
+  const handleUnblock = (user: User) => {
+    unblockUser.mutate(user.id);
+  };
 
   const closeDialog = () => setDialog({ type: 'none' });
 
@@ -127,6 +140,8 @@ export default function UsersPage() {
         onManageRoles={(user) => setDialog({ type: 'roles', user })}
         onRevokeSessions={(user) => setDialog({ type: 'revoke', user })}
         onRequestPasswordReset={handleRequestPasswordReset}
+        onBlock={handleBlock}
+        onUnblock={handleUnblock}  
       />
 
       {/* Create user */}

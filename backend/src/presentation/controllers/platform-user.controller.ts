@@ -11,6 +11,8 @@ import { RevokeSessionsUseCase } from '../../application/platform-user/use-cases
 import { RequestPasswordResetUseCase } from '../../application/platform-user/use-cases/request-password-reset.use-case';
 import { UnauthorizedError } from '../../domain/errors/domain.error';
 import { GetPlatformUserUseCase } from '../../application/platform-user/use-cases/get-platform-user.use-case';
+import { BlockPlatformUserUseCase } from '../../application/platform-user/use-cases/block-platform-user.use-case';
+import { UnblockPlatformUserUseCase } from '../../application/platform-user/use-cases/unblock-platform-user.use-cas';
 
 @injectable()
 export class PlatformUserController {
@@ -22,6 +24,8 @@ export class PlatformUserController {
         @inject(TOKENS.GetPlatformUserUseCase) private getOneUseCase: GetPlatformUserUseCase,
         @inject(TOKENS.RevokeSessionsUseCase) private revokeSessionsUseCase: RevokeSessionsUseCase,
         @inject(TOKENS.RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase,
+        @inject(TOKENS.BlockPlatformUserUseCase) private blockUseCase: BlockPlatformUserUseCase,
+        @inject(TOKENS.UnblockPlatformUserUseCase) private unblockUseCase: UnblockPlatformUserUseCase,
 
     ) { }
 
@@ -74,6 +78,26 @@ export class PlatformUserController {
             const currentUser = req.user as { id: string };
             await this.deleteUseCase.execute({ id: req.params.id, requestedBy: currentUser.id });
             res.status(200).json({ success: true, message: 'Platform user deleted' });
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    block = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await this.blockUseCase.execute(req.params.id);
+            const { passwordHash, ...safeUser } = user;
+            res.status(200).json({ success: true, data: safeUser, message: 'User blocked' });
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    unblock = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await this.unblockUseCase.execute(req.params.id);
+            const { passwordHash, ...safeUser } = user;
+            res.status(200).json({ success: true, data: safeUser, message: 'User unblocked' });
         } catch (err) {
             next(err);
         }

@@ -87,5 +87,7 @@ EditPlatformUserUseCase: Symbol('EditPlatformUserUseCase'),
 ListPlatformUsersUseCase: Symbol('ListPlatformUsersUseCase'),
 DeletePlatformUserUseCase: Symbol('DeletePlatformUserUseCase'),
 PlatformUserController: Symbol('PlatformUserController'),
-GetPlatformUserUseCase: Symbol('GetPlatformUserUseCase')
+GetPlatformUserUseCase: Symbol('GetPlatformUserUseCase'),
+BlockPlatformUserUseCase: Symbol.for('BlockPlatformUserUseCase'),
+UnblockPlatformUserUseCase: Symbol.for('UnblockPlatformUserUseCase'),
 } as const;

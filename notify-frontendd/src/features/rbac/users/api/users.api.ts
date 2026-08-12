@@ -13,8 +13,8 @@ import { apiClient } from '@/lib/api/client';
 const BASE_URL = '/admin';
 
 export const usersApi = {
-    list: (filters: UserFilters): Promise<User> =>
-        apiClient.get<User>(BASE_URL, toQueryParams(filters)),
+    list: (filters: UserFilters): Promise<PaginatedResult<User>> =>
+        apiClient.get<PaginatedResult<User>>(BASE_URL, toQueryParams(filters)),
 
     getOne: (id: string): Promise<User> =>
         apiClient.get<User>(`${BASE_URL}/${id}`),
@@ -30,6 +30,12 @@ export const usersApi = {
 
     delete: (id: string): Promise<null> =>
         apiClient.delete<null>(`${BASE_URL}/${id}`),
+
+    block: (id: string): Promise<User> =>
+        apiClient.post<User>(`${BASE_URL}/${id}/block`),
+
+    unblock: (id: string): Promise<User> =>
+        apiClient.post<User>(`${BASE_URL}/${id}/unblock`),
 
     revokeSessions: (id: string): Promise<{ message: string }> =>
         apiClient.post(`${BASE_URL}/${id}/revoke-sessions`),

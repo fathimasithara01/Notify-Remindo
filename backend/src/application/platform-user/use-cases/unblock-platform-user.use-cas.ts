@@ -1,19 +1,19 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
-import { NotFoundError, ValidationError } from '../../../domain/errors/domain.error';
-
-interface Input { userId: string; adminId: string; }
+import { NotFoundError } from '../../../domain/errors/domain.error';
 
 @injectable()
 export class UnblockPlatformUserUseCase {
-    constructor(@inject(TOKENS.PlatformUserRepository) private repo: IPlatformUserRepository) { }
+  constructor(
+    @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository
+  ) {}
 
-    async execute({ userId }: Input) {
-        const user = await this.repo.findById(userId);
-        if (!user) throw new NotFoundError('Platform user not found');
-        if (user.status !== 'suspended') throw new ValidationError('User is not suspended');
-
-        return this.repo.update(userId, { status: 'active' });
+  async execute(id: string) {
+    const user = await this.platformUserRepo.update(id, { status: 'active' });
+    if (!user) {
+      throw new NotFoundError('Platform user not found');
     }
+    return user;
+  }
 }

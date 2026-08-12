@@ -1,6 +1,6 @@
 'use client';
 
-import { MoreHorizontal, ShieldCheck, LogOut, Pencil, Trash2, Mail, KeyRound } from 'lucide-react';
+import { MoreHorizontal, ShieldCheck, LogOut, Pencil, Trash2, KeyRound, Ban, CheckCircle } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -19,6 +19,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+
 import { USER_STATUS_META } from '../../shared/constants';
 // import { useRole } from '../../roles/hooks/useRole';
 import type { User } from '../types/user.types';
@@ -33,6 +35,8 @@ interface UserTableProps {
   onManageRoles: (user: User) => void;
   onRevokeSessions: (user: User) => void;
   onRequestPasswordReset: (user: User) => void;
+  onBlock: (user: User) => void;
+  onUnblock: (user: User) => void;
 }
 
 /** Renders a single row's role badge. Split out so useRole (one call per
@@ -57,6 +61,8 @@ export function UserTable({
   onManageRoles,
   onRevokeSessions,
   onRequestPasswordReset,
+   onBlock,
+  onUnblock,
 }: UserTableProps) {
   if (isLoading) {
     return (
@@ -114,7 +120,7 @@ export function UserTable({
                 <TableCell className="text-muted-foreground">
                   {user.phone || '—'}
                 </TableCell>
-               <TableCell>
+                <TableCell>
                   {user.role ? (
                     <Badge variant="outline">{user.role.name}</Badge>
                   ) : (
@@ -146,6 +152,18 @@ export function UserTable({
                         <DropdownMenuItem onClick={() => onRequestPasswordReset(user)}>
                           <KeyRound className="mr-2 h-4 w-4" />
                           Reset password
+                        </DropdownMenuItem>
+                      )}
+
+                      {user.status === 'suspended' ? (
+                        <DropdownMenuItem onClick={() => onUnblock(user)}>
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Unblock
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem onClick={() => onBlock(user)} disabled={isSelf}>
+                          <Ban className="mr-2 h-4 w-4" />
+                          Block
                         </DropdownMenuItem>
                       )}
 

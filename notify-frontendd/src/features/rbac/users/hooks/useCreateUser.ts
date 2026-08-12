@@ -11,7 +11,7 @@ export function useCreateUser() {
     mutationFn: (payload: CreateUserDto): Promise<CreateUserResponse> => usersApi.create(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users.lists() });
-      toast.success('Invite sent successfully');
+            toast.success('User created');
     },
     onError: (error: unknown) => {
       const message =
