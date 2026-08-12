@@ -1,7 +1,6 @@
 import { injectable } from 'tsyringe';
 import { IOrganizationRepository, OrganizationListFilters, OrganizationListResult } from '../../../domain/repositories/organization.repository.interface';
 import { Organization, NewOrganization, OrganizationWithAdmin, OrganizationDetails } from '../../../domain/entities/organization.entity';
-import { ContactPerson, NewContactPerson } from '../../../domain/entities/contact-person.entity';
 import { OrganizationModel, OrganizationDocument } from '../models/organization.model';
 import { Types } from 'mongoose';
 

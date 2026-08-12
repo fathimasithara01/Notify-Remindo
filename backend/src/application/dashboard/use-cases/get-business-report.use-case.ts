@@ -45,7 +45,7 @@ export class GetBusinessReportUseCase {
 
     const organizationsByPlan = activePlans.map((plan) => ({
       planId: plan.id,
-      planName: plan.name,
+      planName: plan.title,
       count: allOrgsResult.items.filter(
         (org) => org.currentPlanId === plan.id
       ).length,

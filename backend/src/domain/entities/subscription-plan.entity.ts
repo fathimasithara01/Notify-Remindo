@@ -1,33 +1,25 @@
 export const SubscriptionPlanStatus = {
-  DRAFT: "draft",
   ACTIVE: "active",
   INACTIVE: "inactive",
 } as const;
 
-export type SubscriptionPlanStatus = typeof SubscriptionPlanStatus[keyof typeof SubscriptionPlanStatus];
+export type SubscriptionPlanStatus = (typeof SubscriptionPlanStatus)[keyof typeof SubscriptionPlanStatus];
 
-export type Currency =
-  | "USD"
-  | "EUR"
-  | "INR";
-
-export type BillingInterval =
-  | "monthly"
-  | "yearly"
-  | "weekly";
-
+export type Currency = "USD" | "EUR" | "INR";
 
 export interface SubscriptionPlan {
   id: string;
 
-  name: string;
+  title: string;
   description?: string;
 
-  priceInMinorUnit: number;
+  amountValue: number;
   currency: Currency;
 
-  billingInterval: BillingInterval;
-  trialDays?: number;
+  userLimit: number;
+  storageLimit: number;
+
+  featureIds: string[];
 
   status: SubscriptionPlanStatus;
 
@@ -36,6 +28,7 @@ export interface SubscriptionPlan {
   updatedAt: Date;
 }
 
-
-export type CreateSubscriptionPlanInput =
-  Omit< SubscriptionPlan, "id" | "createdAt" | "updatedAt" | "deletedAt"  >;
+export type CreateSubscriptionPlanInput = Omit<
+  SubscriptionPlan,
+  "id" | "createdAt" | "updatedAt" | "deletedAt"
+>;

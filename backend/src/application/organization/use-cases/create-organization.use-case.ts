@@ -49,7 +49,6 @@ export class CreateOrganizationUseCase {
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService,
     @inject(TOKENS.HashService) private hashService: IHashService,
-    @inject(TOKENS.OrganizationSubscriptionRepository) private readonly organizationSubscriptionRepository: IOrganizationSubscriptionRepository
   ) { }
 
   async execute(input: CreateOrganizationInput): Promise<CreateOrganizationResult> {
@@ -75,35 +74,35 @@ export class CreateOrganizationUseCase {
       documents: data.documents,
     });
 
-    if (plan) {
-      const startDate = new Date();
-      const endDate = new Date(startDate);
+    // if (plan) {
+    //   const startDate = new Date();
+    //   const endDate = new Date(startDate);
 
-      switch (plan.billingInterval) {
-        case 'weekly':
-          endDate.setDate(endDate.getDate() + 7);
-          break;
-        case 'monthly':
-          endDate.setMonth(endDate.getMonth() + 1);
-          break;
-        case 'yearly':
-          endDate.setFullYear(endDate.getFullYear() + 1);
-          break;
-      }
+    //   switch (plan.billingInterval) {
+    //     case 'weekly':
+    //       endDate.setDate(endDate.getDate() + 7);
+    //       break;
+    //     case 'monthly':
+    //       endDate.setMonth(endDate.getMonth() + 1);
+    //       break;
+    //     case 'yearly':
+    //       endDate.setFullYear(endDate.getFullYear() + 1);
+    //       break;
+    //   }
 
-      await this.organizationSubscriptionRepository.create({
-        organizationId: organization.id,
-        planId: plan.id,
-        startDate,
-        endDate,
-        nextBillingDate: endDate,
-        priceInMinorUnit: plan.priceInMinorUnit,
-        currency: plan.currency,
-        billingInterval: plan.billingInterval,
-        autoRenew: false,
-        status: 'active',
-      });
-    }
+    //   await this.organizationSubscriptionRepository.create({
+    //     organizationId: organization.id,
+    //     planId: plan.id,
+    //     startDate,
+    //     endDate,
+    //     nextBillingDate: endDate,
+    //     priceInMinorUnit: plan.priceInMinorUnit,
+    //     currency: plan.currency,
+    //     billingInterval: plan.billingInterval,
+    //     autoRenew: false,
+    //     status: 'active',
+    //   });
+    // }
 
     const result = data.inviteMethod === 'temppassword'
       ? await this.createAdminWithTempPassword(data, organization.id, orgAdminRole)

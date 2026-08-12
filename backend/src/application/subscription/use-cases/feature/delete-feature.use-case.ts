@@ -1,143 +1,34 @@
 import { injectable, inject } from "tsyringe";
-
 import { TOKENS } from "../../../../infrastructure/di/tokens";
+import { IFeatureRepository } from "../../../../domain/repositories/feature.repository.interface";
+import { ISubscriptionPlanRepository } from "../../../../domain/repositories/subscription-plan.repository.interface";
+import { NotFoundError, ConflictError } from "../../../../domain/errors/domain.error";
 
-import {
-  IFeatureRepository,
-} from "../../../../domain/repositories/feature.repository.interface";
-
-import {
-  IPlanFeatureRepository,
-} from "../../../../domain/repositories/plan-feature.repository.interface";
-
-import {
-  IAuditLogRepository,
-} from "../../../../domain/repositories/audit-log.repository.interface";
-
-import {
-  NotFoundError,
-  ConflictError,
-  DomainError,
-} from "../../../../domain/errors/domain.error";
-
-
-
-export interface DeleteFeatureInput {
-
+interface DeleteFeatureCommand {
   featureId: string;
-
   adminId: string;
-
 }
-
-
 
 @injectable()
 export class DeleteFeatureUseCase {
-
   constructor(
-
     @inject(TOKENS.FeatureRepository)
-    private readonly featureRepository:
-      IFeatureRepository,
-
-    @inject(TOKENS.PlanFeatureRepository)
-    private readonly planFeatureRepository:
-      IPlanFeatureRepository,
-
-    @inject(TOKENS.AuditLogRepository)
-    private readonly auditLogRepository:
-      IAuditLogRepository,
-
+    private readonly featureRepository: IFeatureRepository,
+    @inject(TOKENS.SubscriptionPlanRepository)
+    private readonly subscriptionPlanRepository: ISubscriptionPlanRepository
   ) {}
 
+  async execute({ featureId }: DeleteFeatureCommand): Promise<void> {
+    const feature = await this.featureRepository.findById(featureId);
+    if (!feature) throw new NotFoundError("Feature not found");
 
-
-  async execute(
-    input: DeleteFeatureInput
-  ): Promise<void> {
-
-    const {
-      featureId,
-      adminId,
-    } = input;
-
-
-
-    const feature =
-      await this.featureRepository.findById(
-        featureId
-      );
-
-    if (!feature) {
-
-      throw new NotFoundError(
-        "Feature not found"
-      );
-
-    }
-
-
-
-    /**
-     * Prevent deleting a feature that is
-     * currently assigned to subscription plans.
-     */
-    const assignments =
-      await this.planFeatureRepository.listByFeature(
-        featureId
-      );
-
-    if (assignments.length > 0) {
-
+    const plansUsingFeature = await this.subscriptionPlanRepository.countByFeatureId(featureId);
+    if (plansUsingFeature > 0) {
       throw new ConflictError(
-        "Feature is assigned to one or more subscription plans"
+        "Feature is used by one or more subscription plans and cannot be deleted"
       );
-
     }
 
-
-
-    const deleted =
-      await this.featureRepository.softDelete(
-        featureId
-      );
-
-    if (!deleted) {
-
-      throw new DomainError(
-        "Failed to delete feature"
-      );
-
-    }
-
-
-
-    await this.auditLogRepository.create({
-
-      adminId,
-
-      action:
-        "DELETE_FEATURE",
-
-      targetType:
-        "Feature",
-
-      targetId:
-        feature.id,
-
-      metadata: {
-
-        key:
-          feature.key,
-
-        label:
-          feature.label,
-
-      },
-
-    });
-
+    await this.featureRepository.softDelete(featureId);
   }
-
 }

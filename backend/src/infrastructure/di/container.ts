@@ -54,19 +54,12 @@ import { AuditLogController } from '../../presentation/controllers/audit-log.con
 import { InviteController } from '../../presentation/controllers/invite.controller';
 import { S3FileStorageService } from '../storage/s3-file-storage.service';
 // import { OrganizationDocumentController } from '../../presentation/controllers/organization-document.controller';
-import { PlanFeatureRepository } from '../database/repositories/plan-feature.repository';
 import { UpdateFeatureUseCase } from '../../application/subscription/use-cases/feature/update-feature.use-case';
 import { DeleteFeatureUseCase } from '../../application/subscription/use-cases/feature/delete-feature.use-case';
-import { CreateOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/organization-subscription/create-organization-subscription.use-case';
-import { RenewOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/organization-subscription/renew-organization-subscription.use-case';
-import { CancelOrganizationSubscriptionUseCase } from '../../application/subscription/use-cases/organization-subscription/cancel-organization-subscription.use-case';
-import { AddPlanFeatureUseCase } from '../../application/subscription/use-cases/plan-feature/add-plan-feature.use-case';
-import { RemovePlanFeatureUseCase } from '../../application/subscription/use-cases/plan-feature/remove-plan-feature.use-case';
 import { CreateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/create-subscription-plan.use-case';
 import { UpdateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/update-subscription-plan.use-case';
 import { DeleteSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/delete-subscription-plan.use-case';
 import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout-from-alldevice';
-import { OrganizationSubscriptionRepository } from '../database/repositories/organization-subscription.repository';
 import { SetOrganizationAdminPasswordUseCase } from '../../application/organization/use-cases/set-organization-admin-password.use-case';
 import { CancelInviteUseCase } from '../../application/organization/use-cases/Cancel-invite-use-case';
 import { RequestPasswordResetUseCase } from '../../application/platform-user/use-cases/request-password-reset.use-case';
@@ -96,8 +89,6 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.NotificationRepository, NotificationRepository);
   container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
   container.registerSingleton(TOKENS.OrganizationDocumentRepository, OrganizationDocumentRepository);
-  container.registerSingleton(TOKENS.PlanFeatureRepository, PlanFeatureRepository),
-    container.registerSingleton(TOKENS.OrganizationSubscriptionRepository, OrganizationSubscriptionRepository),
     container.registerSingleton(TOKENS.RevokeUserSessionsUseCase, RevokeUserSessionsUseCase),
 
 
@@ -146,11 +137,7 @@ export function registerDependencies(): void {
   container.register(TOKENS.OrganizationDocumentUseCase, { useClass: OrganizationDocumentUseCase });
   container.register(TOKENS.UpdateFeatureUseCase, UpdateFeatureUseCase);
   container.register(TOKENS.DeleteFeatureUseCase, DeleteFeatureUseCase);
-  container.register(TOKENS.CreateOrganizationSubscriptionUseCase, CreateOrganizationSubscriptionUseCase);
-  container.register(TOKENS.RenewOrganizationSubscriptionUseCase, RenewOrganizationSubscriptionUseCase);
-  container.register(TOKENS.CancelOrganizationSubscriptionUseCase, CancelOrganizationSubscriptionUseCase);
-  container.register(TOKENS.AddPlanFeatureUseCase, AddPlanFeatureUseCase);
-  container.register(TOKENS.RemovePlanFeatureUseCase, RemovePlanFeatureUseCase);
+
   container.register(TOKENS.CreateSubscriptionPlanUseCase, CreateSubscriptionPlanUseCase);
   container.register(TOKENS.UpdateSubscriptionPlanUseCase, UpdateSubscriptionPlanUseCase);
   container.register(TOKENS.DeleteSubscriptionPlanUseCase, DeleteSubscriptionPlanUseCase);

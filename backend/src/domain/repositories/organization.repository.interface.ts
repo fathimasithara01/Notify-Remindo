@@ -1,5 +1,4 @@
 import { Organization, OrganizationStatus, NewOrganization,OrganizationWithAdmin, OrganizationDetails } from '../entities/organization.entity';
-import { ContactPerson, NewContactPerson } from '../entities/contact-person.entity';
 
 export interface OrganizationListFilters {
   status?: OrganizationStatus;

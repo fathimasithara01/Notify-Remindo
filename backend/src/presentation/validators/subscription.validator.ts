@@ -1,65 +1,21 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-export const createPlanSchema = z.object({
-  body: z.object({
-    name: z.string().min(1, 'Name is required'),
-    userLimit: z.number().int().positive('userLimit must be a positive integer'),
-    durationDays: z.number().int().positive('durationDays must be a positive integer'),
-    price: z.number().nonnegative('price cannot be negative'),
-    description: z.string().optional(),
-    features: z
-      .array(
-        z.object({
-          featureId: z.string(),
-          featureValue: z.union([z.string(), z.boolean(), z.number()]),
-        })
-      )
-      .optional(),
-  }),
+export const createSubscriptionPlanSchema = z.object({
+  title: z.string().min(1).max(120),
+  description: z.string().max(500).optional(),
+  amountValue: z.number().nonnegative(),
+  currency: z.enum(["USD", "EUR", "INR"]),
+  userLimit: z.number().int().positive(),
+  storageLimit: z.number().int().positive(),
+  featureIds: z.array(z.string()).default([]),
+  status: z.enum(["active", "inactive"]).default("active"),
 });
 
-export const editPlanSchema = z.object({
-  params: z.object({
-    id: z.string().min(1),
-  }),
-  body: z.object({
-    name: z.string().min(1).optional(),
-    userLimit: z.number().int().positive().optional(),
-    durationDays: z.number().int().positive().optional(),
-    price: z.number().nonnegative().optional(),
-    description: z.string().optional(),
-    status: z.enum(['active', 'inactive']).optional(),
-  }),
-});
+export const updateSubscriptionPlanSchema = createSubscriptionPlanSchema.partial();
 
-export const createFeatureSchema = z.object({
-  body: z.object({
-    key: z
-      .string()
-      .min(1, 'Key is required')
-      .regex(/^[a-z0-9_]+$/, 'Key must be lowercase letters, numbers, or underscores'),
-    label: z.string().min(1, 'Label is required'),
-    dataType: z.enum(['boolean', 'number', 'string']),
-  }),
-});
-
-export const editFeatureSchema = z.object({
-  params: z.object({
-    id: z.string().min(1),
-  }),
-  body: z.object({
-    label: z.string().min(1).optional(),
-    dataType: z.enum(['boolean', 'number', 'string']).optional(),
-    status: z.enum(['active', 'inactive']).optional(),
-  }),
-});
-
-export const setPlanFeatureSchema = z.object({
-  params: z.object({
-    planId: z.string().min(1),
-  }),
-  body: z.object({
-    featureId: z.string().min(1, 'featureId is required'),
-    featureValue: z.union([z.string(), z.boolean(), z.number()]),
-  }),
+export const listSubscriptionPlanQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  status: z.enum(["active", "inactive"]).optional(),
+  search: z.string().optional(),
 });

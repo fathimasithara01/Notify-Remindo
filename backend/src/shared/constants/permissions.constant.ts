@@ -21,7 +21,7 @@ export const PERMISSIONS = {
   USER_DELETE: 'user.delete',
   USER_INVITE: 'user.invite',
 
-  // Rolea
+  // Role
   ROLE_CREATE: 'role.create',
   ROLE_VIEW: 'role.view',
   ROLE_UPDATE: 'role.update',
@@ -32,16 +32,19 @@ export const PERMISSIONS = {
   PLATFORM_USER_MANAGE: 'platform.user.manage',
   PLATFORM_ORG_MANAGE: 'platform.org.manage',
 
+  // Subscription Plan (catalog CRUD)
   PLAN_CREATE: 'plan.create',
   PLAN_VIEW: 'plan.view',
   PLAN_UPDATE: 'plan.update',
   PLAN_DELETE: 'plan.delete',
 
-  SUBSCRIPTION_CREATE: 'subscription.create',
-  SUBSCRIPTION_VIEW: 'subscription.view',
-  SUBSCRIPTION_UPDATE: 'subscription.update',
-  SUBSCRIPTION_CANCEL: 'subscription.cancel',
+  // Feature
+  FEATURE_VIEW: 'feature.view',
+  FEATURE_CREATE: 'feature.create',
+  FEATURE_UPDATE: 'feature.update',
+  FEATURE_DELETE: 'feature.delete',
 
+  // Notification
   NOTIFICATION_CREATE: 'notification.create',
   NOTIFICATION_VIEW: 'notification.view',
   NOTIFICATION_UPDATE: 'notification.update',

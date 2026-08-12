@@ -1,96 +1,44 @@
 import { injectable, inject } from "tsyringe";
-
 import { TOKENS } from "../../../../infrastructure/di/tokens";
+import { ISubscriptionPlanRepository } from "../../../../domain/repositories/subscription-plan.repository.interface";
+import { IFeatureRepository } from "../../../../domain/repositories/feature.repository.interface";
+import { SubscriptionPlan } from "../../../../domain/entities/subscription-plan.entity";
+import { NotFoundError, ConflictError, ValidationError } from "../../../../domain/errors/domain.error";
 
-import {
-  ISubscriptionPlanRepository,
-} from "../../../../domain/repositories/subscription-plan.repository.interface";
-
-import {
-  IAuditLogRepository,
-} from "../../../../domain/repositories/audit-log.repository.interface";
-
-import {
-  SubscriptionPlan,
-} from "../../../../domain/entities/subscription-plan.entity";
-
-import {
-  NotFoundError,
-  DomainError,
-} from "../../../../domain/errors/domain.error";
-
-import {
-  UpdateSubscriptionPlanDto,
-} from "../../../dtos/subscription/update-subscription-plan.dto";
-
-export interface UpdateSubscriptionPlanInput {
+interface UpdateSubscriptionPlanCommand {
   planId: string;
   adminId: string;
-  data: UpdateSubscriptionPlanDto;
+  data: Partial<Omit<SubscriptionPlan, "id" | "createdAt" | "updatedAt" | "deletedAt">>;
 }
 
 @injectable()
 export class UpdateSubscriptionPlanUseCase {
   constructor(
-    @inject(TOKENS.SubscriptionPlanRepository) private readonly planRepository: ISubscriptionPlanRepository,
-    @inject(TOKENS.AuditLogRepository) private readonly auditLogRepository: IAuditLogRepository
+    @inject(TOKENS.SubscriptionPlanRepository)
+    private readonly subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TOKENS.FeatureRepository)
+    private readonly featureRepository: IFeatureRepository
   ) { }
 
-  async execute(input: UpdateSubscriptionPlanInput): Promise<SubscriptionPlan> {
-    const { planId, adminId, data } = input;
+  async execute({ planId, data }: UpdateSubscriptionPlanCommand): Promise<SubscriptionPlan> {
+    const plan = await this.subscriptionPlanRepository.findById(planId);
+    if (!plan) throw new NotFoundError("Subscription plan not found");
 
-    const existingPlan = await this.planRepository.findById(planId);
-
-    if (!existingPlan) throw new NotFoundError("Subscription plan not found");
-
-    if (data.priceInMinorUnit !== undefined && data.priceInMinorUnit <= 0) {
-      throw new DomainError("Price must be greater than zero");
+    if (data.title && data.title !== plan.title) {
+      const existing = await this.subscriptionPlanRepository.findByTitle(data.title);
+      if (existing) throw new ConflictError("A subscription plan with this title already exists");
     }
 
-    if (data.name !== undefined && !data.name.trim()) {
-      throw new DomainError("Plan name cannot be empty");
+    if (data.featureIds?.length) {
+      const validFeatures = await this.featureRepository.findByIds(data.featureIds);
+      if (validFeatures.length !== data.featureIds.length) {
+        throw new ValidationError("One or more featureIds are invalid");
+      }
     }
 
-    const updatedPlan = await this.planRepository.update(
-      planId,
-      {
-        ...(data.name && {
-          name: data.name.trim()
-        }),
-        ...(data.description !== undefined && {
-          description: data.description
-        }),
-        ...(data.priceInMinorUnit !== undefined && {
-          priceInMinorUnit:
-            data.priceInMinorUnit
-        }),
-        ...(data.currency && {
-          currency: data.currency
-        }),
-        ...(data.billingInterval && {
-          billingInterval:
-            data.billingInterval
-        }),
-        ...(data.trialDays !== undefined && {
-          trialDays: data.trialDays
-        }),
-        ...(data.status && {
-          status: data.status
-        })
-      }
-    );
+    const updated = await this.subscriptionPlanRepository.update(planId, data);
+    if (!updated) throw new NotFoundError("Subscription plan not found");
 
-    if (!updatedPlan) throw new NotFoundError("Unable to update subscription plan");
-
-    await this.auditLogRepository.create({
-      adminId,
-      action: "UPDATE_SUBSCRIPTION_PLAN",
-      targetType: "SubscriptionPlan",
-      targetId: updatedPlan.id,
-      metadata: {
-        changes: data
-      }
-    });
-    return updatedPlan;
+    return updated;
   }
 }

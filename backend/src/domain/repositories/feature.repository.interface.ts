@@ -24,7 +24,8 @@ export interface FeatureListResult {
 export interface IFeatureRepository {
   create(data: CreateFeatureInput): Promise<Feature>;
   findById(id: string): Promise<Feature | null>;
-  findByKey(key: string): Promise<Feature | null>;
+  findByIds(ids: string[]): Promise<Feature[]>;
+  findByTitle(title: string): Promise<Feature | null>;
   update(id: string, data: UpdateFeatureInput): Promise<Feature | null>;
   softDelete(id: string): Promise<boolean>;
   list(filters?: FeatureListFilters): Promise<FeatureListResult>;

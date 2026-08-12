@@ -56,10 +56,4 @@ router.post(
   asyncHandler(controller.assignSalesman)
 );
 
-// router.post('/:id/contacts', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(addContactPersonSchema), asyncHandler(controller.addContactPerson));
-// router.get('/:id/contacts', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.listContactPersons));
-// router.get('/:id/contacts/:contactId', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.getContactPerson));
-// router.patch('/:id/contacts/:contactId', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(editContactPersonSchema), asyncHandler(controller.updateContactPerson));
-// router.delete('/:id/contacts/:contactId', authorize(PERMISSIONS.ORG_UPDATE), asyncHandler(controller.removeContactPerson));
-
 export default router;

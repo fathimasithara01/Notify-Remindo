@@ -9,9 +9,8 @@ export const TOKENS = {
   AuditLogRepository: Symbol('AuditLogRepository'),
   OrganizationDocumentRepository: Symbol('OrganizationDocumentRepository'),
   PlanFeatureRepository: Symbol('PlanFeatureRepository'),
-  OrganizationSubscriptionRepository: Symbol('OrganizationSubscriptionRepository'),
 
-    RevokeUserSessionsUseCase: Symbol.for('RevokeUserSessionsUseCase'),
+  RevokeUserSessionsUseCase: Symbol.for('RevokeUserSessionsUseCase'),
 
   UserResendInviteUseCase: Symbol('ResendInviteUseCase'),
   RequestPasswordResetUseCase: Symbol('RequestPasswordResetUseCase'),
@@ -19,7 +18,7 @@ export const TOKENS = {
   ChangePasswordUseCase: Symbol('ChangePasswordUseCase'),
 
   // Services (interfaces)
-    HashService: Symbol('HashService'),
+  HashService: Symbol('HashService'),
   TokenService: Symbol('TokenService'),
   WhatsAppNotifierService: Symbol('WhatsAppNotifierService'),
   EmailNotifierService: Symbol('EmailNotifierService'),
@@ -77,17 +76,17 @@ export const TOKENS = {
   AuditLogController: Symbol('AuditLogController'),
   InviteController: Symbol('InviteController'),
   OrganizationDocumentController: Symbol('OrganizationDocumentController'),
-  ListRolesUseCase: Symbol('ListRolesUseCase'), 
+  ListRolesUseCase: Symbol('ListRolesUseCase'),
   PlatformUserRepository: Symbol('PlatformUserRepository'),
 
 
   // tokens.ts
-CreatePlatformUserUseCase: Symbol('CreatePlatformUserUseCase'),
-EditPlatformUserUseCase: Symbol('EditPlatformUserUseCase'),
-ListPlatformUsersUseCase: Symbol('ListPlatformUsersUseCase'),
-DeletePlatformUserUseCase: Symbol('DeletePlatformUserUseCase'),
-PlatformUserController: Symbol('PlatformUserController'),
-GetPlatformUserUseCase: Symbol('GetPlatformUserUseCase'),
-BlockPlatformUserUseCase: Symbol.for('BlockPlatformUserUseCase'),
-UnblockPlatformUserUseCase: Symbol.for('UnblockPlatformUserUseCase'),
+  CreatePlatformUserUseCase: Symbol('CreatePlatformUserUseCase'),
+  EditPlatformUserUseCase: Symbol('EditPlatformUserUseCase'),
+  ListPlatformUsersUseCase: Symbol('ListPlatformUsersUseCase'),
+  DeletePlatformUserUseCase: Symbol('DeletePlatformUserUseCase'),
+  PlatformUserController: Symbol('PlatformUserController'),
+  GetPlatformUserUseCase: Symbol('GetPlatformUserUseCase'),
+  BlockPlatformUserUseCase: Symbol.for('BlockPlatformUserUseCase'),
+  UnblockPlatformUserUseCase: Symbol.for('UnblockPlatformUserUseCase'),
 } as const;

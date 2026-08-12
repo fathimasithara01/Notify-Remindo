@@ -8,6 +8,8 @@ import dashboardRoutes from './dashboard.routes';
 import userRoutes from './user.routes';
 import auditLogRoutes from './audit-log.routes';
 import adminRoutes from './platform-user.routes';
+import features from './feature.routes';
+
 
 // import inviteRoutes from './invite.routes';
 // import organizationDocuments from './organization-document.routes'
@@ -24,6 +26,8 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/users', userRoutes);
 router.use('/audit-logs', auditLogRoutes);
 router.use('/admin', adminRoutes);
+router.use('/features', features);
+
 
 // router.use('/invites', inviteRoutes);
 
