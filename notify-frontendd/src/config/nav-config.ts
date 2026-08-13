@@ -32,13 +32,6 @@ export const NAV_ITEMS: NavItem[] = [
   { href: ROUTES.roles.list, label: 'Roles', icon: ShieldCheck, permission: PERMISSIONS.ROLE_VIEW },
   { href: ROUTES.subscriptions.plans, label: 'Subscription Plans', icon: CreditCard, permission: PERMISSIONS.PLAN_VIEW },
   { href: ROUTES.subscriptions.features, label: 'Features', icon: CreditCard, permission: PERMISSIONS.PLAN_VIEW },
-  { href: ROUTES.subscriptions.planFeatures, label: 'Plan Features', icon: CreditCard, permission: PERMISSIONS.PLAN_VIEW },
-  {
-    href: ROUTES.subscriptions.organizationSubscriptions,
-    label: 'Organization Subscriptions',
-    icon: CreditCard,
-    permission: PERMISSIONS.SUBSCRIPTION_VIEW,
-  },
   { href: ROUTES.notifications, label: 'Notifications', icon: Bell, permission: PERMISSIONS.NOTIFICATION_VIEW },
   { href: ROUTES.users.list, label: 'Admin Users', icon: Users, permission: PERMISSIONS.USER_VIEW },
   { href: ROUTES.invites, label: 'Invites', icon: Mail, permission: PERMISSIONS.ORG_VIEW },

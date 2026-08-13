@@ -9,13 +9,14 @@ export interface UserDocument extends Document {
   lastName: string;
   roleId: Types.ObjectId;
   status: UserStatus;
+  phone: string;
   tokenVersion: number;
   lastLoginAt?: Date;
   inviteToken?: string;
   inviteTokenExpiresAt?: Date;
   resetPasswordToken?: string;
   resetPasswordTokenExpiresAt?: Date;
-  mustChangePassword:boolean;
+  mustChangePassword: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,6 +29,7 @@ const userSchema = new Schema<UserDocument>(
     lastName: { type: String, required: true, trim: true },
     roleId: { type: Schema.Types.ObjectId, ref: 'Role', required: true, index: true },
     status: { type: String, enum: ['invited', 'active', 'inactive', 'suspended'], default: 'invited', index: true },
+    phone: { type: String, required: true },
     passwordHash: { type: String },
     inviteToken: { type: String, index: true, sparse: true },
     inviteTokenExpiresAt: { type: Date },

@@ -61,6 +61,7 @@ export class CreateUserUseCase {
       email: data.email,
       passwordHash: null,
       status: 'invited',
+      phone:data.phone,
       organizationId: admin.organizationId,
       roleId: data.roleId,
       inviteToken,

@@ -9,9 +9,9 @@ export interface Organization {
   address: string;
 
   status: OrganizationStatus;
-  
+
   currentPlanId?: string | null;
-  salesmanId?: string | null; 
+  salesmanId?: string | null;
   documents?: {
     fileName: string;
     fileUrl: string;
@@ -27,7 +27,8 @@ export interface Organization {
 
 export interface OrganizationAdminSummary {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string | null;
   status: 'active' | 'invited' | 'inactive';

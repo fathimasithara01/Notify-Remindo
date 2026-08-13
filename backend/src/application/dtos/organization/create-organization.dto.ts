@@ -1,7 +1,7 @@
 export type OrganizationInviteMethod = 'email' | 'temppassword';
 
 export interface CreateOrganizationDto {
-name:string
+  name: string
 
   businessEmail: string;
   businessPhone: string;
@@ -23,8 +23,8 @@ name:string
 
   admin: {
     firstName: string;
-      lastName:string;
-
+    lastName: string;
+    phone: string;
     email: string;
   };
 }

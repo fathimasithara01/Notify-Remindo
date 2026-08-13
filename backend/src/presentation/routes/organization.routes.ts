@@ -21,7 +21,7 @@ import { asyncHandler } from '../../shared/utils/async-handler';
 const router = Router();
 const controller = container.resolve<OrganizationController>(TOKENS.OrganizationController);
 
-router.use(authenticate); // applies to all routes below
+router.use(authenticate); 
 
 router.post('/', authorize(PERMISSIONS.ORG_CREATE), validateRequest(createOrganizationSchema), asyncHandler(controller.create));
 router.get('/', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.list));

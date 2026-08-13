@@ -258,52 +258,44 @@ export function OrganizationDetail({
         {/* ADMIN */}
 
         <Card>
-
           <CardHeader>
-
             <div className="flex items-center gap-3">
-
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
-                <ShieldCheck className="h-4 w-4" />
+                <User className="h-4 w-4" />
               </div>
 
               <div>
-
                 <CardTitle>
-                  Organization Administrator
+                  Contact Person
                 </CardTitle>
 
                 <CardDescription>
-                  Primary administrator for this organization.
+                  Primary contact person for this organization.
                 </CardDescription>
-
               </div>
-
             </div>
-
           </CardHeader>
 
           <CardContent>
-
             {org.admin ? (
-
               <div className="grid gap-5 sm:grid-cols-2">
 
                 <Info
                   icon={<User className="h-4 w-4" />}
-                  label="firstName"
-                  value={org.admin.firstName}
+                  label="First Name"
+                  value={org.admin.firstName || "—"}
                 />
 
                 <Info
                   icon={<User className="h-4 w-4" />}
-                  label="lastName"
-                  value={org.admin.lastName}
+                  label="Last Name"
+                  value={org.admin.lastName || "—"}
                 />
+
                 <Info
                   icon={<Mail className="h-4 w-4" />}
                   label="Email"
-                  value={org.admin.email}
+                  value={org.admin.email || "—"}
                 />
 
                 <Info
@@ -329,26 +321,18 @@ export function OrganizationDetail({
                 />
 
               </div>
-
             ) : (
-
               <div className="rounded-lg border bg-muted/30 p-4">
-
                 <p className="text-sm font-medium">
-                  Administrator invitation pending
+                  Contact person invitation pending
                 </p>
 
                 <p className="mt-1 text-xs text-muted-foreground">
-                  The organization administrator has not accepted
-                  the invitation yet.
+                  The contact person has not accepted the invitation yet.
                 </p>
-
               </div>
-
             )}
-
           </CardContent>
-
         </Card>
 
         {/* SUBSCRIPTION */}
@@ -394,16 +378,10 @@ export function OrganizationDetail({
                   </p>
 
                   <p className="mt-1 text-lg font-semibold">
-                    {currentPlan?.name || "No plan assigned"}
+                    {currentPlan?.title || "No plan assigned"}
                   </p>
 
                 </div>
-
-                {currentPlan && (
-                  <Badge variant="secondary">
-                    {currentPlan.billingInterval}
-                  </Badge>
-                )}
 
               </div>
 
@@ -413,15 +391,20 @@ export function OrganizationDetail({
                   <p className="text-xl font-semibold">
 
                     {formatPrice(
-                      currentPlan.priceInMinorUnit,
+                      currentPlan.amountValue,
                       currentPlan.currency
                     )}
 
                   </p>
 
                   <p className="text-xs text-muted-foreground">
-                    per {currentPlan.billingInterval}
+                    user limit: {currentPlan.userLimit}
                   </p>
+
+                  <p className="text-xs text-muted-foreground">
+                    storage limit: {currentPlan.storageLimit}
+                  </p>
+
 
                 </div>
               )}
@@ -471,7 +454,7 @@ export function OrganizationDetail({
                       <div className="flex items-center gap-2">
 
                         <span>
-                          {plan.name}
+                          {plan.title}
                         </span>
 
                         <span className="text-muted-foreground">
@@ -480,13 +463,9 @@ export function OrganizationDetail({
 
                         <span>
                           {formatPrice(
-                            plan.priceInMinorUnit,
+                            plan.amountValue,
                             plan.currency
                           )}
-                        </span>
-
-                        <span className="text-muted-foreground">
-                          / {plan.billingInterval}
                         </span>
 
                       </div>
@@ -516,54 +495,6 @@ export function OrganizationDetail({
         </Card>
 
       </div>
-
-      {/* ================================================= */}
-      {/* CONTACT PERSONS */}
-      {/* ================================================= */}
-
-      <Card>
-
-        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
-          <div className="flex items-center gap-3">
-
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
-              <Users className="h-4 w-4" />
-            </div>
-
-            <div>
-
-              <CardTitle>
-                Contact Persons
-              </CardTitle>
-
-              <CardDescription>
-                Manage people associated with this organization.
-              </CardDescription>
-
-            </div>
-
-          </div>
-
-          {/* <AddContactPersonDialog
-            organizationId={id}
-          /> */}
-
-        </CardHeader>
-
-        <CardContent>
-
-          {/* <ContactPersonList
-            organizationId={id}
-          /> */}
-
-        </CardContent>
-
-      </Card>
-
-      {/* ================================================= */}
-      {/* DOCUMENTS */}
-      {/* ================================================= */}
 
       <Card>
 

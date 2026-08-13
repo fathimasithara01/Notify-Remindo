@@ -14,9 +14,7 @@ export class OrganizationRepository implements IOrganizationRepository {
 
   // aggregate() use cheyyunnath complex data processing cheyyan aanu. Data group, count, sum, filter, sort etc. cheyyunnu.
   async findById(id: string): Promise<OrganizationDetails | null> {
-
     const [doc] = await OrganizationModel.aggregate([
-      // 1. Find organization
       {
         $match: {
           _id: new Types.ObjectId(id),
@@ -24,7 +22,7 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
 
-      // 2. Find users belonging to this organization
+      // Find Organization Contact Person / Admin
       {
         $lookup: {
           from: 'users',
@@ -35,42 +33,39 @@ export class OrganizationRepository implements IOrganizationRepository {
             {
               $match: {
                 $expr: {
-                  $eq: [
-                    '$organizationId',
-                    '$$organizationId',
-                  ],
+                  $eq: ['$organizationId', '$$organizationId'],
                 },
               },
             },
 
-            // 3. Find user's role mappings
-            {
-              $lookup: {
-                from: 'userroles',
-                localField: '_id',
-                foreignField: 'userId',
-                as: 'userRoleMappings',
-              },
-            },
-
-            // 4. Find role details
+            // User -> Role
             {
               $lookup: {
                 from: 'roles',
-                localField: 'userRoleMappings.roleId',
+                localField: 'roleId',
                 foreignField: '_id',
-                as: 'userRoles',
+                as: 'role',
               },
             },
 
-            // 5. Only Organization Admin
+            {
+              $unwind: {
+                path: '$role',
+                preserveNullAndEmptyArrays: false,
+              },
+            },
+
+            // Organization Admin
             {
               $match: {
-                'userRoles.name': 'orgadmin',
+                'role.name': {
+                  $regex: '^org\\s*admin$',
+                  $options: 'i',
+                },
               },
             },
 
-            // 6. Active or invited admin
+            // Active OR invited
             {
               $match: {
                 status: {
@@ -80,18 +75,18 @@ export class OrganizationRepository implements IOrganizationRepository {
               },
             },
 
-            // 7. Only required fields
+            // Keep the actual user status
             {
               $project: {
                 _id: 1,
-                name: 1,
+                firstName: 1,
+                lastName: 1,
                 email: 1,
                 phone: 1,
                 status: 1,
               },
             },
 
-            // 8. Only one admin
             {
               $limit: 1,
             },
@@ -100,7 +95,6 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
 
-      // 9. Convert admin array into object
       {
         $unwind: {
           path: '$admin',
@@ -108,7 +102,6 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
 
-      // 10. Return required fields
       {
         $project: {
           _id: 1,
@@ -126,7 +119,8 @@ export class OrganizationRepository implements IOrganizationRepository {
 
           admin: {
             id: '$admin._id',
-            name: '$admin.name',
+            firstName: '$admin.firstName',
+            lastName: '$admin.lastName',
             email: '$admin.email',
             phone: '$admin.phone',
             status: '$admin.status',
@@ -146,9 +140,12 @@ export class OrganizationRepository implements IOrganizationRepository {
       businessPhone: doc.businessPhone,
       address: doc.address,
       status: doc.status,
+
       currentPlanId: doc.currentPlanId?.toString() ?? null,
       salesmanId: doc.salesmanId?.toString() ?? null,
+
       documents: doc.documents ?? [],
+
       deletedAt: doc.deletedAt ?? null,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
@@ -156,9 +153,12 @@ export class OrganizationRepository implements IOrganizationRepository {
       admin: doc.admin?.id
         ? {
           id: doc.admin.id.toString(),
-          name: doc.admin.name,
-          email: doc.admin.email,
+          firstName: doc.admin.firstName ?? '',
+          lastName: doc.admin.lastName ?? '',
+          email: doc.admin.email ?? '',
           phone: doc.admin.phone ?? null,
+
+          // IMPORTANT: actual user status
           status: doc.admin.status,
         }
         : null,
@@ -194,9 +194,7 @@ export class OrganizationRepository implements IOrganizationRepository {
     return result !== null;
   }
 
-  async list(
-    filters: OrganizationListFilters = {},
-  ): Promise<OrganizationListResult> {
+  async list(filters: OrganizationListFilters = {}): Promise<OrganizationListResult> {
     const page = Math.max(filters.page ?? 1, 1);
     const limit = Math.min(Math.max(filters.limit ?? 10, 1), 100);
     const skip = (page - 1) * limit;
@@ -267,7 +265,6 @@ export class OrganizationRepository implements IOrganizationRepository {
               },
             },
 
-            // Active / invited admin only
             {
               $match: {
                 status: {
@@ -286,6 +283,7 @@ export class OrganizationRepository implements IOrganizationRepository {
                   },
                 },
                 email: 1,
+                phone: 1,
                 status: 1,
 
               },
@@ -350,7 +348,7 @@ export class OrganizationRepository implements IOrganizationRepository {
                 status: 1,
 
                 currentPlanId: 1,
-                currentPlanName: '$plan.name',
+                currentPlanName: '$plan.title',
 
                 salesmanId: 1,
 
@@ -362,10 +360,11 @@ export class OrganizationRepository implements IOrganizationRepository {
                 // Admin
                 admin: {
                   id: '$admin._id',
-                  name: '$admin.name',
+                  firstName: '$admin.firstName',
+                  lastName: '$admin.lastName',
                   email: '$admin.email',
                   status: '$admin.status',
-                  // phone: '$admin.phone',  -- field ഇല്ലാത്തതിനാൽ ഒഴിവാക്കി
+                  phone: '$admin.phone',
                 },
               },
             },
@@ -379,8 +378,6 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
     ]);
-
-
 
     const total = result?.total?.[0]?.count ?? 0;
 
@@ -406,9 +403,11 @@ export class OrganizationRepository implements IOrganizationRepository {
         admin: doc.admin?.id
           ? {
             id: doc.admin.id.toString(),
-            name: doc.admin.name ?? null,
+            firstName: doc.admin.firstName ?? '',
+            lastName: doc.admin.lastName ?? '',
             email: doc.admin.email ?? null,
             status: doc.admin.status ?? null,
+            phone: doc.admin.phone ?? null,
           }
           : null,
       }),
@@ -424,6 +423,7 @@ export class OrganizationRepository implements IOrganizationRepository {
       },
     };
   }
+
   async block(id: string): Promise<Organization | null> {
     const doc = await OrganizationModel.findOneAndUpdate(
       {
@@ -491,56 +491,6 @@ export class OrganizationRepository implements IOrganizationRepository {
 
     return doc ? this.toDomain(doc) : null;
   }
-
-  // async addContactPerson(organizationId: string, data: NewContactPerson): Promise<ContactPerson> {
-  //   const doc = await ContactPersonModel.create({
-  //     ...data, // without spread they give nested data
-  //     organizationId,
-  //   });
-
-  //   return this.contactToDomain(doc);
-  // }
-
-  // async listContactPersons(organizationId: string): Promise<ContactPerson[]> {
-  //   const docs = await ContactPersonModel.find({
-  //     organizationId,
-  //   });
-
-  //   return docs.map((doc) => this.contactToDomain(doc));
-  // }
-
-  // async getContactPerson(organizationId: string, contactPersonId: string): Promise<ContactPerson | null> {
-  //   const doc = await ContactPersonModel.findOne({
-  //     _id: contactPersonId,
-  //     organizationId,
-  //   });
-
-  //   return doc ? this.contactToDomain(doc) : null;
-  // }
-
-  // async updateContactPerson(organizationId: string, contactPersonId: string, data: Partial<NewContactPerson>): Promise<ContactPerson | null> {
-  //   const doc = await ContactPersonModel.findOneAndUpdate(
-  //     {
-  //       _id: contactPersonId,
-  //       organizationId,
-  //     },
-  //     data,
-  //     {
-  //       new: true,
-  //     }
-  //   );
-
-  //   return doc ? this.contactToDomain(doc) : null;
-  // }
-
-  // async removeContactPerson(organizationId: string, contactPersonId: string): Promise<boolean> {
-  //   const result = await ContactPersonModel.findOneAndDelete({
-  //     _id: contactPersonId,
-  //     organizationId,
-  //   });
-
-  //   return result !== null;
-  // }
 
   private toDomain(doc: OrganizationDocument): Organization {
     return {

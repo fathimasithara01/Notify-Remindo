@@ -85,8 +85,6 @@ export function Sidebar() {
   const subscriptionRoutes = [
     ROUTES.subscriptions.plans,
     ROUTES.subscriptions.features,
-    ROUTES.subscriptions.planFeatures,
-    ROUTES.subscriptions.organizationSubscriptions,
   ].filter(canSee);
 
   const subscriptionActive = subscriptionRoutes.some(

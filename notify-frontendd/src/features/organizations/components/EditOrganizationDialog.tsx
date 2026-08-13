@@ -76,9 +76,6 @@ export function EditOrganizationDialog({
       mode: "onBlur",
     });
 
-  /* ================================================= */
-  /* RESET FORM WHEN ORGANIZATION CHANGES */
-  /* ================================================= */
 
   useEffect(() => {
     if (!organization) {
@@ -103,10 +100,6 @@ export function EditOrganizationDialog({
     });
   }, [organization, form]);
 
-  /* ================================================= */
-  /* SUBMIT */
-  /* ================================================= */
-
   const onSubmit = (
     values: EditOrganizationFormValues
   ) => {
@@ -122,10 +115,6 @@ export function EditOrganizationDialog({
     });
   };
 
-  /* ================================================= */
-  /* DIALOG OPEN / CLOSE */
-  /* ================================================= */
-
   const handleOpenChange = (
     nextOpen: boolean
   ) => {
@@ -138,10 +127,6 @@ export function EditOrganizationDialog({
 
     onOpenChange(nextOpen);
   };
-
-  /* ================================================= */
-  /* CANCEL */
-  /* ================================================= */
 
   const handleCancel = () => {
     if (updateMutation.isPending) {
@@ -159,10 +144,6 @@ export function EditOrganizationDialog({
       onOpenChange={handleOpenChange}
     >
       <DialogContent className="sm:max-w-[620px]">
-
-        {/* ================================================= */}
-        {/* HEADER */}
-        {/* ================================================= */}
 
         <DialogHeader>
 

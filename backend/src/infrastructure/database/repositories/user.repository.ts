@@ -76,7 +76,9 @@ export class UserRepository implements IUserRepository {
     if (!doc) return null;
     return {
       id: doc._id.toString(),
-      name: `${doc.firstName} ${doc.lastName}`,
+      // name: `${doc.firstName} ${doc.lastName}`,
+      firstName:doc.firstName,
+      lastName:doc.lastName,
       email: doc.email,
       phone: null,
       status: doc.status,
@@ -108,6 +110,7 @@ export class UserRepository implements IUserRepository {
       lastName: doc.lastName,
       roleId: doc.roleId.toString(),
       status: doc.status,
+      phone:doc.phone,
       tokenVersion: doc.tokenVersion,
       lastLoginAt: doc.lastLoginAt,
       inviteToken: doc.inviteToken,

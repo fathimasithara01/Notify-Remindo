@@ -64,14 +64,6 @@ function RequiredMark() {
   );
 }
 
-function formatPlanPrice(priceInMinorUnit: number, currency: string) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 2,
-  }).format(priceInMinorUnit / 100);
-}
-
 interface OrgInviteResult {
   adminName: string;
   value: string;
@@ -200,10 +192,6 @@ export function OrganizationForm() {
         </Alert>
       )}
 
-      {/* ================================================= */}
-      {/* FORM */}
-      {/* ================================================= */}
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card>
@@ -319,9 +307,6 @@ export function OrganizationForm() {
             </CardContent>
           </Card>
 
-          {/* ================================================= */}
-          {/* ORGANIZATION ADMIN */}
-          {/* ================================================= */}
 
           <Card>
             <CardHeader>
@@ -331,11 +316,7 @@ export function OrganizationForm() {
                 </div>
 
                 <div>
-                  <CardTitle>Organization Administrator</CardTitle>
-                  <CardDescription>
-                    The primary administrator who will manage this
-                    organization.
-                  </CardDescription>
+                  <CardTitle>Organization Administrator Contact Person</CardTitle>
                 </div>
               </div>
             </CardHeader>
@@ -347,7 +328,7 @@ export function OrganizationForm() {
                 name="inviteMethod"
                 render={({ field }) => (
                   <FormItem className="space-y-3">
-                    <FormLabel>How should the admin get access?</FormLabel>
+                    {/* <FormLabel>How should the admin get access?</FormLabel> */}
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
@@ -408,8 +389,7 @@ export function OrganizationForm() {
                 )}
               />
 
-              {/* Contextual info banner — changes based on selected method */}
-              <div className="rounded-lg border bg-muted/40 p-4">
+              {/* <div className="rounded-lg border bg-muted/40 p-4">
                 <div className="flex gap-3">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   <div className="space-y-1">
@@ -425,7 +405,7 @@ export function OrganizationForm() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div className="grid gap-6 md:grid-cols-2">
                 {/* Admin First Name */}
@@ -597,20 +577,16 @@ export function OrganizationForm() {
                             <SelectItem key={plan.id} value={plan.id}>
                               <div className="flex items-center gap-2">
                                 <span className="font-medium">
-                                  {plan.name}
+                                  {plan.title}
                                 </span>
                                 <span className="text-muted-foreground">
                                   —
                                 </span>
                                 <span>
-                                  {formatPlanPrice(
-                                    plan.priceInMinorUnit,
-                                    plan.currency
-                                  )}
+                                  {plan.amountValue},
+                                  {plan.currency}
                                 </span>
-                                <span className="text-muted-foreground">
-                                  / {plan.billingInterval}
-                                </span>
+
                               </div>
                             </SelectItem>
                           ))}
@@ -642,20 +618,16 @@ export function OrganizationForm() {
                         Selected Plan
                       </p>
                       <p className="mt-1 font-semibold">
-                        {selectedPlan.name}
+                        {selectedPlan.title}
                       </p>
                     </div>
 
                     <div className="text-right">
                       <p className="font-semibold">
-                        {formatPlanPrice(
-                          selectedPlan.priceInMinorUnit,
-                          selectedPlan.currency
-                        )}
+                        {selectedPlan.amountValue},
+                        {selectedPlan.currency}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        per {selectedPlan.billingInterval}
-                      </p>
+                      
                     </div>
                   </div>
 
@@ -726,4 +698,4 @@ export function OrganizationForm() {
       )}
     </div>
   );
-}
+} 
