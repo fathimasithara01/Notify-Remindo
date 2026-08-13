@@ -17,3 +17,10 @@ export interface CreateOrganizationDto {
     email: string;
   };
 }
+
+export interface EditOrganizationAdminDto {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+}

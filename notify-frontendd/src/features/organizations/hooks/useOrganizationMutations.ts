@@ -5,20 +5,17 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { organizationApi } from '../api/organization.api';
 
 import { queryKeys } from '@/lib/query/query-keys';
-import { ROUTES } from '@/config/routes';
 import { ApiClientError } from '@/lib/api/errors';
 
 import {
   CreateOrganizationPayload,
   EditOrganizationPayload,
   ResetAdminPasswordPayload,
-  CreateOrganizationResult,
   EditOrganizationAdminPayload
 } from '../types/organization.types';
 
@@ -31,7 +28,7 @@ export function useCreateOrganization() {
   const queryClient = useQueryClient();
  
   return useMutation({
-    mutationFn: (payload: CreateOrganizationPayload): Promise<CreateOrganizationResult> =>
+    mutationFn: (payload: CreateOrganizationPayload): Promise<CreateOrganizationPayload> =>
       organizationApi.create(payload),
  
     onSuccess: () => {
@@ -245,51 +242,51 @@ export function useResetAdminPassword() {
   });
 }
 
-export function useResendInvite() {
-  const queryClient = useQueryClient();
+// export function useResendInvite() {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (organizationId: string) =>
-      organizationApi.resendInvite(organizationId),
+//   return useMutation({
+//     mutationFn: (organizationId: string) =>
+//       organizationApi.resendInvite(organizationId),
 
-    onSuccess: (_, organizationId) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.organizations.all(),
-      });
+//     onSuccess: (_, organizationId) => {
+//       queryClient.invalidateQueries({
+//         queryKey: queryKeys.organizations.all(),
+//       });
 
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.organizations.detail(organizationId),
-      });
+//       queryClient.invalidateQueries({
+//         queryKey: queryKeys.organizations.detail(organizationId),
+//       });
 
-      toast.success("Invitation resent successfully");
-    },
+//       toast.success("Invitation resent successfully");
+//     },
 
-    onError,
-  });
-}
+//     onError,
+//   });
+// }
 
-export function useCancelInvite() {
-  const queryClient = useQueryClient();
+// export function useCancelInvite() {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (organizationId: string) =>
-      organizationApi.cancelInvite(organizationId),
+//   return useMutation({
+//     mutationFn: (organizationId: string) =>
+//       organizationApi.cancelInvite(organizationId),
 
-    onSuccess: (_, organizationId) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.organizations.all(),
-      });
+//     onSuccess: (_, organizationId) => {
+//       queryClient.invalidateQueries({
+//         queryKey: queryKeys.organizations.all(),
+//       });
 
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.organizations.detail(organizationId),
-      });
+//       queryClient.invalidateQueries({
+//         queryKey: queryKeys.organizations.detail(organizationId),
+//       });
 
-      toast.success("Invitation cancelled successfully");
-    },
+//       toast.success("Invitation cancelled successfully");
+//     },
 
-    onError,
-  });
-}
+//     onError,
+//   });
+// }
 
 export function useUpgradePlan(
   organizationId: string

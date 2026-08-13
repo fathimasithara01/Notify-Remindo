@@ -45,6 +45,19 @@ export const editOrganizationSchema = z.object({
   }),
 });
 
+export const editOrganizationAdminSchema = z.object({
+  body: z.object({
+    firstName: z.string().trim().min(1, 'First name is required'),
+    lastName: z.string().trim().min(1, 'Last name is required'),
+    email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^[0-9+\-\s()]{10,15}$/, 'Enter a valid phone number')
+      .optional(),
+  }),
+});
+
 export const upgradePlanSchema = z.object({
   params: z.object({
     id: z.string().min(1),

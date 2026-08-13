@@ -16,7 +16,7 @@ export const queryKeys = {
       filters?: {
         page?: number;
         limit?: number;
-        status?: 'active' | 'blocked';
+        status?: 'pending' | 'active' | 'blocked' | 'expired';
         planId?: string;
         salesmanId?: string;
         search?: string;

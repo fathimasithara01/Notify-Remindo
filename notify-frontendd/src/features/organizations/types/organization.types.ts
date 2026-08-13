@@ -1,4 +1,4 @@
-export type OrganizationStatus = 'pending' | 'created' | 'active' |  'blocked' | 'expired';
+export type OrganizationStatus = 'pending' | 'active' |  'blocked' | 'expired' ;
 
 export interface OrganizationAdmin {
   id: string;
@@ -82,14 +82,4 @@ export interface OrganizationListResponse {
 export interface ResetAdminPasswordPayload {
   password: string;
   confirmPassword: string;
-}
-
-export interface CreateOrganizationResult {
-  organization: Organization;
-  admin: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
 }

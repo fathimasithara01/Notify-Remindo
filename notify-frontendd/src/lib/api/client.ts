@@ -56,9 +56,6 @@ async function request<T>(
   }
 }
 
-// ---- Public surface ---------------------------------------------------
-// Everything routes through `request`, so envelope-unwrapping and error
-// normalization only exist in one place. No competing implementation.
 export const apiClient = {
   get<T>(url: string, params?: QueryParams, config?: RequestOptions['config']): Promise<T> {
     return request<T>('GET', url, { params, config });

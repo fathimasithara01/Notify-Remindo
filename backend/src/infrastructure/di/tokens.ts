@@ -11,6 +11,7 @@ export const TOKENS = {
   PlanFeatureRepository: Symbol('PlanFeatureRepository'),
 
   RevokeUserSessionsUseCase: Symbol.for('RevokeUserSessionsUseCase'),
+UpdateOrganizationAdminUseCase: Symbol('UpdateOrganizationAdminUseCase'),
 
   UserResendInviteUseCase: Symbol('ResendInviteUseCase'),
   RequestPasswordResetUseCase: Symbol('RequestPasswordResetUseCase'),

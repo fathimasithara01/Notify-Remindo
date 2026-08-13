@@ -12,6 +12,7 @@ import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError, NotFoundError } from '../../domain/errors/domain.error';
 import { parsePaginationParams } from '../../shared/utils/pagination';
 import { SetOrganizationAdminPasswordUseCase } from '../../application/organization/use-cases/set-organization-admin-password.use-case';
+import { UpdateOrganizationAdminUseCase } from '../../application/organization/use-cases/update-organization-admin.usecase';
 
 @injectable()
 export class OrganizationController {
@@ -25,9 +26,11 @@ export class OrganizationController {
     @inject(TOKENS.BlockCustomerUseCase) private blockCustomerUseCase: BlockCustomerUseCase,
     @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase,
     @inject(TOKENS.SetOrganizationAdminPasswordUseCase) private setOrganizationAdminPasswordUseCase: SetOrganizationAdminPasswordUseCase,
+        @inject(TOKENS.UpdateOrganizationAdminUseCase) private updateOrganizationAdminUseCase: UpdateOrganizationAdminUseCase,
+
     // @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: ResendInviteUseCase,
     // @inject(TOKENS.CancelInviteUseCase) private cancelInviteUseCase: CancelInviteUseCase
-  ) {}
+  ) { }
 
   create = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
@@ -40,7 +43,7 @@ export class OrganizationController {
     const pagination = parsePaginationParams(req.query as Record<string, unknown>);
 
     const result = await this.orgRepo.list({
-      status: status as 'pending'  | 'active' |  'blocked' | 'expired'| undefined,
+      status: status as 'pending' | 'active' | 'blocked' | 'expired' | undefined,
       salesmanId: salesmanId as string | undefined,
       planId: planId as string | undefined,
       search: search as string | undefined,
@@ -54,7 +57,7 @@ export class OrganizationController {
   getOne = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.orgRepo.findById(req.params.id);
     if (!organization) throw new NotFoundError('Organization not found');
-    ApiResponse.success(res, organization );
+    ApiResponse.success(res, organization);
   };
 
   update = async (req: Request, res: Response): Promise<void> => {
@@ -109,6 +112,11 @@ export class OrganizationController {
     const organization = await this.orgRepo.unblock(req.params.id);
     if (!organization) throw new NotFoundError('Organization not found');
     ApiResponse.success(res, organization, 200, 'Organization unblocked');
+  };
+
+  updateAdmin = async (req: Request, res: Response): Promise<void> => {
+    const admin = await this.updateOrganizationAdminUseCase.execute(req.params.id, req.body);
+    ApiResponse.success(res, admin, 200, 'Organization admin updated');
   };
 
   upgradePlan = async (req: Request, res: Response): Promise<void> => {

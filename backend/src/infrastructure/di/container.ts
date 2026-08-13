@@ -72,6 +72,7 @@ import { RevokeUserSessionsUseCase } from '../../application/user/use-cases/revo
 import { GetPlatformUserUseCase } from '../../application/platform-user/use-cases/get-platform-user.use-case';
 import { BlockPlatformUserUseCase } from '../../application/platform-user/use-cases/block-platform-user.use-case';
 import { UnblockPlatformUserUseCase } from '../../application/platform-user/use-cases/unblock-platform-user.use-cas';
+import { UpdateOrganizationAdminUseCase } from '../../application/organization/use-cases/update-organization-admin.usecase';
 
 export function registerDependencies(): void {
   // Repositories
@@ -82,8 +83,8 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.FeatureRepository, FeatureRepository);
   container.registerSingleton(TOKENS.NotificationRepository, NotificationRepository);
   container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
-    container.registerSingleton(TOKENS.RevokeUserSessionsUseCase, RevokeUserSessionsUseCase),
-
+  container.registerSingleton(TOKENS.RevokeUserSessionsUseCase, RevokeUserSessionsUseCase),
+    container.registerSingleton(TOKENS.UpdateOrganizationAdminUseCase, UpdateOrganizationAdminUseCase),
 
     container.register(TOKENS.BlockPlatformUserUseCase, { useClass: BlockPlatformUserUseCase });
   container.register(TOKENS.UnblockPlatformUserUseCase, { useClass: UnblockPlatformUserUseCase });

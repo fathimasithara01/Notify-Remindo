@@ -31,7 +31,6 @@ import { useOrganizations } from "../hooks/useOrganizations";
 import {
   useBlockOrganization,
   useUnblockOrganization,
-  useResendInvite,
 } from "../hooks/useOrganizationMutations";
 
 import { Organization } from "../types/organization.types";
@@ -53,9 +52,6 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Pagination } from "@/components/common/Pagination";
 import { SearchInput } from "@/components/common/SearchInput";
-
-import { EditOrganizationDialog } from "./EditOrganizationDialog";
-
 import { ROUTES } from "@/config/routes";
 import { DEFAULT_PAGE_SIZE } from "@/constants/app";
 import { ResetAdminPasswordDialog } from "./ResetAdminPasswordDialog";
@@ -66,7 +62,7 @@ export function OrganizationTable() {
   const [status, setStatus] = useState<"all" | "pending" | "active" | "blocked" | "expired">("all");
   // const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
   const [resetPasswordOrg, setResetPasswordOrg] = useState<Organization | null>(null);
-  const resendInviteMutation = useResendInvite();
+  // const resendInviteMutation = useResendInvite();
 
   const router = useRouter();
 
@@ -199,15 +195,15 @@ export function OrganizationTable() {
                   //   deleteMutation.isPending &&
                   //   deleteMutation.variables === org.id;
 
-                  const isResending =
-                    resendInviteMutation.isPending &&
-                    resendInviteMutation.variables === org.id;
+                  // const isResending =
+                  //   resendInviteMutation.isPending &&
+                  //   resendInviteMutation.variables === org.id;
 
                   const isUpdating =
                     isBlocking ||
-                    isUnblocking ||
+                    isUnblocking ;
                     // isDeleting ||
-                    isResending;
+                    // isResending;
 
                   const canResetPassword = Boolean(org.admin?.email);
 
@@ -319,7 +315,7 @@ export function OrganizationTable() {
                           )}
 
                           {/* BLOCK / UNBLOCK */}
-                          {org.status === "active" || "pending" || "expired" ? (
+                          {org.status === "active" ||org.status=== "pending" ||org.status=== "expired" ? (
                             <ConfirmDialog
                               tooltip="Block organization"
                               trigger={

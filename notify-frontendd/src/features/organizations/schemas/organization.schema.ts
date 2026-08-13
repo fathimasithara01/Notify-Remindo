@@ -28,8 +28,6 @@ export const createOrganizationSchema = z.object({
         .trim()
         .optional(),
 
-    // inviteMethod: z.enum(['email', 'temppassword']),
-
     admin: z.object({
         firstName: z
             .string()
@@ -60,31 +58,32 @@ export const createOrganizationSchema = z.object({
 
 export type CreateOrganizationFormValues = z.infer<typeof createOrganizationSchema>;
 
-export const editOrganizationSchema = z.object({
-    name: z
-        .string()
-        .trim()
-        .min(1, 'Organization name is required'),
+export const editOrganizationFormSchema = z.object({
+  name: z.string().trim().min(1, "Organization name is required"),
+  businessEmail: z
+    .string()
+    .trim()
+    .min(1, "Business email is required")
+    .email("Enter a valid business email address"),
+  businessPhone: z
+    .string()
+    .trim()
+    .min(1, "Business phone is required")
+    .regex(/^[0-9+\-\s()]{10,15}$/, "Enter a valid phone number"),
+  address: z.string().trim().min(1, "Address is required"),
 
-    businessEmail: z
-        .string()
-        .trim()
-        .email('Enter a valid business email address')
-        .optional(),
+  adminFirstName: z.string().trim().min(1, "First name is required"),
+  adminLastName: z.string().trim().min(1, "Last name is required"),
+  adminEmail: z.string().trim().min(1, "Admin email is required").email("Enter a valid email"),
+  adminPhone: z
+    .string()
+    .trim()
+    .min(1, "Admin phone is required")
+    .regex(/^[0-9+\-\s()]{10,15}$/, "Enter a valid phone number"),
+})
 
-    businessPhone: z
-        .string()
-        .trim()
-        .min(1, 'Business phone is required')
-        .optional(),
 
-    address: z
-        .string()
-        .trim()
-        .optional(),
-});
-
-export type EditOrganizationFormValues = z.infer<typeof editOrganizationSchema>;
+export type EditOrganizationFormValues = z.infer<typeof editOrganizationFormSchema>;
 
 export const resetAdminPasswordSchema = z
     .object({

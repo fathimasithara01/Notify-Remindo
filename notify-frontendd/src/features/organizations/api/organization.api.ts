@@ -6,8 +6,6 @@ import {
     EditOrganizationPayload,
     OrganizationListFilters,
     ResetAdminPasswordPayload,
-    CreateOrganizationResult,
-    OrganizationAdmin,
     EditOrganizationAdminPayload
 } from '../types/organization.types';
 
@@ -24,10 +22,10 @@ export const organizationApi = {
         }),
 
     getOne: (id: string) =>
-        apiClient.get<Organization & { contactPersons: OrganizationAdmin[] }>(`/organizations/${id}`),
+        apiClient.get<Organization>(`/organizations/${id}`),
 
     create: (payload: CreateOrganizationPayload) =>
-        apiClient.post<CreateOrganizationResult>('/organizations', payload),
+        apiClient.post<CreateOrganizationPayload>('/organizations', payload),
 
     update: (id: string, payload: EditOrganizationPayload) =>
         apiClient.patch<Organization>(`/organizations/${id}`, payload),
@@ -47,9 +45,9 @@ export const organizationApi = {
     resetAdminPassword: (id: string, payload: ResetAdminPasswordPayload) =>
         apiClient.post<null>(`/organizations/${id}/reset-admin-password`, payload),
 
-    resendInvite: (id: string) => apiClient.post<null>(`/organizations/${id}/resend-invite`),
+    // resendInvite: (id: string) => apiClient.post<null>(`/organizations/${id}/resend-invite`),
 
-    cancelInvite: (id: string) => apiClient.post<null>(`/organizations/${id}/cancel-invite`),
+    // cancelInvite: (id: string) => apiClient.post<null>(`/organizations/${id}/cancel-invite`),
 
     upgradePlan: (id: string, newPlanId: string) =>
         apiClient.post<Organization>(`/organizations/${id}/upgrade-plan`, { newPlanId }),

@@ -13,6 +13,7 @@ import {
   assignSalesmanSchema,
   blockCustomerSchema,
   resetOrganizationAdminPasswordSchema,
+  editOrganizationAdminSchema,
 } from '../validators/organization.validator';
 import { asyncHandler } from '../../shared/utils/async-handler';
 
@@ -26,10 +27,11 @@ router.get('/', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.list));
 router.get('/:id', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.getOne));
 
 router.patch('/:id', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(editOrganizationSchema), asyncHandler(controller.update));
-// router.delete('/:id', authorize(PERMISSIONS.ORG_DELETE), asyncHandler(controller.delete));
 
 router.post('/:id/block', authorize(PERMISSIONS.ORG_BLOCK), validateRequest(blockCustomerSchema), asyncHandler(controller.block));
 router.post('/:id/unblock', authorize(PERMISSIONS.ORG_BLOCK), asyncHandler(controller.unblock));
+
+router.patch( '/:id/admin', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(editOrganizationAdminSchema), asyncHandler(controller.updateAdmin));
 
 router.post(
   '/:id/reset-admin-password',
@@ -37,9 +39,6 @@ router.post(
   validateRequest(resetOrganizationAdminPasswordSchema),
   asyncHandler(controller.setAdminPassword)
 );
-
-// router.post('/:id/resend-invite', authorize(PERMISSIONS.ORG_RESEND_INVITE), asyncHandler(controller.resendInvite));
-// router.post('/:id/cancel-invite', authorize(PERMISSIONS.ORG_CANCEL_INVITE), asyncHandler(controller.cancelInvite));
 
 router.post(
   '/:id/upgrade-plan',
@@ -54,6 +53,9 @@ router.post(
   asyncHandler(controller.assignSalesman)
 );
 
+// router.delete('/:id', authorize(PERMISSIONS.ORG_DELETE), asyncHandler(controller.delete));
+// router.post('/:id/resend-invite', authorize(PERMISSIONS.ORG_RESEND_INVITE), asyncHandler(controller.resendInvite));
+// router.post('/:id/cancel-invite', authorize(PERMISSIONS.ORG_CANCEL_INVITE), asyncHandler(controller.cancelInvite));
 // router.post('/:id/contacts', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(addContactPersonSchema), asyncHandler(controller.addContactPerson));
 // router.get('/:id/contacts', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.listContactPersons));
 // router.get('/:id/contacts/:contactId', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.getContactPerson));
