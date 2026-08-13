@@ -297,10 +297,6 @@ export function OrganizationForm() {
                 </div>
                 <div>
                   <CardTitle>Organization Administrator</CardTitle>
-                  <CardDescription>
-                    This person will be set up as the Org Admin and can log
-                    in immediately using the password below.
-                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -603,9 +599,9 @@ export function OrganizationForm() {
           {/* ACTION BAR — sticky footer */}
           <div className="sticky bottom-0 z-10 -mx-4 border-t bg-background px-4 py-4 md:-mx-6 md:px-6">
             <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
-              <p className="hidden text-xs text-muted-foreground sm:block">
+              {/* <p className="hidden text-xs text-muted-foreground sm:block">
                 Fields marked with <span className="text-destructive">*</span> are required.
-              </p>
+              </p> */}
 
               <div className="ml-auto flex items-center gap-3">
                 <Button

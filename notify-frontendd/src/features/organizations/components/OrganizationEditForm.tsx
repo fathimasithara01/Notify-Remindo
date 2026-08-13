@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 
 import { useOrganization } from "../hooks/useOrganization";
-import { organizationApi } from "../api/organization.api";
+import { useUpdateOrganization, useUpdateOrganizationAdmin, useUpgradePlan } from "../hooks/useOrganizationMutations";
 import { useSubscriptionPlans } from "@/features/subscription/hooks/plans/useSubscriptionPlan";
 import { LoadingState } from "@/components/common/LoadingState";
 import { editOrganizationFormSchema, EditOrganizationFormValues } from "../schemas/organization.schema";
@@ -43,8 +43,9 @@ export function OrganizationEditForm({ id }: { id: string }) {
 
   const [selectedPlanId, setSelectedPlanId] = useState<string>(NO_PLAN_VALUE);
 
+  // use || instead of ?? — defensive against "" as well as null/undefined
   useEffect(() => {
-    setSelectedPlanId(org?.currentPlanId ?? NO_PLAN_VALUE);
+    setSelectedPlanId(org?.currentPlanId || NO_PLAN_VALUE);
   }, [org?.currentPlanId]);
 
   const currentPlan = useMemo(
@@ -52,9 +53,8 @@ export function OrganizationEditForm({ id }: { id: string }) {
     [plans, org?.currentPlanId]
   );
 
-  const isPlanChanged =
-    selectedPlanId !== NO_PLAN_VALUE &&
-  selectedPlanId !== (org?.currentPlanId ?? NO_PLAN_VALUE);
+  const currentPlanIdOrNone = org?.currentPlanId || NO_PLAN_VALUE;
+  const isPlanChanged = selectedPlanId !== currentPlanIdOrNone;
 
   const {
     register,
@@ -89,45 +89,38 @@ export function OrganizationEditForm({ id }: { id: string }) {
     });
   }, [org, reset]);
 
-  const saveMutation = useMutation({
-    mutationFn: (values: EditOrganizationFormValues) =>
-      Promise.all([
-        organizationApi.update(id, {
-          name: values.name,
-          businessEmail: values.businessEmail,
-          businessPhone: values.businessPhone,
-          address: values.address,
-        }),
-        organizationApi.updateAdmin(id, {
-          firstName: values.adminFirstName,
-          lastName: values.adminLastName,
-          email: values.adminEmail,
-          phone: values.adminPhone,
-        }),
-      ]),
-    onError: (err: any) => {
-      toast.error(err?.message ?? "Failed to update organization");
-    },
-  });
+  const updateOrg = useUpdateOrganization(id);
+  const updateAdmin = useUpdateOrganizationAdmin(id);
+  const upgradePlan = useUpgradePlan(id); // single source of truth for plan changes, no duplicate mutation
 
-  const changePlanMutation = useMutation({
-    mutationFn: (planId: string) => organizationApi.upgradePlan(id, planId),
-    onError: (err: any) => {
-      toast.error(err?.message ?? "Failed to change plan");
-    },
-  });
-
-  const isSubmitting = saveMutation.isPending || changePlanMutation.isPending;
+  const isSubmitting = updateOrg.isPending || updateAdmin.isPending || upgradePlan.isPending;
   const canSubmit = (isDirty || isPlanChanged) && !isSubmitting;
 
   const onSubmit = async (values: EditOrganizationFormValues) => {
+    // snapshot at submit time — avoids any stale/racey reads mid-async-flow
+    const planIdToSubmit = selectedPlanId;
+    const shouldChangePlan = planIdToSubmit !== NO_PLAN_VALUE && planIdToSubmit !== currentPlanIdOrNone && planIdToSubmit !== "";
+
     try {
       if (isDirty) {
-        await saveMutation.mutateAsync(values);
+        await Promise.all([
+          updateOrg.mutateAsync({
+            name: values.name,
+            businessEmail: values.businessEmail,
+            businessPhone: values.businessPhone,
+            address: values.address,
+          }),
+          updateAdmin.mutateAsync({
+            firstName: values.adminFirstName,
+            lastName: values.adminLastName,
+            email: values.adminEmail,
+            phone: values.adminPhone,
+          }),
+        ]);
       }
 
-      if (isPlanChanged) {
-        await changePlanMutation.mutateAsync(selectedPlanId);
+      if (shouldChangePlan) {
+        await upgradePlan.mutateAsync(planIdToSubmit);
       }
 
       toast.success("Organization updated");
@@ -269,7 +262,11 @@ export function OrganizationEditForm({ id }: { id: string }) {
 
           <div className="space-y-1.5">
             <Label>Select Plan</Label>
-            <Select value={selectedPlanId} onValueChange={setSelectedPlanId} disabled={plansLoading}>
+            <Select
+              value={selectedPlanId}
+              onValueChange={(val) => setSelectedPlanId(val || NO_PLAN_VALUE)}
+              disabled={plansLoading}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a plan" />
               </SelectTrigger>
@@ -277,18 +274,19 @@ export function OrganizationEditForm({ id }: { id: string }) {
                 <SelectItem value={NO_PLAN_VALUE}>
                   <span className="text-muted-foreground">No plan</span>
                 </SelectItem>
-                {plans.map((plan) => (
-                  <SelectItem key={plan.id} value={plan.id}>
-                    {plan.title}
-                  </SelectItem>
-                ))}
+                {plans
+                  .filter((plan) => !!plan.id) // guard against any malformed entries
+                  .map((plan) => (
+                    <SelectItem key={plan.id} value={plan.id}>
+                      {plan.title}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
         </CardContent>
       </Card>
 
-      {/* SINGLE SAVE BUTTON (business info + admin + plan) */}
       <div className="flex justify-end">
         <Button type="submit" disabled={!canSubmit}>
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
