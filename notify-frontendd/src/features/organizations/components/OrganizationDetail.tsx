@@ -129,10 +129,6 @@ export function OrganizationDetail({
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
 
-      {/* ================================================= */}
-      {/* HEADER */}
-      {/* ================================================= */}
-
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
         <div className="flex items-start gap-4">
@@ -171,10 +167,6 @@ export function OrganizationDetail({
 
       </div>
 
-      {/* ================================================= */}
-      {/* BUSINESS INFORMATION */}
-      {/* ================================================= */}
-
       <Card>
 
         <CardHeader>
@@ -187,13 +179,10 @@ export function OrganizationDetail({
 
             <div>
 
-              <CardTitle>
+              <CardTitle className="font-semibold">
                 Business Information
               </CardTitle>
 
-              <CardDescription>
-                Registered information for this organization.
-              </CardDescription>
 
             </div>
 
@@ -235,10 +224,6 @@ export function OrganizationDetail({
 
       </Card>
 
-      {/* ================================================= */}
-      {/* ADMIN + SUBSCRIPTION */}
-      {/* ================================================= */}
-
       <div className="grid gap-6 lg:grid-cols-2">
 
         {/* ADMIN */}
@@ -262,7 +247,7 @@ export function OrganizationDetail({
             </div>
           </CardHeader>
 
-          <CardContent>
+          {/* <CardContent>
             {org.admin ? (
               <div className="grid gap-5 sm:grid-cols-2">
 
@@ -290,22 +275,6 @@ export function OrganizationDetail({
                   value={org.admin.phone || "—"}
                 />
 
-                <Info
-                  icon={<ShieldCheck className="h-4 w-4" />}
-                  label="Status"
-                  value={
-                    <Badge
-                      variant={
-                        org.admin.status === "active"
-                          ? "default"
-                          : "secondary"
-                      }
-                    >
-                      {org.admin.status}
-                    </Badge>
-                  }
-                />
-
               </div>
             ) : (
               <div className="rounded-lg border bg-muted/30 p-4">
@@ -318,6 +287,34 @@ export function OrganizationDetail({
                 </p>
               </div>
             )}
+          </CardContent> */}
+
+          <CardContent>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Info
+                icon={<User className="h-4 w-4" />}
+                label="First Name"
+                value={org.admin?.firstName || "—"}
+              />
+
+              <Info
+                icon={<User className="h-4 w-4" />}
+                label="Last Name"
+                value={org.admin?.lastName || "—"}
+              />
+
+              <Info
+                icon={<Mail className="h-4 w-4" />}
+                label="Email"
+                value={org.admin?.email || "—"}
+              />
+
+              <Info
+                icon={<Phone className="h-4 w-4" />}
+                label="Phone"
+                value={org.admin?.phone || "—"}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -405,10 +402,6 @@ export function OrganizationDetail({
     </div>
   );
 }
-
-/* ================================================= */
-/* INFO COMPONENT */
-/* ================================================= */
 
 function Info({
   icon,

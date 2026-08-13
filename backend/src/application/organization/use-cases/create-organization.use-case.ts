@@ -6,7 +6,6 @@ import { IOrganizationRepository } from '../../../domain/repositories/organizati
 import { ISubscriptionPlanRepository } from '../../../domain/repositories/subscription-plan.repository.interface';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
-import { IOrganizationSubscriptionRepository } from '../../../domain/repositories/organization-subscription.repository.interface';
 import { IHashService } from '../../../domain/services/hash.service.interface';
 import { INotifierService } from '../../../domain/services/notifier.service.interface';
 

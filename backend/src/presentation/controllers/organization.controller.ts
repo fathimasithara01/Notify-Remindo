@@ -54,7 +54,7 @@ export class OrganizationController {
   getOne = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.orgRepo.findById(req.params.id);
     if (!organization) throw new NotFoundError('Organization not found');
-    ApiResponse.success(res, { ...organization, organization });
+    ApiResponse.success(res, organization );
   };
 
   update = async (req: Request, res: Response): Promise<void> => {

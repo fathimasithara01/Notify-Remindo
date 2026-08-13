@@ -26,7 +26,6 @@ export interface OrganizationAdminSummary {
   phone: string | null;
 }
 
-
 export interface OrganizationWithAdmin extends Organization {
   currentPlanName: string | null;
   admin: OrganizationAdminSummary | null;

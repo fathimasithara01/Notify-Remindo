@@ -64,12 +64,13 @@ export class OrganizationRepository implements IOrganizationRepository {
               },
             },
 
-            // Active OR invited
+            // Active OR invited (also treat missing status as active)
             {
               $match: {
-                status: {
-                  $in: ['active', 'invited'],
-                },
+                $or: [
+                  { status: { $in: ['active', 'invited'] } },
+                  { status: { $exists: false } },
+                ],
                 deletedAt: null,
               },
             },
@@ -93,8 +94,6 @@ export class OrganizationRepository implements IOrganizationRepository {
           as: 'admin',
         },
       },
-
-
 
       {
         $unwind: {
@@ -129,7 +128,7 @@ export class OrganizationRepository implements IOrganizationRepository {
           address: 1,
           status: 1,
           currentPlanId: 1,
-          currentPlanName: '$plan.title',   // <- '1' alla, plan.title venam
+          currentPlanName: '$plan.title',
           salesmanId: 1,
           documents: 1,
           deletedAt: 1,
@@ -240,7 +239,7 @@ export class OrganizationRepository implements IOrganizationRepository {
     }
 
     const [result] = await OrganizationModel.aggregate([
-      
+
       {
         $match: match,
       },
@@ -279,7 +278,7 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
 
-    
+
       {
         $lookup: {
           from: 'users',
@@ -375,7 +374,9 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
 
-   
+      // --------------------------------------------------
+      // 6. Latest organizations first
+      // --------------------------------------------------
       {
         $sort: {
           createdAt: -1,
@@ -476,7 +477,7 @@ export class OrganizationRepository implements IOrganizationRepository {
 
         updatedAt: doc.updatedAt,
 
-       
+
         admin: doc.admin?.id
           ? {
             id: doc.admin.id.toString(),
