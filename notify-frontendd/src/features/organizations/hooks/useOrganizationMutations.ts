@@ -81,39 +81,39 @@ export function useUpdateOrganization(organizationId: string) {
   });
 }
 
-export function useDeleteOrganization() {
-  const queryClient = useQueryClient();
+// export function useDeleteOrganization() {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (
-      organizationId: string
-    ) =>
-      organizationApi.delete(
-        organizationId
-      ),
+//   return useMutation({
+//     mutationFn: (
+//       organizationId: string
+//     ) =>
+//       organizationApi.delete(
+//         organizationId
+//       ),
 
-    onSuccess: (_, organizationId) => {
-      // Remove detail cache
-      queryClient.removeQueries({
-        queryKey:
-          queryKeys.organizations.detail(
-            organizationId
-          ),
-      });
+//     onSuccess: (_, organizationId) => {
+//       // Remove detail cache
+//       queryClient.removeQueries({
+//         queryKey:
+//           queryKeys.organizations.detail(
+//             organizationId
+//           ),
+//       });
 
-      // Refresh list
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.organizations.all(),
-      });
+//       // Refresh list
+//       queryClient.invalidateQueries({
+//         queryKey: queryKeys.organizations.all(),
+//       });
 
-      toast.success(
-        'Organization deleted successfully'
-      );
-    },
+//       toast.success(
+//         'Organization deleted successfully'
+//       );
+//     },
 
-    onError,
-  });
-}
+//     onError,
+//   });
+// }
 
 export function useBlockOrganization() {
   const queryClient = useQueryClient();

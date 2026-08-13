@@ -24,7 +24,7 @@ import { useSubscriptionPlans } from "@/features/subscription/hooks/plans/useSub
 // import { ContactPersonList } from "./ContactPersonList";
 // import { AddContactPersonDialog } from "./AddContactPersonDialog";
 
-import { DocumentUpload } from "./DocumentUpload";
+// import { DocumentUpload } from "./DocumentUpload";
 // import { DocumentList } from "./DocumentList";
 
 import {
@@ -524,9 +524,9 @@ export function OrganizationDetail({
 
         <CardContent className="space-y-6">
 
-          <DocumentUpload
+          {/* <DocumentUpload
             organizationId={id}
-          />
+          /> */}
 
           {/* <DocumentList
             organizationId={id}

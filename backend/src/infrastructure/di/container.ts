@@ -9,7 +9,6 @@ import { SubscriptionPlanRepository } from '../database/repositories/subscriptio
 import { FeatureRepository } from '../database/repositories/feature.repository';
 import { NotificationRepository } from '../database/repositories/notification.repository';
 import { AuditLogRepository } from '../database/repositories/audit-log.repository';
-import { OrganizationDocumentRepository } from '../database/repositories/organization-document.repository';
 
 // Services
 import { BcryptHashService } from '../services/bcrypt-hash.service';
@@ -31,10 +30,9 @@ import { CreateRoleUseCase } from '../../application/role/use-cases/create-role.
 import { EditRoleUseCase } from '../../application/role/use-cases/edit-role.use-case';
 import { DeleteRoleUseCase } from '../../application/role/use-cases/delete-role.use-case';
 import { CreateOrganizationUseCase } from '../../application/organization/use-cases/create-organization.use-case';
-import { OrganizationDocumentUseCase } from '../../application/organization/use-cases/organization-document.usecase.ts';
 
 import { EditOrganizationUseCase } from '../../application/organization/use-cases/edit-organization.use-case';
-import { DeleteOrganizationUseCase } from '../../application/organization/use-cases/delete-organization.use-case';
+// import { DeleteOrganizationUseCase } from '../../application/organization/use-cases/delete-organization.use-case';
 import { UpgradePlanUseCase } from '../../application/organization/use-cases/upgrade-plan.use-case';
 import { BlockCustomerUseCase } from '../../application/organization/use-cases/block-customer.use-case';
 import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
@@ -88,7 +86,6 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.FeatureRepository, FeatureRepository);
   container.registerSingleton(TOKENS.NotificationRepository, NotificationRepository);
   container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
-  container.registerSingleton(TOKENS.OrganizationDocumentRepository, OrganizationDocumentRepository);
     container.registerSingleton(TOKENS.RevokeUserSessionsUseCase, RevokeUserSessionsUseCase),
 
 
@@ -126,7 +123,7 @@ export function registerDependencies(): void {
   container.register(TOKENS.DeleteRoleUseCase, { useClass: DeleteRoleUseCase });
   container.register(TOKENS.CreateOrganizationUseCase, { useClass: CreateOrganizationUseCase });
   container.register(TOKENS.EditOrganizationUseCase, { useClass: EditOrganizationUseCase });
-  container.register(TOKENS.DeleteOrganizationUseCase, { useClass: DeleteOrganizationUseCase });
+  // container.register(TOKENS.DeleteOrganizationUseCase, { useClass: DeleteOrganizationUseCase });
   container.register(TOKENS.UpgradePlanUseCase, { useClass: UpgradePlanUseCase });
   container.register(TOKENS.BlockCustomerUseCase, { useClass: BlockCustomerUseCase });
   container.register(TOKENS.AssignSalesmanUseCase, { useClass: AssignSalesmanUseCase });
@@ -134,7 +131,6 @@ export function registerDependencies(): void {
   container.register(TOKENS.ScheduleNotificationUseCase, { useClass: ScheduleNotificationUseCase });
   container.register(TOKENS.SendReminderUseCase, { useClass: SendReminderUseCase });
   container.register(TOKENS.GetBusinessReportUseCase, { useClass: GetBusinessReportUseCase });
-  container.register(TOKENS.OrganizationDocumentUseCase, { useClass: OrganizationDocumentUseCase });
   container.register(TOKENS.UpdateFeatureUseCase, UpdateFeatureUseCase);
   container.register(TOKENS.DeleteFeatureUseCase, DeleteFeatureUseCase);
 

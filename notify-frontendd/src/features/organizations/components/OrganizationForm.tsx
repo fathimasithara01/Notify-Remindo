@@ -9,7 +9,6 @@ import {
   UserRound,
   CreditCard,
   Loader2,
-  CheckCircle2,
 } from "lucide-react";
 
 import { useCreateOrganization } from "../hooks/useOrganizationMutations";
@@ -460,7 +459,7 @@ export function OrganizationForm() {
                   name="admin.phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>Phone Number  <RequiredMark />     </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -627,7 +626,7 @@ export function OrganizationForm() {
                         {selectedPlan.amountValue},
                         {selectedPlan.currency}
                       </p>
-                      
+
                     </div>
                   </div>
 
@@ -645,7 +644,7 @@ export function OrganizationForm() {
           {/* ACTION BAR */}
           {/* ================================================= */}
 
-          <div className="sticky bottom-0 z-10 -mx-4 border-t bg-background/95 px-4 py-4 backdrop-blur md:-mx-6 md:px-6">
+          <div className="border-t bg-background px-4 py-4 md:px-6">
             <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
               <p className="hidden text-xs text-muted-foreground sm:block">
                 Fields marked with{" "}

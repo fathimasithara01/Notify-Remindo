@@ -28,7 +28,7 @@ router.get('/', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.list));
 router.get('/:id', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.getOne));
 
 router.patch('/:id', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(editOrganizationSchema), asyncHandler(controller.update));
-router.delete('/:id', authorize(PERMISSIONS.ORG_DELETE), asyncHandler(controller.delete));
+// router.delete('/:id', authorize(PERMISSIONS.ORG_DELETE), asyncHandler(controller.delete));
 
 router.post('/:id/block', authorize(PERMISSIONS.ORG_BLOCK), validateRequest(blockCustomerSchema), asyncHandler(controller.block));
 router.post('/:id/unblock', authorize(PERMISSIONS.ORG_BLOCK), asyncHandler(controller.unblock));

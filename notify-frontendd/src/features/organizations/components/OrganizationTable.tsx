@@ -30,7 +30,6 @@ import { useOrganizations } from "../hooks/useOrganizations";
 import {
   useBlockOrganization,
   useUnblockOrganization,
-  useDeleteOrganization,
   useResendInvite,
 } from "../hooks/useOrganizationMutations";
 
@@ -81,7 +80,7 @@ export function OrganizationTable() {
 
   const blockMutation = useBlockOrganization();
   const unblockMutation = useUnblockOrganization();
-  const deleteMutation = useDeleteOrganization();
+  // const deleteMutation = useDeleteOrganization();
 
   const handleSearch = (value: string) => {
     setSearch(value);
@@ -191,9 +190,9 @@ export function OrganizationTable() {
                     unblockMutation.isPending &&
                     unblockMutation.variables === org.id;
 
-                  const isDeleting =
-                    deleteMutation.isPending &&
-                    deleteMutation.variables === org.id;
+                  // const isDeleting =
+                  //   deleteMutation.isPending &&
+                  //   deleteMutation.variables === org.id;
 
                   const isResending =
                     resendInviteMutation.isPending &&
@@ -202,7 +201,7 @@ export function OrganizationTable() {
                   const isUpdating =
                     isBlocking ||
                     isUnblocking ||
-                    isDeleting ||
+                    // isDeleting ||
                     isResending;
 
                   const canResetPassword = Boolean(org.admin?.email);
@@ -355,7 +354,7 @@ export function OrganizationTable() {
                           )}
 
                           {/* DELETE */}
-                          <ConfirmDialog
+                          {/* <ConfirmDialog
                             tooltip="Delete organization"
                             trigger={
                               <Button
@@ -374,7 +373,7 @@ export function OrganizationTable() {
                             confirmLabel="Delete"
                             onConfirm={() => deleteMutation.mutate(org.id)}
                             isPending={isDeleting}
-                          />
+                          /> */}
 
                         </div>
                       </TableCell>

@@ -5,7 +5,7 @@ import { IOrganizationRepository } from '../../domain/repositories/organization.
 import { IAuditLogRepository } from '../../domain/repositories/audit-log.repository.interface';
 import { CreateOrganizationUseCase } from '../../application/organization/use-cases/create-organization.use-case';
 import { EditOrganizationUseCase } from '../../application/organization/use-cases/edit-organization.use-case';
-import { DeleteOrganizationUseCase } from '../../application/organization/use-cases/delete-organization.use-case';
+// import { DeleteOrganizationUseCase } from '../../application/organization/use-cases/delete-organization.use-case';
 import { UpgradePlanUseCase } from '../../application/organization/use-cases/upgrade-plan.use-case';
 import { BlockCustomerUseCase } from '../../application/organization/use-cases/block-customer.use-case';
 import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
@@ -23,7 +23,7 @@ export class OrganizationController {
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
     @inject(TOKENS.CreateOrganizationUseCase) private createOrgUseCase: CreateOrganizationUseCase,
     @inject(TOKENS.EditOrganizationUseCase) private editOrgUseCase: EditOrganizationUseCase,
-    @inject(TOKENS.DeleteOrganizationUseCase) private deleteOrgUseCase: DeleteOrganizationUseCase,
+    // @inject(TOKENS.DeleteOrganizationUseCase) private deleteOrgUseCase: DeleteOrganizationUseCase,
     @inject(TOKENS.UpgradePlanUseCase) private upgradePlanUseCase: UpgradePlanUseCase,
     @inject(TOKENS.BlockCustomerUseCase) private blockCustomerUseCase: BlockCustomerUseCase,
     @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase,
@@ -93,11 +93,11 @@ export class OrganizationController {
     ApiResponse.success(res, null, 200, 'Invitation cancelled successfully');
   };
 
-  delete = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-    await this.deleteOrgUseCase.execute({ organizationId: req.params.id, adminId: req.user.id });
-    ApiResponse.success(res, null, 200, 'Organization deleted');
-  };
+  // delete = async (req: Request, res: Response): Promise<void> => {
+  //   if (!req.user) throw new UnauthorizedError();
+  //   await this.deleteOrgUseCase.execute({ organizationId: req.params.id, adminId: req.user.id });
+  //   ApiResponse.success(res, null, 200, 'Organization deleted');
+  // };
 
   block = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();

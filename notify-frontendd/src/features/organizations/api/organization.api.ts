@@ -32,8 +32,8 @@ export const organizationApi = {
     update: (id: string, payload: EditOrganizationPayload) =>
         apiClient.patch<Organization>(`/organizations/${id}`, payload),
 
-    delete: (id: string) =>
-        apiClient.delete<null>(`/organizations/${id}`),
+    // delete: (id: string) =>
+    //     apiClient.delete<null>(`/organizations/${id}`),
 
     block: (id: string, reason?: string) =>
         apiClient.post<Organization>(`/organizations/${id}/block`, { reason }),
@@ -50,19 +50,4 @@ export const organizationApi = {
 
     upgradePlan: (id: string, newPlanId: string) =>
         apiClient.post<Organization>(`/organizations/${id}/upgrade-plan`, { newPlanId }),
-
-    listContactPersons: (id: string) =>
-        apiClient.get<ContactPerson[]>(`/organizations/${id}/contacts`),
-
-    addContactPerson: (id: string, payload: NewContactPersonPayload) =>
-        apiClient.post<ContactPerson>(`/organizations/${id}/contacts`, payload),
-
-    updateContactPerson: (id: string, contactId: string, payload: Partial<NewContactPersonPayload>) =>
-        apiClient.patch<ContactPerson>(
-            `/organizations/${id}/contacts/${contactId}`,
-            payload
-        ),
-
-    removeContactPerson: (id: string, contactId: string) =>
-        apiClient.delete<null>(`/organizations/${id}/contacts/${contactId}`),
 };
