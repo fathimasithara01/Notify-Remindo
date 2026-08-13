@@ -34,3 +34,4 @@ export const updateSubscriptionPlanSchema = createSubscriptionPlanSchema.partial
 
 export type CreateSubscriptionPlanFormValues = z.infer<typeof createSubscriptionPlanSchema>;
 export type UpdateSubscriptionPlanFormValues = z.infer<typeof updateSubscriptionPlanSchema>;
+export type SubscriptionPlanFormInput = z.input<typeof createSubscriptionPlanSchema>;

@@ -15,7 +15,7 @@ router.get("/", authorize(PERMISSIONS.PLAN_VIEW), controller.listPlans);
 router.get("/:id", authorize(PERMISSIONS.PLAN_VIEW), controller.getPlanById);
 router.patch("/:id", authorize(PERMISSIONS.PLAN_UPDATE), controller.updatePlan);
 router.delete("/:id", authorize(PERMISSIONS.PLAN_DELETE), controller.deletePlan);
-router.patch("/:id/block", authorize(PERMISSIONS.PLAN_UPDATE), controller.blockPlan);
-router.patch("/:id/unblock", authorize(PERMISSIONS.PLAN_UPDATE), controller.unblockPlan);
+router.post("/:id/block", authorize(PERMISSIONS.PLAN_UPDATE), controller.blockPlan);
+router.post("/:id/unblock", authorize(PERMISSIONS.PLAN_UPDATE), controller.unblockPlan);
 
 export default router;

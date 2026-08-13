@@ -4,6 +4,7 @@ import {
   useQueryClient,
   keepPreviousData,
 } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { featureApi } from '../../api/feature.api';
 import { CreateFeatureInput, FeatureFilters, UpdateFeatureInput } from '../../types/feature.types';
 
@@ -15,6 +16,10 @@ const FEATURE_KEYS = {
   details: () => [...FEATURE_KEYS.all, 'detail'] as const,
   detail: (id: string) => [...FEATURE_KEYS.details(), id] as const,
 };
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
 
 export function useFeatures(filters?: FeatureFilters) {
   return useQuery({
@@ -39,6 +44,10 @@ export function useCreateFeature() {
     mutationFn: (payload: CreateFeatureInput) => featureApi.create(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FEATURE_KEYS.lists() });
+      toast.success('Feature created');
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Failed to create feature'));
     },
   });
 }
@@ -52,6 +61,10 @@ export function useUpdateFeature() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: FEATURE_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: FEATURE_KEYS.detail(variables.id) });
+      toast.success('Feature updated');
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Failed to update feature'));
     },
   });
 }
@@ -63,6 +76,10 @@ export function useDeleteFeature() {
     mutationFn: (id: string) => featureApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FEATURE_KEYS.lists() });
+      toast.success('Feature deleted');
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Failed to delete feature'));
     },
   });
 }
@@ -75,6 +92,10 @@ export function useBlockFeature() {
     onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: FEATURE_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: FEATURE_KEYS.detail(id) });
+      toast.success('Feature blocked');
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Failed to block feature'));
     },
   });
 }
@@ -87,6 +108,10 @@ export function useUnblockFeature() {
     onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: FEATURE_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: FEATURE_KEYS.detail(id) });
+      toast.success('Feature unblocked');
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Failed to unblock feature'));
     },
   });
 }

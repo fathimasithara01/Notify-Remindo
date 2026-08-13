@@ -16,7 +16,7 @@ router.get("/", requirePermission(PERMISSIONS.FEATURE_VIEW), controller.listFeat
 router.get("/:id", requirePermission(PERMISSIONS.FEATURE_VIEW), controller.getFeatureById);
 router.patch("/:id", requirePermission(PERMISSIONS.FEATURE_UPDATE), controller.updateFeature);
 router.delete("/:id", requirePermission(PERMISSIONS.FEATURE_DELETE), controller.deleteFeature);
-router.patch("/:id/block", requirePermission(PERMISSIONS.FEATURE_UPDATE), controller.blockFeature);
-router.patch("/:id/unblock", requirePermission(PERMISSIONS.FEATURE_UPDATE), controller.unblockFeature);
+router.post("/:id/block", requirePermission(PERMISSIONS.FEATURE_UPDATE), controller.blockFeature);
+router.post("/:id/unblock", requirePermission(PERMISSIONS.FEATURE_UPDATE), controller.unblockFeature);
 
 export default router;

@@ -27,6 +27,7 @@ export type CreateSubscriptionPlanInput = Omit<SubscriptionPlan,
   "id" | "status" | "createdAt" | "updatedAt" | "deletedAt"
 >;
 
+
 export type UpdateSubscriptionPlanInput = Partial<CreateSubscriptionPlanInput>;
 
 export interface SubscriptionPlanFilters {
