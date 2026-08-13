@@ -12,8 +12,8 @@ import { User } from '../../domain/entities/user.entity';
 import { RevokeUserSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
 
 function toSafeUser(user: User) {
-  const { id, firstName, lastName, email, status, organizationId, roleId, createdAt } = user;
-  return { id, firstName, lastName, email, status, organizationId, roleId, createdAt };
+  const { id, firstName, lastName, email, organizationId, roleId, createdAt } = user;
+  return { id, firstName, lastName, email, organizationId, roleId, createdAt };
 }
 
 @injectable()
@@ -41,7 +41,6 @@ export class UserController {
     const internalUsers = await this.userRepo.list({
       internalOnly: true,
       search: search as string | undefined,
-      status: status as 'invited' | 'active' | 'inactive' | 'suspended' | undefined,
       ...pagination,
     });
 

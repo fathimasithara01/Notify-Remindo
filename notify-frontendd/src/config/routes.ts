@@ -5,7 +5,9 @@ export const ROUTES = {
     list: '/super-admin/organizations',
     new: '/super-admin/organizations/new',
     detail: (id: string) => `/super-admin/organizations/${id}`,
+    edit: (id:string) => `/super-admin/organizations/${id}/edit`
   },
+
   roles: {
     list: '/super-admin/roles',
     detail: (id: string) => `/super-admin/roles/${id}`,

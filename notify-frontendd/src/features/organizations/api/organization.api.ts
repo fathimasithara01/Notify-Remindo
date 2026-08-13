@@ -5,10 +5,10 @@ import {
     CreateOrganizationPayload,
     EditOrganizationPayload,
     OrganizationListFilters,
-    ContactPerson,
-    NewContactPersonPayload,
     ResetAdminPasswordPayload,
     CreateOrganizationResult,
+    OrganizationAdmin,
+    EditOrganizationAdminPayload
 } from '../types/organization.types';
 
 export const organizationApi = {
@@ -24,7 +24,7 @@ export const organizationApi = {
         }),
 
     getOne: (id: string) =>
-        apiClient.get<Organization & { contactPersons: ContactPerson[] }>(`/organizations/${id}`),
+        apiClient.get<Organization & { contactPersons: OrganizationAdmin[] }>(`/organizations/${id}`),
 
     create: (payload: CreateOrganizationPayload) =>
         apiClient.post<CreateOrganizationResult>('/organizations', payload),
@@ -34,6 +34,9 @@ export const organizationApi = {
 
     // delete: (id: string) =>
     //     apiClient.delete<null>(`/organizations/${id}`),
+
+    updateAdmin: (organizationId: string, payload: EditOrganizationAdminPayload) =>
+        apiClient.patch<Organization>(`/organizations/${organizationId}/admin`, payload),
 
     block: (id: string, reason?: string) =>
         apiClient.post<Organization>(`/organizations/${id}/block`, { reason }),

@@ -1,4 +1,4 @@
-export type OrganizationStatus = 'active' | 'blocked';
+export type OrganizationStatus = 'pending' | 'active' |  'blocked' | 'expired';
 
 export interface Organization {
   id: string;
@@ -12,14 +12,7 @@ export interface Organization {
 
   currentPlanId?: string | null;
   salesmanId?: string | null;
-  documents?: {
-    fileName: string;
-    fileUrl: string;
-    fileKey: string;
-    mimeType: string;
-    fileSize: number;
-    uploadedAt: Date;
-  }[];
+
   deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -31,14 +24,11 @@ export interface OrganizationAdminSummary {
   lastName: string;
   email: string;
   phone: string | null;
-  status: 'active' | 'invited' | 'inactive';
 }
 
-export interface OrganizationDetails extends Organization {
-  admin: OrganizationAdminSummary | null;
-}
 
 export interface OrganizationWithAdmin extends Organization {
+  currentPlanName: string | null;
   admin: OrganizationAdminSummary | null;
 }
 

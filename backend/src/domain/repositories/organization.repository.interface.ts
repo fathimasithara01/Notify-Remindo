@@ -1,4 +1,4 @@
-import { Organization, OrganizationStatus, NewOrganization,OrganizationWithAdmin, OrganizationDetails } from '../entities/organization.entity';
+import { Organization, OrganizationStatus, NewOrganization, OrganizationWithAdmin } from '../entities/organization.entity';
 
 export interface OrganizationListFilters {
   status?: OrganizationStatus;
@@ -21,10 +21,10 @@ export interface OrganizationListResult {
 
 export interface IOrganizationRepository {
   create(data: NewOrganization): Promise<Organization>;
-  findById(id: string): Promise<OrganizationDetails | null>;
+  findById(id: string): Promise<OrganizationWithAdmin | null>;
   update(id: string, data: Partial<NewOrganization>): Promise<Organization | null>;
   delete(id: string): Promise<boolean>;
-  list( filters?: OrganizationListFilters): Promise<OrganizationListResult>;
+  list(filters?: OrganizationListFilters): Promise<OrganizationListResult>;
 
   block(id: string): Promise<Organization | null>;
   unblock(id: string): Promise<Organization | null>;

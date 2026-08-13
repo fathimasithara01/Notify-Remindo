@@ -60,13 +60,12 @@ export class CreateUserUseCase {
       lastName: data.lastName,
       email: data.email,
       passwordHash: null,
-      status: 'invited',
       phone:data.phone,
       organizationId: admin.organizationId,
       roleId: data.roleId,
       inviteToken,
       inviteTokenExpiresAt,
-        mustChangePassword: true,
+        // mustChangePassword: true,
     });
 
     await this.auditLogRepo.create({

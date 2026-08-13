@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import { injectable, inject } from 'tsyringe';
 
 import { TOKENS } from '../../../infrastructure/di/tokens';
@@ -18,12 +17,9 @@ import { DomainError } from '../../../domain/errors/domain.error';
 
 import { CreateOrganizationDto } from '../../dtos/organization/create-organization.dto';
 
-import { inviteEmailTemplate } from '../../../infrastructure/email-templates/invite-email.template';
-import { generateTempPassword } from '../../../shared/utils/password-generator';
 import { env } from '../../../config/env';
 import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
-const INVITE_TOKEN_TTL_HOURS = 24;
 const ORG_ADMIN_ROLE_NAME = 'Org Admin';
 
 export interface CreateOrganizationInput {
@@ -34,9 +30,6 @@ export interface CreateOrganizationInput {
 export interface CreateOrganizationResult {
   organization: Organization;
   admin: User;
-  inviteUrl?: string;
-  emailSent?: boolean;
-  tempPassword?: string;
 }
 
 @injectable()
@@ -69,44 +62,12 @@ export class CreateOrganizationUseCase {
       businessEmail: data.businessEmail,
       businessPhone: data.businessPhone,
       address: data.address,
+      status: data.planId ? 'active' : 'pending',
       currentPlanId: data.planId || null,
       salesmanId: data.salesmanId || null,
-      documents: data.documents,
     });
 
-    // if (plan) {
-    //   const startDate = new Date();
-    //   const endDate = new Date(startDate);
-
-    //   switch (plan.billingInterval) {
-    //     case 'weekly':
-    //       endDate.setDate(endDate.getDate() + 7);
-    //       break;
-    //     case 'monthly':
-    //       endDate.setMonth(endDate.getMonth() + 1);
-    //       break;
-    //     case 'yearly':
-    //       endDate.setFullYear(endDate.getFullYear() + 1);
-    //       break;
-    //   }
-
-    //   await this.organizationSubscriptionRepository.create({
-    //     organizationId: organization.id,
-    //     planId: plan.id,
-    //     startDate,
-    //     endDate,
-    //     nextBillingDate: endDate,
-    //     priceInMinorUnit: plan.priceInMinorUnit,
-    //     currency: plan.currency,
-    //     billingInterval: plan.billingInterval,
-    //     autoRenew: false,
-    //     status: 'active',
-    //   });
-    // }
-
-    const result = data.inviteMethod === 'temppassword'
-      ? await this.createAdminWithTempPassword(data, organization.id, orgAdminRole)
-      : await this.createAdminWithInviteEmail(data, organization.id, orgAdminRole);
+    const admin = await this.createAdminWithProvidedPassword(data, organization.id, orgAdminRole);
 
     await this.auditLogRepo.create({
       adminId,
@@ -116,75 +77,30 @@ export class CreateOrganizationUseCase {
       metadata: {
         name: organization.name,
         planId: plan?.id ?? null,
-        adminUserId: result.admin.id,
-        inviteMethod: data.inviteMethod,
+        adminUserId: admin.id,
       },
     });
 
-    return { organization, ...result };
+    return { organization, admin };
   }
 
-  private async createAdminWithInviteEmail( data: CreateOrganizationDto, organizationId: string, orgAdminRole: Role): Promise<{ admin: User; inviteUrl: string; emailSent: boolean }> {
-    const inviteToken = crypto.randomBytes(32).toString('hex');
-    const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
-
-    const admin = await this.userRepo.create({
-      firstName: data.admin.firstName,
-      lastName: data.admin.lastName,
-      email: data.admin.email,
-      passwordHash: null,
-      status: 'invited',
-      phone:data.admin.phone,
-      organizationId,
-      inviteToken,
-      inviteTokenExpiresAt,
-      roleId: orgAdminRole.id,
-      mustChangePassword: false,
-    });
-
-    const inviteUrl = `${env.FRONTEND_URL}/accept-invite?token=${inviteToken}`;
-
-    let emailSent = true;
-    try {
-      const content = inviteEmailTemplate({
-        orgName: data.name,
-        inviteUrl,
-        ttlHours: INVITE_TOKEN_TTL_HOURS,
-      });
-      await this.emailNotifier.send({
-        to: data.admin.email,
-        subject: content.subject,
-        message: content.text,
-        html: content.html,
-      });
-    } catch (error) {
-      emailSent = false;
-      console.error(`Failed to send org-invite email to ${data.admin.email}:`, error);
-    }
-
-    return { admin, inviteUrl, emailSent };
-  }
-
-  private async createAdminWithTempPassword(
+  private async createAdminWithProvidedPassword(
     data: CreateOrganizationDto,
     organizationId: string,
-    orgAdminRole: Role
-  ): Promise<{ admin: User; tempPassword: string }> {
-    const tempPassword = generateTempPassword();
-    const passwordHash = await this.hashService.hash(tempPassword);
+    orgAdminRole: Role,
+  ): Promise<User> {
+    const passwordHash = await this.hashService.hash(data.admin.password);
 
     const admin = await this.userRepo.create({
       firstName: data.admin.firstName,
       lastName: data.admin.lastName,
       email: data.admin.email,
       passwordHash,
-      status: 'active',
-      phone:data.admin.phone,
+      phone: data.admin.phone,
       organizationId,
       roleId: orgAdminRole.id,
-      mustChangePassword: true,
     });
 
-    return { admin, tempPassword };
+    return admin;
   }
 }

@@ -1,67 +1,24 @@
 import { Schema, model, Types, Document } from 'mongoose';
+import { OrganizationStatus } from '../../../domain/entities/organization.entity';
 
-export interface OrganizationFile {
-  fileName: string;
-  fileUrl: string;
-  fileKey?: string;
-  mimeType: string;
-  fileSize: number;
-  uploadedAt: Date;
-}
 
 export interface OrganizationDocument extends Document {
   name: string;
   businessEmail: string;
   businessPhone: string;
   address: string;
-  status: 'active' | 'blocked';
+  status: OrganizationStatus;
 
   currentPlanId?: Types.ObjectId | null;
+  currentPlanName: string | null;
+
   salesmanId?: Types.ObjectId | null;
 
-  documents?: OrganizationFile[];
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const organizationFileSchema = new Schema<OrganizationFile>(
-  {
-    fileName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    fileUrl: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    fileKey: {
-      type: String,
-      trim: true,
-    },
-
-    mimeType: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    fileSize: {
-      type: Number,
-      required: true,
-    },
-
-    uploadedAt: {
-      type: Date,
-      default: Date.now,
-    },
-  },
-  { _id: true }
-);
 
 const organizationSchema = new Schema<OrganizationDocument>(
   {
@@ -69,21 +26,21 @@ const organizationSchema = new Schema<OrganizationDocument>(
     businessEmail: { type: String, required: true, lowercase: true, trim: true },
     businessPhone: { type: String, required: true, trim: true },
     address: { type: String, required: true, trim: true },
-    status: { type: String, enum: ['active', 'blocked'], default: 'active' },
-
+    status: { type: String, enum: ['pending', 'active', 'blocked', 'expired'], default: 'active' },
     currentPlanId: {
       type: Schema.Types.ObjectId,
       ref: 'SubscriptionPlan',
       default: null,
     },
+    currentPlanName: { type: String , default: null},
     salesmanId: { type: Schema.Types.ObjectId, ref: 'Salesman', default: null },
 
-    documents: { type: [organizationFileSchema], default: [] },
     deletedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
 
+organizationSchema.index({ businessEmail: 1 }, { unique: true });
 export const OrganizationModel = model<OrganizationDocument>('Organization', organizationSchema);
 
 

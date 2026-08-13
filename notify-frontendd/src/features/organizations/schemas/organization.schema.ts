@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 export const createOrganizationSchema = z.object({
     name: z.string().trim().min(1, 'Organization name is required'),
-
     businessEmail: z
         .string()
         .trim()
@@ -29,7 +28,7 @@ export const createOrganizationSchema = z.object({
         .trim()
         .optional(),
 
-    inviteMethod: z.enum(['email', 'temppassword']),
+    // inviteMethod: z.enum(['email', 'temppassword']),
 
     admin: z.object({
         firstName: z
@@ -52,7 +51,10 @@ export const createOrganizationSchema = z.object({
             .string()
             .trim()
             .min(1, 'Admin phone is required')
-            .regex(/^[0-9+\-\s()]{10,15}$/, 'Enter a valid phone number')
+            .regex(/^[0-9+\-\s()]{10,15}$/, 'Enter a valid phone number'),
+
+        password: z.string().min(8, "Password must be at least 8 characters"),
+        confirmPassword: z.string().min(1, "Please confirm the password"),
     }),
 });
 
@@ -105,4 +107,4 @@ export const resetAdminPasswordSchema = z
         }
     );
 
-export type ResetAdminPasswordFormValues = z.infer <typeof resetAdminPasswordSchema>;
+export type ResetAdminPasswordFormValues = z.infer<typeof resetAdminPasswordSchema>;

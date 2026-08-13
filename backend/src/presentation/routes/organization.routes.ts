@@ -12,8 +12,6 @@ import {
   upgradePlanSchema,
   assignSalesmanSchema,
   blockCustomerSchema,
-  addContactPersonSchema,
-  editContactPersonSchema,
   resetOrganizationAdminPasswordSchema,
 } from '../validators/organization.validator';
 import { asyncHandler } from '../../shared/utils/async-handler';
@@ -40,8 +38,8 @@ router.post(
   asyncHandler(controller.setAdminPassword)
 );
 
-router.post('/:id/resend-invite', authorize(PERMISSIONS.ORG_RESEND_INVITE), asyncHandler(controller.resendInvite));
-router.post('/:id/cancel-invite', authorize(PERMISSIONS.ORG_CANCEL_INVITE), asyncHandler(controller.cancelInvite));
+// router.post('/:id/resend-invite', authorize(PERMISSIONS.ORG_RESEND_INVITE), asyncHandler(controller.resendInvite));
+// router.post('/:id/cancel-invite', authorize(PERMISSIONS.ORG_CANCEL_INVITE), asyncHandler(controller.cancelInvite));
 
 router.post(
   '/:id/upgrade-plan',
@@ -55,5 +53,11 @@ router.post(
   validateRequest(assignSalesmanSchema),
   asyncHandler(controller.assignSalesman)
 );
+
+// router.post('/:id/contacts', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(addContactPersonSchema), asyncHandler(controller.addContactPerson));
+// router.get('/:id/contacts', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.listContactPersons));
+// router.get('/:id/contacts/:contactId', authorize(PERMISSIONS.ORG_VIEW), asyncHandler(controller.getContactPerson));
+// router.patch('/:id/contacts/:contactId', authorize(PERMISSIONS.ORG_UPDATE), validateRequest(editContactPersonSchema), asyncHandler(controller.updateContactPerson));
+// router.delete('/:id/contacts/:contactId', authorize(PERMISSIONS.ORG_UPDATE), asyncHandler(controller.removeContactPerson));
 
 export default router;

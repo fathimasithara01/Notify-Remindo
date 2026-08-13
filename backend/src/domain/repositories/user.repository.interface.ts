@@ -1,5 +1,6 @@
-import { User, NewUser, UserStatus } from '../entities/user.entity';
+import { User, NewUser } from '../entities/user.entity';
 import { PaginatedResult } from '../../shared/utils/pagination';
+import { OrganizationStatus } from '../entities/organization.entity';
 
 export interface OrganizationAdminSummary {
   id: string;
@@ -7,7 +8,6 @@ export interface OrganizationAdminSummary {
   lastName: string;
   email: string;
   phone: string | null;
-  status: string;
 }
 
 export interface IUserRepository {
@@ -19,7 +19,6 @@ export interface IUserRepository {
   delete(id: string): Promise<boolean>;
 
   list(filter?: {
-    status?: UserStatus;
     organizationId?: string;
     internalOnly?: boolean;
     search?: string;
@@ -30,7 +29,7 @@ export interface IUserRepository {
   assignRole(userId: string, roleId: string): Promise<void>;
 
   findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null>;
-  findOneByOrganizationAndStatus(organizationId: string, status: UserStatus): Promise<User | null>;
+  findOneByOrganizationAndStatus(organizationId: string, status: OrganizationStatus): Promise<User | null>;
 
   cancelInvite(userId: string): Promise<boolean>;
   countByRoleId(roleId: string): Promise<number>;

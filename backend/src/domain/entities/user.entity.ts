@@ -1,4 +1,4 @@
-export type UserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
+// export type UserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
 
 export interface User {
     id: string;
@@ -9,8 +9,6 @@ export interface User {
     lastName: string;
     roleId: string;
     phone: string,
-    status: UserStatus;
-    mustChangePassword: boolean;
     tokenVersion: number;
     lastLoginAt?: Date;
     inviteToken?: string;

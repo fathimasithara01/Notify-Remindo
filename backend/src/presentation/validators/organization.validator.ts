@@ -17,13 +17,17 @@ export const createOrganizationSchema = z.object({
     address: z.string().min(1, 'Address is required'),
     planId: z.string().optional(),
     salesmanId: z.string().optional(),
-    documents: z.array(organizationFileSchema).optional(),
-    inviteMethod: z.enum(['email', 'temppassword']).default('email'),
     admin: z.object({
       firstName: z.string().min(1, 'Admin first name is required'),
       lastName: z.string().min(1, 'Admin last name is required'),
       email: z.string().email('Invalid admin email'),
       phone: z.string().optional(),
+      password: z
+        .string()
+        .min(8, 'Password must contain minimum 8 characters')
+        .regex(/[A-Z]/, 'Password must contain uppercase letter')
+        .regex(/[a-z]/, 'Password must contain lowercase letter')
+        .regex(/[0-9]/, 'Password must contain number'),
     }),
   }),
 });

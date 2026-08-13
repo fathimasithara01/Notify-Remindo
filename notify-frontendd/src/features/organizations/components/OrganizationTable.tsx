@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -62,10 +63,12 @@ import { ResetAdminPasswordDialog } from "./ResetAdminPasswordDialog";
 export function OrganizationTable() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"all" | "active" | "blocked">("all");
-  const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
+  const [status, setStatus] = useState<"all" | "pending" | "active" | "blocked" | "expired">("all");
+  // const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
   const [resetPasswordOrg, setResetPasswordOrg] = useState<Organization | null>(null);
   const resendInviteMutation = useResendInvite();
+
+  const router = useRouter();
 
   const {
     data,
@@ -87,7 +90,7 @@ export function OrganizationTable() {
     setPage(1);
   };
 
-  const handleStatusChange = (value: "all" | "active" | "blocked") => {
+  const handleStatusChange = (value: "all" | "pending" | "active" | "blocked" | "expired") => {
     setStatus(value);
     setPage(1);
   };
@@ -114,8 +117,10 @@ export function OrganizationTable() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="blocked">Blocked</SelectItem>
+              <SelectItem value="expired">Expired</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -236,10 +241,15 @@ export function OrganizationTable() {
 
                       <TableCell>
                         <Badge
-                          variant={
+                          variant="outline"
+                          className={
                             org.status === "active"
-                              ? "default"
-                              : "destructive"
+                              ? "bg-green-100 text-green-700 border-green-200"
+                              : org.status === "pending"
+                                ? "bg-amber-100 text-amber-700 border-amber-200"
+                                : org.status === "blocked"
+                                  ? "bg-red-100 text-red-700 border-red-200"
+                                  : "bg-gray-100 text-gray-600 border-gray-200"
                           }
                         >
                           {org.status}
@@ -258,7 +268,7 @@ export function OrganizationTable() {
                                 size="icon"
                                 aria-label={`Edit ${org.name}`}
                                 disabled={isUpdating}
-                                onClick={() => setEditingOrg(org)}
+                                onClick={() => router.push(ROUTES.organizations.edit(org.id))}
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -267,7 +277,7 @@ export function OrganizationTable() {
                           </Tooltip>
 
                           {/* RESEND INVITE */}
-                          <ConfirmDialog
+                          {/* <ConfirmDialog
                             tooltip="Resend invitation"
                             trigger={
                               <Button
@@ -285,7 +295,7 @@ export function OrganizationTable() {
                             confirmLabel="Resend invitation"
                             onConfirm={() => resendInviteMutation.mutate(org.id)}
                             isPending={isResending}
-                          />
+                          /> */}
 
                           {/* RESET PASSWORD */}
                           {canResetPassword && (
@@ -309,7 +319,7 @@ export function OrganizationTable() {
                           )}
 
                           {/* BLOCK / UNBLOCK */}
-                          {org.status === "active" ? (
+                          {org.status === "active" || "pending" || "expired" ? (
                             <ConfirmDialog
                               tooltip="Block organization"
                               trigger={
@@ -401,7 +411,7 @@ export function OrganizationTable() {
         </div>
       )}
 
-      <EditOrganizationDialog
+      {/* <EditOrganizationDialog
         organization={editingOrg}
         open={Boolean(editingOrg)}
         onOpenChange={(open) => {
@@ -409,7 +419,7 @@ export function OrganizationTable() {
             setEditingOrg(null);
           }
         }}
-      />
+      /> */}
 
       <ResetAdminPasswordDialog
         organization={resetPasswordOrg}

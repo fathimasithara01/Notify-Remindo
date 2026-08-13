@@ -1,8 +1,9 @@
 import { injectable } from 'tsyringe';
 import { IUserRepository, OrganizationAdminSummary } from '../../../domain/repositories/user.repository.interface';
-import { User, NewUser, UserStatus } from '../../../domain/entities/user.entity';
+import { User, NewUser } from '../../../domain/entities/user.entity';
 import { UserModel, UserDocument } from '../models/user.model';
 import { PaginatedResult, buildPaginatedResult, getOffset } from '../../../shared/utils/pagination';
+import { OrganizationStatus } from '../../../domain/entities/organization.entity';
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -43,7 +44,6 @@ export class UserRepository implements IUserRepository {
   }
 
   async list(filter: {
-    status?: UserStatus;
     organizationId?: string;
     internalOnly?: boolean;
     search?: string;
@@ -54,7 +54,7 @@ export class UserRepository implements IUserRepository {
     const skip = getOffset(params);
 
     const query: Record<string, unknown> = {};
-    if (filter.status) query.status = filter.status;
+    // if (filter.status) query.status = filter.status;
     if (filter.organizationId) query.organizationId = filter.organizationId;
     if (filter.search) query.$text = { $search: filter.search };
 
@@ -81,7 +81,6 @@ export class UserRepository implements IUserRepository {
       lastName:doc.lastName,
       email: doc.email,
       phone: null,
-      status: doc.status,
     };
   }
 
@@ -94,11 +93,10 @@ export class UserRepository implements IUserRepository {
     return UserModel.countDocuments({ roleId });
   }
 
-  async findOneByOrganizationAndStatus(organizationId: string, status: UserStatus): Promise<User | null> {
+  async findOneByOrganizationAndStatus(organizationId: string, status: OrganizationStatus): Promise<User | null> {
     const doc = await UserModel.findOne({ organizationId, status });
     return doc ? this.toEntity(doc) : null;
   }
-
 
   private toEntity(doc: UserDocument): User {
     return {
@@ -109,7 +107,6 @@ export class UserRepository implements IUserRepository {
       firstName: doc.firstName,
       lastName: doc.lastName,
       roleId: doc.roleId.toString(),
-      status: doc.status,
       phone:doc.phone,
       tokenVersion: doc.tokenVersion,
       lastLoginAt: doc.lastLoginAt,
@@ -119,7 +116,7 @@ export class UserRepository implements IUserRepository {
       resetPasswordTokenExpiresAt: doc.resetPasswordTokenExpiresAt,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
-      mustChangePassword: doc.mustChangePassword,
+      // mustChangePassword: doc.mustChangePassword,
     };
   }
 }

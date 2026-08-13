@@ -22,7 +22,6 @@ import { LoginAdminUseCase } from '../../application/auth/use-cases/login-admin.
 import { RefreshTokenUseCase } from '../../application/auth/use-cases/refresh-token.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-current-user.use-case';
 import { AcceptInviteUseCase } from '../../application/auth/use-cases/accept-invite.use-case';
-import { ResendInviteUseCase } from '../../application/organization/use-cases/resend-invite.use-case';
 import { CreateUserUseCase } from '../../application/user/use-cases/create-user.use-case';
 import { EditUserUseCase } from '../../application/user/use-cases/edit-user.use-case';
 import { RevokeSessionsUseCase } from '../../application/platform-user/use-cases/revoke-sessions.use-case';
@@ -49,9 +48,7 @@ import { NotificationController } from '../../presentation/controllers/notificat
 import { DashboardController } from '../../presentation/controllers/dashboard.controller';
 import { UserController } from '../../presentation/controllers/user.controller';
 import { AuditLogController } from '../../presentation/controllers/audit-log.controller';
-import { InviteController } from '../../presentation/controllers/invite.controller';
 import { S3FileStorageService } from '../storage/s3-file-storage.service';
-// import { OrganizationDocumentController } from '../../presentation/controllers/organization-document.controller';
 import { UpdateFeatureUseCase } from '../../application/subscription/use-cases/feature/update-feature.use-case';
 import { DeleteFeatureUseCase } from '../../application/subscription/use-cases/feature/delete-feature.use-case';
 import { CreateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/create-subscription-plan.use-case';
@@ -59,7 +56,6 @@ import { UpdateSubscriptionPlanUseCase } from '../../application/subscription/us
 import { DeleteSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/delete-subscription-plan.use-case';
 import { LogoutAllDevicesUseCase } from '../../application/auth/use-cases/logout-from-alldevice';
 import { SetOrganizationAdminPasswordUseCase } from '../../application/organization/use-cases/set-organization-admin-password.use-case';
-import { CancelInviteUseCase } from '../../application/organization/use-cases/Cancel-invite-use-case';
 import { RequestPasswordResetUseCase } from '../../application/platform-user/use-cases/request-password-reset.use-case';
 import { ResetPasswordUseCase } from '../../application/auth/use-cases/reset-password.use-case';
 import { ChangePasswordUseCase } from '../../application/auth/use-cases/change-password.use-case';
@@ -114,7 +110,6 @@ export function registerDependencies(): void {
   container.register(TOKENS.RefreshTokenUseCase, { useClass: RefreshTokenUseCase });
   container.register(TOKENS.GetCurrentUserUseCase, { useClass: GetCurrentUserUseCase });
   container.register(TOKENS.AcceptInviteUseCase, { useClass: AcceptInviteUseCase });
-  container.register(TOKENS.ResendInviteUseCase, { useClass: ResendInviteUseCase });
   container.register(TOKENS.CreateUserUseCase, { useClass: CreateUserUseCase });
   container.register(TOKENS.EditUserUseCase, { useClass: EditUserUseCase });
   container.register(TOKENS.RevokeSessionsUseCase, { useClass: RevokeSessionsUseCase });
@@ -123,7 +118,6 @@ export function registerDependencies(): void {
   container.register(TOKENS.DeleteRoleUseCase, { useClass: DeleteRoleUseCase });
   container.register(TOKENS.CreateOrganizationUseCase, { useClass: CreateOrganizationUseCase });
   container.register(TOKENS.EditOrganizationUseCase, { useClass: EditOrganizationUseCase });
-  // container.register(TOKENS.DeleteOrganizationUseCase, { useClass: DeleteOrganizationUseCase });
   container.register(TOKENS.UpgradePlanUseCase, { useClass: UpgradePlanUseCase });
   container.register(TOKENS.BlockCustomerUseCase, { useClass: BlockCustomerUseCase });
   container.register(TOKENS.AssignSalesmanUseCase, { useClass: AssignSalesmanUseCase });
@@ -139,7 +133,6 @@ export function registerDependencies(): void {
   container.register(TOKENS.DeleteSubscriptionPlanUseCase, DeleteSubscriptionPlanUseCase);
   container.register(TOKENS.LogoutAllDevicesUseCase, LogoutAllDevicesUseCase);
   container.register(TOKENS.SetOrganizationAdminPasswordUseCase, SetOrganizationAdminPasswordUseCase);
-  container.register(TOKENS.CancelInviteUseCase, CancelInviteUseCase);
   container.register(TOKENS.GetPlatformUserUseCase, GetPlatformUserUseCase);
 
 
@@ -151,9 +144,6 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.DashboardController, DashboardController);
   container.registerSingleton(TOKENS.UserController, UserController);
   container.registerSingleton(TOKENS.AuditLogController, AuditLogController);
-  container.registerSingleton(TOKENS.InviteController, InviteController);
-  // container.registerSingleton(TOKENS.OrganizationDocumentController, OrganizationDocumentController);
-
 
   container.registerSingleton(TOKENS.PermissionResolver, PermissionResolver);
   container.register(TOKENS.ListRolesUseCase, { useClass: ListRolesUseCase });
@@ -165,8 +155,6 @@ export function registerDependencies(): void {
   container.register(TOKENS.ListPlatformUsersUseCase, { useClass: ListPlatformUsersUseCase });
   container.register(TOKENS.DeletePlatformUserUseCase, { useClass: DeletePlatformUserUseCase });
   container.registerSingleton(TOKENS.PlatformUserController, PlatformUserController);
-
-
 }
 
 export { container };

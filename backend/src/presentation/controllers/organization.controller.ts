@@ -5,7 +5,6 @@ import { IOrganizationRepository } from '../../domain/repositories/organization.
 import { IAuditLogRepository } from '../../domain/repositories/audit-log.repository.interface';
 import { CreateOrganizationUseCase } from '../../application/organization/use-cases/create-organization.use-case';
 import { EditOrganizationUseCase } from '../../application/organization/use-cases/edit-organization.use-case';
-// import { DeleteOrganizationUseCase } from '../../application/organization/use-cases/delete-organization.use-case';
 import { UpgradePlanUseCase } from '../../application/organization/use-cases/upgrade-plan.use-case';
 import { BlockCustomerUseCase } from '../../application/organization/use-cases/block-customer.use-case';
 import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
@@ -13,8 +12,6 @@ import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError, NotFoundError } from '../../domain/errors/domain.error';
 import { parsePaginationParams } from '../../shared/utils/pagination';
 import { SetOrganizationAdminPasswordUseCase } from '../../application/organization/use-cases/set-organization-admin-password.use-case';
-import { ResendInviteUseCase } from '../../application/organization/use-cases/resend-invite.use-case';
-import { CancelInviteUseCase } from '../../application/organization/use-cases/Cancel-invite-use-case';
 
 @injectable()
 export class OrganizationController {
@@ -28,8 +25,8 @@ export class OrganizationController {
     @inject(TOKENS.BlockCustomerUseCase) private blockCustomerUseCase: BlockCustomerUseCase,
     @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase,
     @inject(TOKENS.SetOrganizationAdminPasswordUseCase) private setOrganizationAdminPasswordUseCase: SetOrganizationAdminPasswordUseCase,
-    @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: ResendInviteUseCase,
-    @inject(TOKENS.CancelInviteUseCase) private cancelInviteUseCase: CancelInviteUseCase
+    // @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: ResendInviteUseCase,
+    // @inject(TOKENS.CancelInviteUseCase) private cancelInviteUseCase: CancelInviteUseCase
   ) {}
 
   create = async (req: Request, res: Response): Promise<void> => {
@@ -43,7 +40,7 @@ export class OrganizationController {
     const pagination = parsePaginationParams(req.query as Record<string, unknown>);
 
     const result = await this.orgRepo.list({
-      status: status as 'active' | 'blocked' | undefined,
+      status: status as 'pending'  | 'active' |  'blocked' | 'expired'| undefined,
       salesmanId: salesmanId as string | undefined,
       planId: planId as string | undefined,
       search: search as string | undefined,
@@ -57,7 +54,6 @@ export class OrganizationController {
   getOne = async (req: Request, res: Response): Promise<void> => {
     const organization = await this.orgRepo.findById(req.params.id);
     if (!organization) throw new NotFoundError('Organization not found');
-    // const contactPersons = await this.orgRepo.listContactPersons(organization.id);
     ApiResponse.success(res, { ...organization, organization });
   };
 
@@ -81,17 +77,17 @@ export class OrganizationController {
     ApiResponse.success(res, null, 200, 'Organization admin password updated');
   };
 
-  resendInvite = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-    await this.resendInviteUseCase.execute({ organizationId: req.params.id, adminId: req.user.id });
-    ApiResponse.success(res, null, 200, 'Invitation email resent successfully');
-  };
+  // resendInvite = async (req: Request, res: Response): Promise<void> => {
+  //   if (!req.user) throw new UnauthorizedError();
+  //   await this.resendInviteUseCase.execute({ organizationId: req.params.id, adminId: req.user.id });
+  //   ApiResponse.success(res, null, 200, 'Invitation email resent successfully');
+  // };
 
-  cancelInvite = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) throw new UnauthorizedError();
-    await this.cancelInviteUseCase.execute({ organizationId: req.params.id, adminId: req.user.id });
-    ApiResponse.success(res, null, 200, 'Invitation cancelled successfully');
-  };
+  // cancelInvite = async (req: Request, res: Response): Promise<void> => {
+  //   if (!req.user) throw new UnauthorizedError();
+  //   await this.cancelInviteUseCase.execute({ organizationId: req.params.id, adminId: req.user.id });
+  //   ApiResponse.success(res, null, 200, 'Invitation cancelled successfully');
+  // };
 
   // delete = async (req: Request, res: Response): Promise<void> => {
   //   if (!req.user) throw new UnauthorizedError();

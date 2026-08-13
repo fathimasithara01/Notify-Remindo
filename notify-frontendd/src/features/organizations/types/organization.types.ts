@@ -1,21 +1,4 @@
-export type OrganizationStatus = 'active' | 'blocked';
-export type OrganizationAdminStatus = 'active' | 'invited' | 'inactive';
-export type OrganizationInviteMethod = 'email' | 'temppassword';
-
-export interface OrganizationDocument {
-  id: string;
-  organizationId: string;
-  fileName: string;
-  fileKey: string;
-  fileUrl?: string;
-  mimeType: string;
-  fileSize: number;
-  documentType: string;
-  uploadedBy: string;
-  uploadedByName?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type OrganizationStatus = 'pending' | 'created' | 'active' |  'blocked' | 'expired';
 
 export interface OrganizationAdmin {
   id: string;
@@ -23,7 +6,6 @@ export interface OrganizationAdmin {
   lastName: string;
   email: string;
   phone: string | null;
-  status: OrganizationAdminStatus;
 }
 
 export interface Organization {
@@ -40,15 +22,6 @@ export interface Organization {
   currentPlanName: string | null;
   salesmanId?: string | null;
 
-  documents?: {
-    fileName: string;
-    fileUrl: string;
-    fileKey: string;
-    mimeType: string;
-    fileSize: number;
-    uploadedAt: Date;
-  }[];
-
   admin: OrganizationAdmin | null;
 
   deletedAt?: Date | null;
@@ -63,17 +36,15 @@ export interface CreateOrganizationPayload {
   businessPhone: string;
   address: string;
 
-  currentPlanId?: string;
+  planId?: string;
   salesmanId?: string;
-
-  documents?: OrganizationDocument[];
-  inviteMethod: OrganizationInviteMethod;
 
   admin: {
     firstName: string;
     lastName: string;
     email: string;
     phone?: string;
+    password: string;
   };
 }
 
@@ -82,7 +53,13 @@ export interface EditOrganizationPayload {
   businessEmail?: string;
   businessPhone?: string;
   address?: string;
-  documents?: OrganizationDocument[];
+}
+
+export interface EditOrganizationAdminPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
 }
 
 export interface OrganizationListFilters {
@@ -102,26 +79,6 @@ export interface OrganizationListResponse {
   totalPages: number;
 }
 
-export interface ContactPerson {
-  id: string;
-  organizationId: string;
-  firstName: string;
-  lastName: string;
-  designation?: string;
-  contactEmail?: string | null;
-  contactPhone?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface NewContactPersonPayload {
-  firstName: string;
-  lastName: string;
-  designation?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-}
-
 export interface ResetAdminPasswordPayload {
   password: string;
   confirmPassword: string;
@@ -134,9 +91,5 @@ export interface CreateOrganizationResult {
     firstName: string;
     lastName: string;
     email: string;
-    status: string;
   };
-  inviteUrl?: string;
-  emailSent?: boolean;
-  tempPassword?: string;
 }

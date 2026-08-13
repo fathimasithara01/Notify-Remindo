@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 import { IOrganizationRepository, OrganizationListFilters, OrganizationListResult } from '../../../domain/repositories/organization.repository.interface';
-import { Organization, NewOrganization, OrganizationWithAdmin, OrganizationDetails } from '../../../domain/entities/organization.entity';
+import { Organization, NewOrganization, OrganizationWithAdmin } from '../../../domain/entities/organization.entity';
 import { OrganizationModel, OrganizationDocument } from '../models/organization.model';
 import { Types } from 'mongoose';
 
@@ -12,8 +12,7 @@ export class OrganizationRepository implements IOrganizationRepository {
     return this.toDomain(doc);
   }
 
-  // aggregate() use cheyyunnath complex data processing cheyyan aanu. Data group, count, sum, filter, sort etc. cheyyunnu.
-  async findById(id: string): Promise<OrganizationDetails | null> {
+  async findById(id: string): Promise<OrganizationWithAdmin | null> {
     const [doc] = await OrganizationModel.aggregate([
       {
         $match: {
@@ -95,9 +94,28 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
 
+
+
       {
         $unwind: {
           path: '$admin',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // Subscription Plan
+      {
+        $lookup: {
+          from: 'subscriptionplans',
+          localField: 'currentPlanId',
+          foreignField: '_id',
+          as: 'plan',
+        },
+      },
+
+      {
+        $unwind: {
+          path: '$plan',
           preserveNullAndEmptyArrays: true,
         },
       },
@@ -111,6 +129,7 @@ export class OrganizationRepository implements IOrganizationRepository {
           address: 1,
           status: 1,
           currentPlanId: 1,
+          currentPlanName: '$plan.title',   // <- '1' alla, plan.title venam
           salesmanId: 1,
           documents: 1,
           deletedAt: 1,
@@ -142,9 +161,8 @@ export class OrganizationRepository implements IOrganizationRepository {
       status: doc.status,
 
       currentPlanId: doc.currentPlanId?.toString() ?? null,
+      currentPlanName: doc.currentPlanName ?? null,
       salesmanId: doc.salesmanId?.toString() ?? null,
-
-      documents: doc.documents ?? [],
 
       deletedAt: doc.deletedAt ?? null,
       createdAt: doc.createdAt,
@@ -157,9 +175,6 @@ export class OrganizationRepository implements IOrganizationRepository {
           lastName: doc.admin.lastName ?? '',
           email: doc.admin.email ?? '',
           phone: doc.admin.phone ?? null,
-
-          // IMPORTANT: actual user status
-          status: doc.admin.status,
         }
         : null,
     };
@@ -194,7 +209,9 @@ export class OrganizationRepository implements IOrganizationRepository {
     return result !== null;
   }
 
-  async list(filters: OrganizationListFilters = {}): Promise<OrganizationListResult> {
+  async list(
+    filters: OrganizationListFilters = {},
+  ): Promise<OrganizationListResult> {
     const page = Math.max(filters.page ?? 1, 1);
     const limit = Math.min(Math.max(filters.limit ?? 10, 1), 100);
     const skip = (page - 1) * limit;
@@ -203,7 +220,9 @@ export class OrganizationRepository implements IOrganizationRepository {
       deletedAt: null,
     };
 
-    if (filters.status) match.status = filters.status;
+    if (filters.status) {
+      match.status = filters.status;
+    }
 
     if (filters.planId) {
       match.currentPlanId = filters.planId;
@@ -221,11 +240,46 @@ export class OrganizationRepository implements IOrganizationRepository {
     }
 
     const [result] = await OrganizationModel.aggregate([
+      
       {
         $match: match,
       },
+      {
+        $lookup: {
+          from: 'users',
+          let: {
+            organizationId: '$_id',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$organizationId', '$$organizationId'],
+                },
+              },
+            },
+            {
+              $limit: 1,
+            },
+            {
+              $project: {
+                _id: 1,
+              },
+            },
+          ],
+          as: 'organizationUser',
+        },
+      },
 
-      // Find Organization Admin
+      {
+        $match: {
+          'organizationUser.0': {
+            $exists: true,
+          },
+        },
+      },
+
+    
       {
         $lookup: {
           from: 'users',
@@ -258,37 +312,28 @@ export class OrganizationRepository implements IOrganizationRepository {
               },
             },
 
+            // Find Org Admin
             {
               $match: {
-                'role.name': { $regex: '^org\\s*admin$', $options: 'i' },
-
-              },
-            },
-
-            {
-              $match: {
-                status: {
-                  $in: ['active', 'invited'],
+                'role.name': {
+                  $regex: '^org\\s*admin$',
+                  $options: 'i',
                 },
               },
             },
 
-            // Admin fields
+            // Admin fields only
             {
               $project: {
                 _id: 1,
-                name: {
-                  $trim: {
-                    input: { $concat: ['$firstName', ' ', '$lastName'] },
-                  },
-                },
+                firstName: 1,
+                lastName: 1,
                 email: 1,
                 phone: 1,
-                status: 1,
-
               },
             },
 
+            // Only one admin
             {
               $limit: 1,
             },
@@ -297,6 +342,13 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
 
+      // --------------------------------------------------
+      // 4. Convert admin array -> object
+      //
+      // preserveNullAndEmptyArrays = true means:
+      // organization with users but no Org Admin
+      // is still returned with admin = null.
+      // --------------------------------------------------
       {
         $unwind: {
           path: '$admin',
@@ -304,7 +356,9 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
 
-      // Subscription Plan
+      // --------------------------------------------------
+      // 5. Subscription Plan
+      // --------------------------------------------------
       {
         $lookup: {
           from: 'subscriptionplans',
@@ -321,13 +375,16 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
 
-      // Latest first
+   
       {
         $sort: {
           createdAt: -1,
         },
       },
 
+      // --------------------------------------------------
+      // 7. Pagination + total count
+      // --------------------------------------------------
       {
         $facet: {
           items: [
@@ -338,6 +395,7 @@ export class OrganizationRepository implements IOrganizationRepository {
               $limit: limit,
             },
 
+            // Remove helper field and return required fields
             {
               $project: {
                 _id: 1,
@@ -357,13 +415,12 @@ export class OrganizationRepository implements IOrganizationRepository {
                 createdAt: 1,
                 updatedAt: 1,
 
-                // Admin
+                // Organization Admin
                 admin: {
                   id: '$admin._id',
                   firstName: '$admin.firstName',
                   lastName: '$admin.lastName',
                   email: '$admin.email',
-                  status: '$admin.status',
                   phone: '$admin.phone',
                 },
               },
@@ -379,42 +436,65 @@ export class OrganizationRepository implements IOrganizationRepository {
       },
     ]);
 
+    // --------------------------------------------------
+    // 8. Total
+    // --------------------------------------------------
     const total = result?.total?.[0]?.count ?? 0;
 
+    // --------------------------------------------------
+    // 9. Map MongoDB result -> Domain response
+    // --------------------------------------------------
     const items: OrganizationWithAdmin[] = (result?.items ?? []).map(
       (doc: any) => ({
         id: doc._id.toString(),
+
         name: doc.name,
+
         businessEmail: doc.businessEmail,
+
         businessPhone: doc.businessPhone,
+
         address: doc.address,
+
         status: doc.status,
 
-        currentPlanId: doc.currentPlanId?.toString() ?? null,
+        currentPlanId: doc.currentPlanId
+          ? doc.currentPlanId.toString()
+          : null,
+
         currentPlanName: doc.currentPlanName ?? null,
 
-        salesmanId: doc.salesmanId?.toString() ?? null,
+        salesmanId: doc.salesmanId
+          ? doc.salesmanId.toString()
+          : null,
 
         documents: doc.documents ?? null,
+
         deletedAt: doc.deletedAt ?? null,
+
         createdAt: doc.createdAt,
+
         updatedAt: doc.updatedAt,
 
+       
         admin: doc.admin?.id
           ? {
             id: doc.admin.id.toString(),
             firstName: doc.admin.firstName ?? '',
             lastName: doc.admin.lastName ?? '',
             email: doc.admin.email ?? null,
-            status: doc.admin.status ?? null,
             phone: doc.admin.phone ?? null,
           }
           : null,
       }),
     );
 
+    // --------------------------------------------------
+    // 10. Final paginated response
+    // --------------------------------------------------
     return {
       items,
+
       meta: {
         total,
         page,

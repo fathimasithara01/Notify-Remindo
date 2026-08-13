@@ -11,8 +11,6 @@ interface PopulatedRole {
   name: string;
 }
 
-/** A user doc whose roleId may or may not have been populated.
- * Use this — not PlatformUserDocument — for anything that ran .populate(). */
 type PlatformUserDocMaybePopulated = Omit<PlatformUserDocument, 'roleId'> & {
   roleId: Types.ObjectId | PopulatedRole;
 };

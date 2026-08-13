@@ -18,7 +18,8 @@ import {
   CreateOrganizationPayload,
   EditOrganizationPayload,
   ResetAdminPasswordPayload,
-  CreateOrganizationResult
+  CreateOrganizationResult,
+  EditOrganizationAdminPayload
 } from '../types/organization.types';
 
 
@@ -114,6 +115,28 @@ export function useUpdateOrganization(organizationId: string) {
 //     onError,
 //   });
 // }
+
+export function useUpdateOrganizationAdmin(organizationId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: EditOrganizationAdminPayload) =>
+      organizationApi.updateAdmin(organizationId, payload),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.organizations.detail(organizationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.organizations.all(),
+      });
+
+      toast.success("Administrator details updated successfully");
+    },
+
+    onError,
+  });
+}
 
 export function useBlockOrganization() {
   const queryClient = useQueryClient();

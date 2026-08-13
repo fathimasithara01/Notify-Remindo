@@ -21,12 +21,6 @@ import { useOrganization } from "../hooks/useOrganization";
 import { useUpgradePlan } from "../hooks/useOrganizationMutations";
 import { useSubscriptionPlans } from "@/features/subscription/hooks/plans/useSubscriptionPlan";
 
-// import { ContactPersonList } from "./ContactPersonList";
-// import { AddContactPersonDialog } from "./AddContactPersonDialog";
-
-// import { DocumentUpload } from "./DocumentUpload";
-// import { DocumentList } from "./DocumentList";
-
 import {
   Card,
   CardContent,
@@ -37,14 +31,6 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 
-
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectValue,
-  SelectItem,
-} from "@/components/ui/select";
 
 import { LoadingState } from "@/components/common/LoadingState";
 import { formatDate } from "@/lib/utils/format-date";
@@ -410,131 +396,11 @@ export function OrganizationDetail({
               )}
 
             </div>
-
-            {/* Change plan */}
-
-            <div className="space-y-2">
-
-              <p className="text-sm font-medium">
-                Change subscription plan
-              </p>
-
-              <Select
-                onValueChange={handlePlanChange}
-                disabled={
-                  plansLoading ||
-                  upgradeMutation.isPending ||
-                  availablePlans.length === 0
-                }
-              >
-
-                <SelectTrigger className="w-full">
-
-                  <SelectValue
-                    placeholder={
-                      plansLoading
-                        ? "Loading plans..."
-                        : availablePlans.length === 0
-                          ? "No other plans available"
-                          : "Select a new plan"
-                    }
-                  />
-
-                </SelectTrigger>
-
-                <SelectContent>
-
-                  {availablePlans.map((plan) => (
-
-                    <SelectItem
-                      key={plan.id}
-                      value={plan.id}
-                    >
-
-                      <div className="flex items-center gap-2">
-
-                        <span>
-                          {plan.title}
-                        </span>
-
-                        <span className="text-muted-foreground">
-                          —
-                        </span>
-
-                        <span>
-                          {formatPrice(
-                            plan.amountValue,
-                            plan.currency
-                          )}
-                        </span>
-
-                      </div>
-
-                    </SelectItem>
-
-                  ))}
-
-                </SelectContent>
-
-              </Select>
-
-              {upgradeMutation.isPending && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-
-                  <Loader2 className="h-3 w-3 animate-spin" />
-
-                  Updating subscription...
-
-                </div>
-              )}
-
-            </div>
-
           </CardContent>
 
         </Card>
 
       </div>
-
-      <Card>
-
-        <CardHeader>
-
-          <div className="flex items-center gap-3">
-
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
-              <FileText className="h-4 w-4" />
-            </div>
-
-            <div>
-
-              <CardTitle>
-                Documents
-              </CardTitle>
-
-              <CardDescription>
-                Manage organization verification and business documents.
-              </CardDescription>
-
-            </div>
-
-          </div>
-
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-
-          {/* <DocumentUpload
-            organizationId={id}
-          /> */}
-
-          {/* <DocumentList
-            organizationId={id}
-          /> */}
-
-        </CardContent>
-
-      </Card>
 
     </div>
   );
@@ -576,9 +442,6 @@ function Info({
   );
 }
 
-/* ================================================= */
-/* PRICE FORMATTER */
-/* ================================================= */
 
 function formatPrice(
   priceInMinorUnit: number,

@@ -1,5 +1,4 @@
 import { Schema, model, Document, Types } from 'mongoose';
-import { UserStatus } from '../../../domain/entities/user.entity';
 
 export interface UserDocument extends Document {
   organizationId: Types.ObjectId;
@@ -8,7 +7,6 @@ export interface UserDocument extends Document {
   firstName: string;
   lastName: string;
   roleId: Types.ObjectId;
-  status: UserStatus;
   phone: string;
   tokenVersion: number;
   lastLoginAt?: Date;
@@ -16,7 +14,7 @@ export interface UserDocument extends Document {
   inviteTokenExpiresAt?: Date;
   resetPasswordToken?: string;
   resetPasswordTokenExpiresAt?: Date;
-  mustChangePassword: boolean;
+  // mustChangePassword: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,7 +26,6 @@ const userSchema = new Schema<UserDocument>(
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },
     roleId: { type: Schema.Types.ObjectId, ref: 'Role', required: true, index: true },
-    status: { type: String, enum: ['invited', 'active', 'inactive', 'suspended'], default: 'invited', index: true },
     phone: { type: String, required: true },
     passwordHash: { type: String },
     inviteToken: { type: String, index: true, sparse: true },
@@ -37,7 +34,7 @@ const userSchema = new Schema<UserDocument>(
     resetPasswordTokenExpiresAt: { type: Date },
     tokenVersion: { type: Number, default: 0 },
     lastLoginAt: { type: Date },
-    mustChangePassword: { type: Boolean, default: false },
+    // mustChangePassword: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
