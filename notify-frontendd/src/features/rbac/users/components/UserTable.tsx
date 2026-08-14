@@ -1,6 +1,6 @@
 'use client';
 
-import { MoreHorizontal, ShieldCheck, LogOut, Pencil, Trash2, KeyRound, Ban, CheckCircle } from 'lucide-react';
+import { ShieldCheck, LogOut, Pencil, Trash2, KeyRound, Ban, CheckCircle } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -12,17 +12,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
 
 import { USER_STATUS_META } from '../../shared/constants';
-// import { useRole } from '../../roles/hooks/useRole';
 import type { User } from '../types/user.types';
 
 interface UserTableProps {
@@ -39,18 +30,6 @@ interface UserTableProps {
   onUnblock: (user: User) => void;
 }
 
-/** Renders a single row's role badge. Split out so useRole (one call per
- * row) doesn't violate the rules of hooks inside users.map(). */
-// function RoleCell({ roleId }: { roleId: string }) {
-//   const { data: role, isLoading } = useRole(roleId);
-//   if (isLoading) return <Skeleton className="h-5 w-16" />;
-//   return role ? (
-//     <Badge variant="outline">{role.name}</Badge>
-//   ) : (
-//     <span className="text-muted-foreground">—</span>
-//   );
-// }
-
 export function UserTable({
   users,
   isLoading,
@@ -61,7 +40,7 @@ export function UserTable({
   onManageRoles,
   onRevokeSessions,
   onRequestPasswordReset,
-   onBlock,
+  onBlock,
   onUnblock,
 }: UserTableProps) {
   if (isLoading) {
@@ -95,13 +74,15 @@ export function UserTable({
             <TableHead>Phone</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="w-12" />
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {users.map((user) => {
             const statusMeta = USER_STATUS_META[user.status];
             const isSelf = user.id === currentUserId;
+            const isSuspended = user.status === 'suspended';
+
             return (
               <TableRow
                 key={user.id}
@@ -131,58 +112,79 @@ export function UserTable({
                   <Badge variant={statusMeta.variant}>{statusMeta.label}</Badge>
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEdit(user)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onManageRoles(user)}>
-                        <ShieldCheck className="mr-2 h-4 w-4" />
-                        Manage roles
-                      </DropdownMenuItem>
-
-                      {user.status === 'active' && (
-                        <DropdownMenuItem onClick={() => onRequestPasswordReset(user)}>
-                          <KeyRound className="mr-2 h-4 w-4" />
-                          Reset password
-                        </DropdownMenuItem>
-                      )}
-
-                      {user.status === 'suspended' ? (
-                        <DropdownMenuItem onClick={() => onUnblock(user)}>
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          Unblock
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem onClick={() => onBlock(user)} disabled={isSelf}>
-                          <Ban className="mr-2 h-4 w-4" />
-                          Block
-                        </DropdownMenuItem>
-                      )}
-
-                      <DropdownMenuItem onClick={() => onRevokeSessions(user)} disabled={isSelf}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Revoke sessions
-                      </DropdownMenuItem>
-
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => onDelete(user)}
-                        disabled={isSelf}
-                        className="text-destructive focus:text-destructive"
+                  <div className="flex justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      title="Edit"
+                      onClick={() => onEdit(user)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      title="Manage roles"
+                      onClick={() => onManageRoles(user)}
+                    >
+                      <ShieldCheck className="h-4 w-4" />
+                    </Button>
+                    {user.status === 'active' && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        title="Reset password"
+                        onClick={() => onRequestPasswordReset(user)}
                       >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {isSelf ? "Can't delete your own account" : 'Delete'}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <KeyRound className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {isSuspended ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        title="Unblock"
+                        onClick={() => onUnblock(user)}
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        title="Block"
+                        disabled={isSelf}
+                        onClick={() => onBlock(user)}
+                      >
+                        <Ban className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      title="Revoke sessions"
+                      disabled={isSelf}
+                      onClick={() => onRevokeSessions(user)}
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      title={isSelf ? "Can't delete your own account" : 'Delete'}
+                      disabled={isSelf}
+                      onClick={() => onDelete(user)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             );

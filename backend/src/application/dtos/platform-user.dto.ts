@@ -5,8 +5,6 @@ export interface PlatformUserRoleSummary {
   name: string;
 }
 
-/** Public-facing user shape: never carries passwordHash, always carries a
- * resolved role (or null if the role was deleted / not populated). */
 export interface PlatformUserWithRole {
   id: string;
   firstName: string;

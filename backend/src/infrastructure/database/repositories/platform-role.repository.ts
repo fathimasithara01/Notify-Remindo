@@ -3,9 +3,11 @@ import { Role, NewRole, RoleStatus } from '../../../domain/entities/role.entity'
 import { RoleModel, RoleDocument } from '../models/role.model';
 import { buildPaginatedResult, getOffset, PaginatedResult, PaginationParams } from '../../../shared/utils/pagination';
 import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
+import { createdRoleDto } from '../../../application/dtos/create-role.dto';
 
 @injectable()
 export class PLatformRoleRepository implements IPlatformRoleRepository {
+
   async create(data: NewRole): Promise<Role> {
     const doc = await RoleModel.create(data);
     return this.toEntity(doc);
@@ -53,7 +55,7 @@ export class PLatformRoleRepository implements IPlatformRoleRepository {
     organizationId?: string;
     status?: RoleStatus;
     search?: string;
-  }, pagination?: PaginationParams): Promise<PaginatedResult<Role>> {
+  }, pagination?: PaginationParams): Promise<PaginatedResult<createdRoleDto>> {
     const params: PaginationParams = pagination ?? { page: 1, limit: 10 };
     const skip = getOffset(params);
 
@@ -64,11 +66,15 @@ export class PLatformRoleRepository implements IPlatformRoleRepository {
     if (filter?.search) query.$text = { $search: filter.search };
 
     const [docs, total] = await Promise.all([
-      RoleModel.find(query).skip(skip).limit(params.limit).sort({ createdAt: -1 }),
+      RoleModel.find(query)
+        .populate('createdBy', 'firstName lastName')
+        .skip(skip)
+        .limit(params.limit)
+        .sort({ createdAt: -1 }),
       RoleModel.countDocuments(query),
     ]);
 
-    return buildPaginatedResult(docs.map(this.toEntity), total, params);
+    return buildPaginatedResult(docs.map(this.toListDto), total, params);
   }
 
   private toEntity(doc: RoleDocument): Role {
@@ -79,10 +85,30 @@ export class PLatformRoleRepository implements IPlatformRoleRepository {
       permissionIds: doc.permissionIds,
       isSystem: doc.isSystem,
       status: doc.status,
-      createdBy: doc.createdBy,
+      createdBy: doc.createdBy?.toString() ?? '',
       deletion: doc.deletion,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     };
   }
+
+  private toListDto = (doc: any): createdRoleDto => {
+    const creator = doc.createdBy && typeof doc.createdBy === 'object' ? doc.createdBy : null;
+
+    return {
+      id: doc._id.toString(),
+      name: doc.name,
+      description: doc.description,
+      permissionIds: doc.permissionIds,
+      isSystem: doc.isSystem,
+      status: doc.status,
+      createdBy: creator ? creator._id.toString() : doc.createdBy?.toString(),
+      createdByUser: creator
+        ? { id: creator._id.toString(), name: `${creator.firstName} ${creator.lastName}` }
+        : null,
+      deletion: doc.deletion,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    };
+  };
 }

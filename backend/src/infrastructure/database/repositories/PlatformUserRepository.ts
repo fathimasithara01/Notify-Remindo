@@ -130,9 +130,6 @@ export class PlatformUserRepository implements IPlatformUserRepository {
             updatedAt: doc.updatedAt,
         };
     }
-
-    /** Only call with a doc that ran .populate('roleId', 'name').
-     * passwordHash is never included — callers don't need to strip it. */
     private toDtoWithRole(doc: PlatformUserDocMaybePopulated): PlatformUserWithRole {
         const roleIdRaw = doc.roleId;
         const isPopulated = !(roleIdRaw instanceof Types.ObjectId);

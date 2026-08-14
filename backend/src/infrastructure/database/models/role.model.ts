@@ -7,7 +7,7 @@ export interface RoleDocument extends Document {
   permissionIds: string[];
   isSystem: boolean;
   status: RoleStatus;
-  createdBy: string;
+  createdBy: Types.ObjectId;
   deletion: {
     isDeleted: boolean;
     deletedBy?: string;
@@ -24,7 +24,7 @@ const roleSchema = new Schema<RoleDocument>(
     permissionIds: { type: [String], default: [] },
     isSystem: { type: Boolean, default: false },
     status: { type: String, enum: ['active', 'inactive'], default: 'active', index: true },
-    createdBy: { type: String, required: true },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'PlatformUser', required: true },
     deletion: {
       isDeleted: { type: Boolean, default: false, index: true },
       deletedBy: { type: String },

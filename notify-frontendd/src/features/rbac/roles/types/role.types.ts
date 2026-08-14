@@ -1,15 +1,33 @@
 export type RoleStatus = 'active' | 'inactive';
 export type Permission = string;
 
+export interface CreatedByUserSummary {
+  id: string;
+  name: string;
+}
+
 export interface Role {
   id: string;
   name: string;
   description?: string;
-  permissionIds: Permission[];
+
+  permissionIds: string[];
+
   isSystem: boolean;
   status: RoleStatus;
-  createdAt: string;
-  updatedAt: string;
+
+  createdBy: string;
+  createdByUser: CreatedByUserSummary | null;
+
+  deletion: {
+    isDeleted: boolean;
+    deletedBy?: string;
+    deletedAt?: Date;
+  };
+
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CreateRoleDto {

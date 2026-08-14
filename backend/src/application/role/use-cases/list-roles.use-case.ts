@@ -1,8 +1,9 @@
 import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
-import { NewRole, Role, RoleStatus } from '../../../domain/entities/role.entity';
+import { RoleStatus } from '../../../domain/entities/role.entity';
 import { PaginatedResult, PaginationParams } from '../../../shared/utils/pagination';
 import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
+import { createdRoleDto } from '../../dtos/create-role.dto';
 
 interface ListRolesInput {
   organizationId?: string;
@@ -15,7 +16,7 @@ interface ListRolesInput {
 export class ListRolesUseCase {
   constructor(@inject(TOKENS.PlatformRoleRepository) private roleRepository: IPlatformRoleRepository) {}
 
-  async execute(input: ListRolesInput): Promise<PaginatedResult<Role>> {
+  async execute(input: ListRolesInput): Promise<PaginatedResult<createdRoleDto>> {
     return this.roleRepository.list(
       {
         organizationId: input.organizationId,

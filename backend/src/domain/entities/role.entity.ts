@@ -5,7 +5,7 @@ export interface Role {
   name: string;
   description?: string;
 
-permissionIds: string[];
+  permissionIds: string[];
 
   isSystem: boolean;
   status: RoleStatus;
@@ -17,7 +17,7 @@ permissionIds: string[];
     deletedBy?: string;
     deletedAt?: Date;
   };
-  
+
 
   createdAt: Date;
   updatedAt: Date;

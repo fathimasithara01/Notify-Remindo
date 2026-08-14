@@ -1,133 +1,182 @@
-'use client';
+"use client";
 
-import { MoreHorizontal, KeyRound, Pencil, Trash2, Lock } from 'lucide-react';
+import { useState } from "react";
+import { Eye, ChevronDown } from "lucide-react";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { ROLE_STATUS_META } from '../../shared/constants';
-import type { Role } from '../types/role.types';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Role } from "../types/role.types";
 
 interface RoleTableProps {
-    roles: Role[];
-    isLoading: boolean;
-    onView: (role: Role) => void;
-    onEdit: (role: Role) => void;
-    onDelete: (role: Role) => void;
+  roles: Role[];
+  isLoading: boolean;
+  actionPendingId: string | null;
+  onEdit: (role: Role) => void;
+//   onDelete: (role: Role) => void;
+  onToggleStatus: (role: Role) => void;
 }
 
 export function RoleTable({
-    roles,
-    isLoading,
-    onView,
-    onEdit,
-    onDelete,
+  roles,
+  isLoading,
+  actionPendingId,
+  onEdit,
+//   onDelete,
+  onToggleStatus,
 }: RoleTableProps) {
-    if (isLoading) {
-        return (
-            <div className="space-y-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
-                ))}
-            </div>
-        );
-    }
+  const [viewingRole, setViewingRole] = useState<Role | null>(null);
 
-    if (roles.length === 0) {
-        return (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
-                <p className="text-sm font-medium">No roles found</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                    Try adjusting your search or filters, or create a new role.
-                </p>
-            </div>
-        );
-    }
+  if (isLoading && roles.length === 0) {
+    return <div className="py-16 text-center text-sm text-muted-foreground">Loading roles...</div>;
+  }
 
-    return (
-        <div className="rounded-lg border">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Name</TableHead>
-                       <TableHead>Description</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="w-12" />
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {roles.map((role) => {
-                        const statusMeta = ROLE_STATUS_META[role.status];
-                        return (
-                            <TableRow
-                                key={role.id}
-                                className="cursor-pointer"
-                                onClick={() => onView(role)}
-                            >
-                                <TableCell className="font-medium">
-                                    <div className="flex items-center gap-2">
-                                        {role.name}
-                                        {role.isSystem && (
-                                            <Badge variant="outline" className="gap-1 text-xs">
-                                                <Lock className="h-3 w-3" />
-                                                System
-                                            </Badge>
-                                        )}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="max-w-xs truncate text-muted-foreground">
-                                    {role.description || '—'}
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant={statusMeta.variant}>{statusMeta.label}</Badge>
-                                </TableCell>
-                                <TableCell onClick={(e) => e.stopPropagation()}>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                <MoreHorizontal className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem
-                                                onClick={() => onEdit(role)}
-                                                disabled={role.isSystem}
-                                            >
-                                                <Pencil className="mr-2 h-4 w-4" />
-                                                Edit
-                                            </DropdownMenuItem>
-                                            
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem
-                                                onClick={() => onDelete(role)}
-                                                disabled={role.isSystem}
-                                                className="text-destructive focus:text-destructive"
-                                            >
-                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                Delete
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
-                            </TableRow>
-                        );
-                    })}
-                </TableBody>
-            </Table>
-        </div>
-    );
+  if (!isLoading && roles.length === 0) {
+    return <div className="py-16 text-center text-sm text-muted-foreground">No roles found.</div>;
+  }
+
+  return (
+    <div className="rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Permissions</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Created By</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {roles.map((role) => {
+            const isPending = actionPendingId === role.id;
+            const isActive = role.status === "active";
+
+            return (
+              <TableRow key={role.id}>
+                <TableCell className="font-medium">{role.name}</TableCell>
+                <TableCell className="max-w-xs">
+                  <span className="line-clamp-1 text-muted-foreground">
+                    {role.description ?? "—"}
+                  </span>
+                </TableCell>
+                <TableCell>{role.permissionIds.length}</TableCell>
+                <TableCell>
+                  <Badge variant={role.isSystem ? "outline" : "secondary"}>
+                    {role.isSystem ? "System" : "Custom"}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {role.createdByUser?.name ?? "—"}
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant={isActive ? "default" : "secondary"}
+                    className={role.isSystem ? "" : "cursor-pointer select-none gap-1"}
+                    onClick={() => !isPending && !role.isSystem && onToggleStatus(role)}
+                  >
+                    {isPending ? "..." : isActive ? "Active" : "Inactive"}
+                    {!role.isSystem && !isPending && <ChevronDown className="h-3 w-3" />}
+                  </Badge>
+                </TableCell>
+                {/* <TableCell className="text-muted-foreground">
+                  {new Date(role.updatedAt).toLocaleDateString()}
+                </TableCell> */}
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8"
+                      title="View"
+                      onClick={() => setViewingRole(role)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={isPending || role.isSystem}
+                      onClick={() => onEdit(role)}
+                    >
+                      Edit
+                    </Button>
+                    {/* <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive"
+                      disabled={isPending || role.isSystem}
+                      onClick={() => onDelete(role)}
+                    >
+                      Delete
+                    </Button> */}
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+
+      <Dialog open={!!viewingRole} onOpenChange={(open) => !open && setViewingRole(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{viewingRole?.name}</DialogTitle>
+          </DialogHeader>
+          {viewingRole && (
+            <div className="flex flex-col gap-3 text-sm">
+              <div>
+                <div className="text-muted-foreground">Description</div>
+                <div>{viewingRole.description || "—"}</div>
+              </div>
+              <div>
+                <div className="text-muted-foreground">Permissions</div>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {viewingRole.permissionIds.length > 0 ? (
+                    viewingRole.permissionIds.map((p) => (
+                      <Badge key={p} variant="outline">{p}</Badge>
+                    ))
+                  ) : (
+                    "—"
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="text-muted-foreground">Type</div>
+                  <div>{viewingRole.isSystem ? "System" : "Custom"}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Status</div>
+                  <div>{viewingRole.status === "active" ? "Active" : "Inactive"}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Created By</div>
+                  <div>{viewingRole.createdByUser?.name ?? "—"}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Created</div>
+                  <div>{new Date(viewingRole.createdAt).toLocaleDateString()}</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

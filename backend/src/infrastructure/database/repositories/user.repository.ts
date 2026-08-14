@@ -71,7 +71,6 @@ export class UserRepository implements IUserRepository {
   }
 
   async findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null> {
-    // NOTE: naive "oldest user" assumption — replace with real admin-role identification logic
     const doc = await UserModel.findOne({ organizationId }).sort({ createdAt: 1 });
     if (!doc) return null;
     return {

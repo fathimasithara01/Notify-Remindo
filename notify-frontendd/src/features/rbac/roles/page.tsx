@@ -26,7 +26,6 @@ import {
 import { RoleTable } from './components/RoleTable';
 import { RoleFilters } from './components/RoleFilters';
 import { RoleForm, type RoleFormValues } from './components/RoleForm';
-import { RoleDetails } from './components/RoleDetails';
 
 import { useRoles } from './hooks/useRoles';
 import { useCreateRole } from './hooks/useCreateRole';
@@ -35,6 +34,7 @@ import { useDeleteRole } from './hooks/useDeleteRole';
 import { DEFAULT_PAGE_SIZE } from '../shared/constants';
 
 import type { Role, RoleFilters as RoleFiltersType } from './types/role.types';
+import { RoleDetails } from './components/RoleDetails';
 
 type DialogState =
   | { type: 'none' }
@@ -49,6 +49,7 @@ export default function RolesPage() {
     limit: DEFAULT_PAGE_SIZE,
   });
   const [dialog, setDialog] = useState<DialogState>({ type: 'none' });
+  const [actionPendingId, setActionPendingId] = useState<string | null>(null);
 
   const { data, isLoading } = useRoles(filters);
   const createRole = useCreateRole();
@@ -66,6 +67,17 @@ export default function RolesPage() {
     updateRole.mutate(
       { id: dialog.role.id, payload: values },
       { onSuccess: closeDialog }
+    );
+  };
+
+  const handleToggleStatus = (role: Role) => {
+    setActionPendingId(role.id);
+    updateRole.mutate(
+      {
+        id: role.id,
+        payload: { status: role.status === 'active' ? 'inactive' : 'active' },
+      },
+      { onSettled: () => setActionPendingId(null) }
     );
   };
 
@@ -96,9 +108,9 @@ export default function RolesPage() {
       <RoleTable
         roles={data?.items ?? []}
         isLoading={isLoading}
-        onView={(role) => setDialog({ type: 'view', role })}
+        actionPendingId={actionPendingId}
         onEdit={(role) => setDialog({ type: 'edit', role })}
-        onDelete={(role) => setDialog({ type: 'delete', role })}
+        onToggleStatus={handleToggleStatus}
       />
 
       {data && data.total > 0 && (
