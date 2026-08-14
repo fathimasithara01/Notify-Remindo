@@ -105,8 +105,12 @@ export class PlatformUserController {
 
     requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
         if (!req.user) throw new UnauthorizedError();
-        const result = await this.requestPasswordResetUseCase.execute(req.params.id, req.user.id);
-        ApiResponse.success(res, result, 200, 'Password reset link sent');
+        const result = await this.requestPasswordResetUseCase.execute({
+            userId: req.params.id,
+            password: req.body.password,
+            adminId: req.user.id
+        });
+        ApiResponse.success(res, result, 200, 'Organization admin password updated');
     };
 
     revokeSessions = async (req: Request, res: Response): Promise<void> => {

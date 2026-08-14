@@ -1,64 +1,102 @@
 import { injectable, inject } from 'tsyringe';
-import { TOKENS } from '../../../infrastructure/di/tokens';
-import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
-import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
-import { INotifierService } from '../../../domain/services/notifier.service.interface';
-import { DomainError, NotFoundError } from '../../../domain/errors/domain.error';
-import { generateInviteToken, getInviteExpiry } from '../../../shared/utils/token-generator';
-import { env } from '../../../config/env';
-import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
+import bcrypt from 'bcryptjs';
 
-export interface RequestPasswordResetResult {
-  resetUrl: string;
-  emailSent: boolean;
+import { TOKENS } from '../../../infrastructure/di/tokens';
+import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
+import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
+
+import {
+  DomainError,
+  NotFoundError,
+  ValidationError,
+} from '../../../domain/errors/domain.error';
+
+interface RequestPasswordResetInput {
+  userId: string;
+  password: string;
+  adminId: string;
 }
 
 @injectable()
 export class RequestPasswordResetUseCase {
   constructor(
-    @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
-    @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
-    @inject(TOKENS.EmailNotifierService) private notifierService: INotifierService
-  ) {}
+    @inject(TOKENS.PlatformUserRepository) private readonly platformUserRepo: IPlatformUserRepository,
+    @inject(TOKENS.AuditLogRepository) private readonly auditLogRepo: IAuditLogRepository,
+  ) { }
 
-  async execute(userId: string, adminId: string): Promise<RequestPasswordResetResult> {
-    const user = await this.platformUserRepo.findById(userId);
-    if (!user) throw new NotFoundError('User not found');
+  async execute(input: RequestPasswordResetInput): Promise<void> {
 
-    if (user.status !== 'active') {
-      throw new DomainError('Password reset links can only be sent to active users.');
+    if (!input.password || typeof input.password !== 'string') {
+      throw new ValidationError('Password is required');
     }
 
-    const resetPasswordToken = generateInviteToken();
-    // Shorter window than an invite (24h vs 7d) — a reset link is more
-    // sensitive since it can take over an already-active account.
-    const resetPasswordTokenExpiresAt = getInviteExpiry(1);
+    // 1. Validate password policy first — fail fast before any DB round-trip
+    this.validatePassword(input.password);
 
-    await this.platformUserRepo.update(user.id, { resetPasswordToken, resetPasswordTokenExpiresAt });
+    // 2. Verify user exists
+    const user = await this.platformUserRepo.findById(input.userId);
 
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    // 3. Only active users can have a password reset issued
+    if (user.status !== 'active') {
+      throw new DomainError('Password reset can only be issued for active users.');
+    }
+
+    // 4. Hash password
+    const passwordHash = await bcrypt.hash(input.password, 12);
+
+    // 5. Update password
+    const updated = await this.platformUserRepo.update(user.id, {
+      passwordHash,
+    });
+
+    if (!updated) {
+      throw new Error('Unable to reset password');
+    }
+
+    // 6. Create audit trail
     await this.auditLogRepo.create({
-      adminId,
+      adminId: input.adminId,
       action: 'REQUEST_PASSWORD_RESET',
       targetType: 'User',
       targetId: user.id,
-      metadata: { email: user.email },
+      metadata: {
+        email: user.email,
+      },
     });
+  }
 
-    const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${resetPasswordToken}`;
+  private validatePassword(password: string): void {
+    const rules = [
+      {
+        valid: password.length >= 8,
+        message: 'Password must contain minimum 8 characters',
+      },
+      {
+        valid: /[A-Z]/.test(password),
+        message: 'Password must contain uppercase letter',
+      },
+      {
+        valid: /[a-z]/.test(password),
+        message: 'Password must contain lowercase letter',
+      },
+      {
+        valid: /[0-9]/.test(password),
+        message: 'Password must contain number',
+      },
+      {
+        valid: /[^A-Za-z0-9]/.test(password),
+        message: 'Password must contain special character',
+      },
+    ];
 
-    let emailSent = true;
-    try {
-      await this.notifierService.send({
-        to: user.email,
-        subject: 'Reset your Notify password',
-        message: `Hi ${user.firstName}, click this link to set a new password: ${resetUrl}`,
-        html: `<p>Hi ${user.lastName},</p><p>Click below to set a new password:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>This link expires in 24 hours. If you didn't request this, you can ignore it.</p>`,
-      });
-    } catch (error) {
-      emailSent = false;
-      console.error(`Failed to send password reset email to ${user.email}:`, error);
+    const failedRule = rules.find((rule) => !rule.valid);
+
+    if (failedRule) {
+      throw new ValidationError(failedRule.message);
     }
-
-    return { resetUrl, emailSent };
   }
 }

@@ -63,8 +63,8 @@ export class CreateUserUseCase {
       phone:data.phone,
       organizationId: admin.organizationId,
       roleId: data.roleId,
-      inviteToken,
-      inviteTokenExpiresAt,
+      // inviteToken,
+      // inviteTokenExpiresAt,
         // mustChangePassword: true,
     });
 

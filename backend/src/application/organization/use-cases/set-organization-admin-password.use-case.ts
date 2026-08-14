@@ -7,10 +7,10 @@ import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repo
 import { IOrganizationRepository } from '../../../domain/repositories/organization.repository.interface';
 
 import {
+  DomainError,
   NotFoundError,
   ValidationError,
 } from '../../../domain/errors/domain.error';
-
 
 interface SetOrganizationAdminPasswordInput {
   organizationId: string;
@@ -18,84 +18,54 @@ interface SetOrganizationAdminPasswordInput {
   adminId: string;
 }
 
-
 @injectable()
 export class SetOrganizationAdminPasswordUseCase {
-
   constructor(
-    @inject(TOKENS.UserRepository)
-    private readonly userRepository: IUserRepository,
-
-    @inject(TOKENS.OrganizationRepository)
-    private readonly orgRepo: IOrganizationRepository,
-
-    @inject(TOKENS.AuditLogRepository)
-    private readonly auditLogRepository: IAuditLogRepository,
+    @inject(TOKENS.UserRepository) private readonly userRepository: IUserRepository,
+    @inject(TOKENS.OrganizationRepository) private readonly orgRepo: IOrganizationRepository,
+    @inject(TOKENS.AuditLogRepository) private readonly auditLogRepository: IAuditLogRepository,
   ) {}
 
+  async execute(input: SetOrganizationAdminPasswordInput): Promise<void> {
+    // 1. Validate password policy first — fail fast before any DB round-trip
+    this.validatePassword(input.password);
 
-  async execute(
-    input: SetOrganizationAdminPasswordInput
-  ): Promise<void> {
-
-
-    // 1. Verify organization exists
-    const organization = await this.orgRepo.findById(
-        input.organizationId
-      );
-
+    // 2. Verify organization exists
+    const organization = await this.orgRepo.findById(input.organizationId);
 
     if (!organization) {
-      throw new NotFoundError(
-        'Organization not found'
-      );
+      throw new NotFoundError('Organization not found');
     }
 
-
-    // 2. Find organization admin user
-    const organizationAdmin =
-      await this.userRepository.findOrganizationAdmin(
-        input.organizationId
-      );
-
-
-    if (!organizationAdmin) {
-      throw new NotFoundError(
-        'Organization admin not found'
-      );
-    }
-
-
-    // 3. Validate password policy
-    this.validatePassword(
-      input.password
+    // 3. Find organization admin user
+    const organizationAdmin = await this.userRepository.findOrganizationAdmin(
+      input.organizationId,
     );
 
-
-    // 4. Hash password
-    const passwordHash =
-      await bcrypt.hash(
-        input.password,
-        12
-      );
-
-
-    // 5. Update password + invalidate sessions
-    const updated =
-      await this.userRepository.resetPassword(
-        organizationAdmin.id,
-        passwordHash
-      );
-
-
-    if (!updated) {
-      throw new Error(
-        'Unable to reset password'
-      );
+    if (!organizationAdmin) {
+      throw new NotFoundError('Organization admin not found');
     }
 
+    // 4. Only an active admin can have a password set for them
+    if (organization.status !== 'active') {
+      throw new DomainError('Password can only be set for an active organization admin.');
+    }
 
-    // 6. Create audit trail
+    // 5. Hash password
+    const passwordHash = await bcrypt.hash(input.password, 12);
+
+    // 6. Update password and bump tokenVersion to invalidate existing sessions
+    const updated = await this.userRepository.resetPassword(
+      organizationAdmin.id,
+      passwordHash,
+    );
+
+    if (!updated) {
+      throw new Error('Unable to reset password');
+    }
+
+   
+    // 7. Create audit trail
     await this.auditLogRepository.create({
       adminId: input.adminId,
       action: 'RESET_ORGANIZATION_ADMIN_PASSWORD',
@@ -108,10 +78,7 @@ export class SetOrganizationAdminPasswordUseCase {
     });
   }
 
-
-
   private validatePassword(password: string): void {
-
     const rules = [
       {
         valid: password.length >= 8,
@@ -135,16 +102,10 @@ export class SetOrganizationAdminPasswordUseCase {
       },
     ];
 
-
-    const failedRule = rules.find(
-      rule => !rule.valid
-    );
-
+    const failedRule = rules.find((rule) => !rule.valid);
 
     if (failedRule) {
-      throw new ValidationError(
-        failedRule.message
-      );
+      throw new ValidationError(failedRule.message);
     }
   }
 }

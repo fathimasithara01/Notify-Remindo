@@ -10,8 +10,8 @@ export interface UserDocument extends Document {
   phone: string;
   tokenVersion: number;
   lastLoginAt?: Date;
-  inviteToken?: string;
-  inviteTokenExpiresAt?: Date;
+  // inviteToken?: string;
+  // inviteTokenExpiresAt?: Date;
   resetPasswordToken?: string;
   resetPasswordTokenExpiresAt?: Date;
   // mustChangePassword: boolean;
@@ -28,8 +28,8 @@ const userSchema = new Schema<UserDocument>(
     roleId: { type: Schema.Types.ObjectId, ref: 'Role', required: true, index: true },
     phone: { type: String, required: true },
     passwordHash: { type: String },
-    inviteToken: { type: String, index: true, sparse: true },
-    inviteTokenExpiresAt: { type: Date },
+    // inviteToken: { type: String, index: true, sparse: true },
+    // inviteTokenExpiresAt: { type: Date },
     resetPasswordToken: { type: String, index: true, sparse: true },
     resetPasswordTokenExpiresAt: { type: Date },
     tokenVersion: { type: Number, default: 0 },

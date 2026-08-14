@@ -22,9 +22,9 @@ export class ResetPasswordUseCase {
       throw new DomainError('This reset link is invalid or has already been used.');
     }
 
-    if (!user.resetPasswordTokenExpiresAt || user.resetPasswordTokenExpiresAt.getTime() < Date.now()) {
-      throw new DomainError('This reset link has expired. Ask an admin to send a new one.');
-    }
+    // if (!user.resetPasswordTokenExpiresAt || user.resetPasswordTokenExpiresAt.getTime() < Date.now()) {
+    //   throw new DomainError('This reset link has expired. Ask an admin to send a new one.');
+    // }
 
     const passwordHash = await this.hashService.hash(data.password);
 

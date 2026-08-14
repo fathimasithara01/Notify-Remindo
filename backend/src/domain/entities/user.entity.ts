@@ -11,8 +11,8 @@ export interface User {
     phone: string,
     tokenVersion: number;
     lastLoginAt?: Date;
-    inviteToken?: string;
-    inviteTokenExpiresAt?: Date;
+    // inviteToken?: string;
+    // inviteTokenExpiresAt?: Date;
     resetPasswordToken?: string;
     resetPasswordTokenExpiresAt?: Date;
     createdAt: Date;
