@@ -2,9 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Plus, Eye, EyeOff, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +38,7 @@ import { useUnblockUser } from './hooks/useUnblockUser';
 import { useCurrentUser } from '@/features/auth/hooks/useCurrentUser';
 import { ROUTES } from '@/config/routes';
 
+import { ResetPlatfromUserPasswordSchema, type ResetPlatfromUserPassword } from './schemas/user.schema';
 import type { User, UserFilters as UserFiltersType } from './types/user.types';
 import type { CreateUserFormValues, EditUserFormValues } from './schemas/user.schema';
 
@@ -43,17 +48,39 @@ type DialogState =
   | { type: 'edit'; user: User }
   | { type: 'roles'; user: User }
   | { type: 'revoke'; user: User }
+  | { type: 'resetPassword'; user: User }
   | { type: 'delete'; user: User };
 
-/** Holds the reset/resend link result shown right after a successful action.
- * Kept separate from `dialog` state so it survives the triggering dialog
- * closing — the success dialog opens right after. Creating a user now sets
- * the password directly, so 'invite' is no longer a kind here. */
 interface InviteResult {
   userName: string;
-  inviteUrl: string;
-  emailSent: boolean;
-  kind: 'resend' | 'reset';
+}
+
+const PASSWORD_RULES: { label: string; test: (v: string) => boolean }[] = [
+  { label: 'At least 8 characters', test: (v) => v.length >= 8 },
+  { label: 'One uppercase letter', test: (v) => /[A-Z]/.test(v) },
+  { label: 'One lowercase letter', test: (v) => /[a-z]/.test(v) },
+  { label: 'One number', test: (v) => /[0-9]/.test(v) },
+];
+
+function PasswordRulesList({ password }: { password: string }) {
+  return (
+    <ul className="space-y-1">
+      {PASSWORD_RULES.map((rule) => {
+        const passed = rule.test(password);
+        return (
+          <li
+            key={rule.label}
+            className={`flex items-center gap-1.5 text-xs ${
+              passed ? 'text-green-600' : 'text-muted-foreground'
+            }`}
+          >
+            {passed ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+            {rule.label}
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
 
 export default function UsersPage() {
@@ -61,6 +88,13 @@ export default function UsersPage() {
   const [filters, setFilters] = useState<UserFiltersType>({});
   const [dialog, setDialog] = useState<DialogState>({ type: 'none' });
   const [inviteResult, setInviteResult] = useState<InviteResult | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const resetPasswordForm = useForm<ResetPlatfromUserPassword>({
+    resolver: zodResolver(ResetPlatfromUserPasswordSchema),
+    defaultValues: { password: '', confirmPassword: '' },
+  });
 
   const { data, isLoading } = useUsers(filters);
   const { data: currentUser } = useCurrentUser();
@@ -79,24 +113,14 @@ export default function UsersPage() {
     unblockUser.mutate(user.id);
   };
 
-  const closeDialog = () => setDialog({ type: 'none' });
+  const closeDialog = () => {
+    setDialog({ type: 'none' });
+    resetPasswordForm.reset();
+  };
 
   const handleCreateSubmit = (values: CreateUserFormValues | EditUserFormValues) => {
     createUser.mutate(values as CreateUserFormValues, {
       onSuccess: closeDialog,
-    });
-  };
-
-  const handleRequestPasswordReset = (user: User) => {
-    requestPasswordReset.mutate(user.id, {
-      onSuccess: (data) => {
-        setInviteResult({
-          userName: `${user.firstName} ${user.lastName}`.trim(),
-          inviteUrl: data.resetUrl,
-          emailSent: data.emailSent,
-          kind: 'reset',
-        });
-      },
     });
   };
 
@@ -105,6 +129,23 @@ export default function UsersPage() {
     updateUser.mutate(
       { id: dialog.user.id, payload: values as EditUserFormValues },
       { onSuccess: closeDialog }
+    );
+  };
+
+  const handleResetPasswordSubmit = (values: ResetPlatfromUserPassword) => {
+    if (dialog.type !== 'resetPassword') return;
+    const user = dialog.user;
+
+    requestPasswordReset.mutate(
+      { userId: user.id, payload: values },
+      {
+        onSuccess: () => {
+          closeDialog();
+          setInviteResult({
+            userName: `${user.firstName} ${user.lastName}`.trim(),
+          });
+        },
+      }
     );
   };
 
@@ -139,9 +180,9 @@ export default function UsersPage() {
         onDelete={(user) => setDialog({ type: 'delete', user })}
         onManageRoles={(user) => setDialog({ type: 'roles', user })}
         onRevokeSessions={(user) => setDialog({ type: 'revoke', user })}
-        onRequestPasswordReset={handleRequestPasswordReset}
+        onRequestPasswordReset={(user) => setDialog({ type: 'resetPassword', user })}
         onBlock={handleBlock}
-        onUnblock={handleUnblock}  
+        onUnblock={handleUnblock}
       />
 
       {/* Create user */}
@@ -191,16 +232,104 @@ export default function UsersPage() {
         onOpenChange={(o) => !o && closeDialog()}
       />
 
-      {/* Resend invite / reset password link — shows the link, with a
-          warning + copy fallback if the email failed to send */}
+      {/* Reset password — admin sets a new password directly */}
+      <Dialog open={dialog.type === 'resetPassword'} onOpenChange={(o) => !o && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset password</DialogTitle>
+          </DialogHeader>
+          {dialog.type === 'resetPassword' && (
+            <form
+              className="space-y-4"
+              onSubmit={resetPasswordForm.handleSubmit(handleResetPasswordSubmit)}
+            >
+              <p className="text-sm text-muted-foreground">
+                Set a new password for{' '}
+                <strong>
+                  {dialog.user.firstName} {dialog.user.lastName}
+                </strong>
+                .
+              </p>
+
+              <div className="space-y-2">
+                <Label htmlFor="new-password">New password</Label>
+                <div className="relative">
+                  <Input
+                    id="new-password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    className="pr-10"
+                    {...resetPasswordForm.register('password')}
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {resetPasswordForm.formState.errors.password && (
+                  <p className="text-sm text-destructive">
+                    {resetPasswordForm.formState.errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Password rules checklist */}
+              <PasswordRulesList password={resetPasswordForm.watch('password') ?? ''} />
+
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm password</Label>
+                <div className="relative">
+                  <Input
+                    id="confirm-password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    className="pr-10"
+                    {...resetPasswordForm.register('confirmPassword')}
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {resetPasswordForm.formState.errors.confirmPassword && (
+                  <p className="text-sm text-destructive">
+                    {resetPasswordForm.formState.errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeDialog}
+                  disabled={requestPasswordReset.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={requestPasswordReset.isPending}>
+                  {requestPasswordReset.isPending ? 'Saving...' : 'Save password'}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation after password reset */}
       {inviteResult && (
         <InviteSuccessDialog
           open={!!inviteResult}
           onOpenChange={(o) => !o && setInviteResult(null)}
           userName={inviteResult.userName}
-          value={inviteResult.inviteUrl}
-          emailSent={inviteResult.emailSent}
-          kind={inviteResult.kind}
         />
       )}
 
