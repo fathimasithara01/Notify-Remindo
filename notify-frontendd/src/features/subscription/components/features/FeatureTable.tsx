@@ -8,7 +8,7 @@ interface FeatureTableProps {
   isLoading: boolean;
   actionPendingId: string | null;
   onEdit: (feature: Feature) => void;
-  onDelete: (feature: Feature) => void;
+//   onDelete: (feature: Feature) => void;
   onToggleStatus: (feature: Feature) => void;
 }
 
@@ -17,7 +17,7 @@ export function FeatureTable({
   isLoading,
   actionPendingId,
   onEdit,
-  onDelete,
+//   onDelete,
   onToggleStatus,
 }: FeatureTableProps) {
   if (isLoading && features.length === 0) {
@@ -85,13 +85,13 @@ export function FeatureTable({
                     >
                       {isPending ? "..." : isActive ? "Block" : "Unblock"}
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => onDelete(feature)}
                       disabled={isPending}
                       className="rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
                     >
                       Delete
-                    </button>
+                    </button> */}
                   </div>
                 </td>
               </tr>

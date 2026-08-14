@@ -20,7 +20,6 @@ import { TokenRevocationRegistry } from '../cache/token-revocation-registry';
 import { LoginAdminUseCase } from '../../application/auth/use-cases/login-admin.use-case';
 import { RefreshTokenUseCase } from '../../application/auth/use-cases/refresh-token.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-current-user.use-case';
-import { AcceptInviteUseCase } from '../../application/auth/use-cases/accept-invite.use-case';
 import { CreateUserUseCase } from '../../application/user/use-cases/create-user.use-case';
 import { EditUserUseCase } from '../../application/user/use-cases/edit-user.use-case';
 import { RevokeSessionsUseCase } from '../../application/platform-user/use-cases/revoke-sessions.use-case';
@@ -105,7 +104,6 @@ export function registerDependencies(): void {
   container.register(TOKENS.LoginAdminUseCase, { useClass: LoginAdminUseCase });
   container.register(TOKENS.RefreshTokenUseCase, { useClass: RefreshTokenUseCase });
   container.register(TOKENS.GetCurrentUserUseCase, { useClass: GetCurrentUserUseCase });
-  container.register(TOKENS.AcceptInviteUseCase, { useClass: AcceptInviteUseCase });
   container.register(TOKENS.CreateUserUseCase, { useClass: CreateUserUseCase });
   container.register(TOKENS.EditUserUseCase, { useClass: EditUserUseCase });
   container.register(TOKENS.RevokeSessionsUseCase, { useClass: RevokeSessionsUseCase });

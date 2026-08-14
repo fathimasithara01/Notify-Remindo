@@ -4,7 +4,6 @@ import { TOKENS } from '../../infrastructure/di/tokens';
 import { LoginAdminUseCase } from '../../application/auth/use-cases/login-admin.use-case';
 import { RefreshTokenUseCase } from '../../application/auth/use-cases/refresh-token.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-current-user.use-case';
-import { AcceptInviteUseCase } from '../../application/auth/use-cases/accept-invite.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { UnauthorizedError } from '../../domain/errors/domain.error';
 import { env } from '../../config/env';
@@ -34,7 +33,6 @@ export class AuthController {
     @inject(TOKENS.LoginAdminUseCase) private loginUseCase: LoginAdminUseCase, // Container, LoginAdminUseCase create cheythu ivide inject cheyyu.
     @inject(TOKENS.RefreshTokenUseCase) private refreshTokenUseCase: RefreshTokenUseCase,
     @inject(TOKENS.GetCurrentUserUseCase) private getCurrentUserUseCase: GetCurrentUserUseCase,
-    @inject(TOKENS.AcceptInviteUseCase) private acceptInviteUseCase: AcceptInviteUseCase,
     @inject(TOKENS.LogoutAllDevicesUseCase) private logoutAllDevicesUseCase: LogoutAllDevicesUseCase,
     @inject(TOKENS.ResetPasswordUseCase) private resetPasswordUseCase: ResetPasswordUseCase,
     @inject(TOKENS.ChangePasswordUseCase) private changePasswordUseCase: ChangePasswordUseCase,
@@ -92,11 +90,11 @@ export class AuthController {
     ApiResponse.success(res, result);
   };
 
-  acceptInvite = async (req: Request, res: Response): Promise<void> => {
-    const result = await this.acceptInviteUseCase.execute(req.body);
-    this.setAuthCookies(res, result.accessToken, result.refreshToken);
-    ApiResponse.success(res, { user: result.user }, 200, 'Account activated');
-  };
+  // acceptInvite = async (req: Request, res: Response): Promise<void> => {
+  //   const result = await this.acceptInviteUseCase.execute(req.body);
+  //   this.setAuthCookies(res, result.accessToken, result.refreshToken);
+  //   ApiResponse.success(res, { user: result.user }, 200, 'Account activated');
+  // };
 
   logoutAllDevices = async (req: Request, res: Response) => {
     await this.logoutAllDevicesUseCase.execute(req.body);

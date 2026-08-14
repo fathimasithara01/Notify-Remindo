@@ -100,7 +100,7 @@ export default function UsersPage() {
   const { data: currentUser } = useCurrentUser();
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
-  const deleteUser = useDeleteUser();
+  // const deleteUser = useDeleteUser();
   const requestPasswordReset = useRequestPasswordReset();
   const blockUser = useBlockUser();
   const unblockUser = useUnblockUser();
@@ -149,10 +149,10 @@ export default function UsersPage() {
     );
   };
 
-  const handleDeleteConfirm = () => {
-    if (dialog.type !== 'delete') return;
-    deleteUser.mutate(dialog.user.id, { onSuccess: closeDialog });
-  };
+  // const handleDeleteConfirm = () => {
+  //   if (dialog.type !== 'delete') return;
+  //   deleteUser.mutate(dialog.user.id, { onSuccess: closeDialog });
+  // };
 
   return (
     <div className="space-y-6 p-6">
@@ -177,9 +177,9 @@ export default function UsersPage() {
         currentUserId={currentUser?.id}
         onView={(user) => router.push(ROUTES.users.detail(user.id))}
         onEdit={(user) => setDialog({ type: 'edit', user })}
-        onDelete={(user) => setDialog({ type: 'delete', user })}
+        // onDelete={(user) => setDialog({ type: 'delete', user })}
         onManageRoles={(user) => setDialog({ type: 'roles', user })}
-        onRevokeSessions={(user) => setDialog({ type: 'revoke', user })}
+        // onRevokeSessions={(user) => setDialog({ type: 'revoke', user })}
         onRequestPasswordReset={(user) => setDialog({ type: 'resetPassword', user })}
         onBlock={handleBlock}
         onUnblock={handleUnblock}
@@ -334,7 +334,7 @@ export default function UsersPage() {
       )}
 
       {/* Delete confirmation */}
-      <AlertDialog open={dialog.type === 'delete'} onOpenChange={(o) => !o && closeDialog()}>
+      {/* <AlertDialog open={dialog.type === 'delete'} onOpenChange={(o) => !o && closeDialog()}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete user?</AlertDialogTitle>
@@ -346,15 +346,15 @@ export default function UsersPage() {
                 </>
               )}
             </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
+          </AlertDialogHeader> */}
+          {/* <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteUser.isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm} disabled={deleteUser.isPending}>
               {deleteUser.isPending ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          </AlertDialogFooter> */}
+        {/* </AlertDialogContent>
+      </AlertDialog> */}
     </div>
   );
 }

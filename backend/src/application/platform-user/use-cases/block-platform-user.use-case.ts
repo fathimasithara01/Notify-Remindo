@@ -10,7 +10,7 @@ export class BlockPlatformUserUseCase {
   ) {}
 
   async execute(id: string) {
-    const user = await this.platformUserRepo.update(id, { status: 'suspended' });
+    const user = await this.platformUserRepo.update(id, { status: 'inactive' });
     if (!user) {
       throw new NotFoundError('Platform user not found');
     }

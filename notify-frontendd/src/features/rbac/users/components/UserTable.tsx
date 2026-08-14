@@ -1,6 +1,7 @@
 'use client';
 
-import { ShieldCheck, LogOut, Pencil, Trash2, KeyRound, Ban, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Loader2, ShieldCheck, Pencil, KeyRound } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -12,6 +13,22 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { USER_STATUS_META } from '../../shared/constants';
 import type { User } from '../types/user.types';
@@ -22,12 +39,12 @@ interface UserTableProps {
   currentUserId?: string;
   onView: (user: User) => void;
   onEdit: (user: User) => void;
-  onDelete: (user: User) => void;
   onManageRoles: (user: User) => void;
-  onRevokeSessions: (user: User) => void;
   onRequestPasswordReset: (user: User) => void;
   onBlock: (user: User) => void;
   onUnblock: (user: User) => void;
+  /** id of the user currently being blocked/unblocked, so only that row shows a spinner */
+  pendingStatusUserId?: string | null;
 }
 
 export function UserTable({
@@ -36,13 +53,14 @@ export function UserTable({
   currentUserId,
   onView,
   onEdit,
-  onDelete,
   onManageRoles,
-  onRevokeSessions,
   onRequestPasswordReset,
   onBlock,
   onUnblock,
+  pendingStatusUserId,
 }: UserTableProps) {
+  const [confirmDeactivate, setConfirmDeactivate] = useState<User | null>(null);
+
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -81,7 +99,34 @@ export function UserTable({
           {users.map((user) => {
             const statusMeta = USER_STATUS_META[user.status];
             const isSelf = user.id === currentUserId;
-            const isSuspended = user.status === 'suspended';
+            const isActive = user.status === 'active';
+            const isUpdatingStatus = pendingStatusUserId === user.id;
+
+            const statusToggle = (
+              <div className="flex items-center gap-2">
+                {isUpdatingStatus ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                ) : (
+                  <Switch
+                    checked={isActive}
+                    disabled={isSelf}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        // reactivating is non-destructive — no confirmation needed
+                        onUnblock(user);
+                      } else {
+                        // deactivating removes access — confirm before acting
+                        setConfirmDeactivate(user);
+                      }
+                    }}
+                    aria-label={isActive ? 'Set inactive' : 'Set active'}
+                  />
+                )}
+                <Badge variant={statusMeta.variant} className="font-normal">
+                  {statusMeta.label}
+                </Badge>
+              </div>
+            );
 
             return (
               <TableRow
@@ -108,8 +153,17 @@ export function UserTable({
                     <span className="text-muted-foreground">—</span>
                   )}
                 </TableCell>
-                <TableCell>
-                  <Badge variant={statusMeta.variant}>{statusMeta.label}</Badge>
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  {isSelf ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="inline-flex">{statusToggle}</div>
+                      </TooltipTrigger>
+                      <TooltipContent>You can&apos;t change your own status</TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    statusToggle
+                  )}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex justify-end gap-1">
@@ -131,7 +185,7 @@ export function UserTable({
                     >
                       <ShieldCheck className="h-4 w-4" />
                     </Button>
-                    {user.status === 'active' && (
+                    {isActive && (
                       <Button
                         variant="ghost"
                         size="icon"
@@ -141,69 +195,7 @@ export function UserTable({
                       >
                         <KeyRound className="h-4 w-4" />
                       </Button>
-
-                        // {canResetPassword && (
-                        //     <Tooltip>
-                        //       <TooltipTrigger asChild>
-                        //         <Button
-                        //           type="button"
-                        //           variant="ghost"
-                        //           size="icon"
-                        //           aria-label={`Reset password for ${org.admin?.firstName ?? org.name}`}
-                        //           disabled={isUpdating}
-                        //           onClick={() => setResetPasswordOrg(org)}
-                        //         >
-                        //           <KeyRound className="h-4 w-4" />
-                        //         </Button>
-                        //       </TooltipTrigger>
-                        //       <TooltipContent>
-                        //         Reset password
-                        //       </TooltipContent>
-                        //     </Tooltip>
-                        //   )}
                     )}
-                    {isSuspended ? (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        title="Unblock"
-                        onClick={() => onUnblock(user)}
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        title="Block"
-                        disabled={isSelf}
-                        onClick={() => onBlock(user)}
-                      >
-                        <Ban className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      title="Revoke sessions"
-                      disabled={isSelf}
-                      onClick={() => onRevokeSessions(user)}
-                    >
-                      <LogOut className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                      title={isSelf ? "Can't delete your own account" : 'Delete'}
-                      disabled={isSelf}
-                      onClick={() => onDelete(user)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
@@ -211,6 +203,40 @@ export function UserTable({
           })}
         </TableBody>
       </Table>
+
+      {/* Deactivation is access-affecting, so confirm before acting */}
+      <AlertDialog
+        open={!!confirmDeactivate}
+        onOpenChange={(open) => !open && setConfirmDeactivate(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deactivate user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmDeactivate && (
+                <>
+                  <strong>
+                    {confirmDeactivate.firstName} {confirmDeactivate.lastName}
+                  </strong>{' '}
+                  will lose access immediately and won&apos;t be able to log in until
+                  reactivated.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmDeactivate) onBlock(confirmDeactivate);
+                setConfirmDeactivate(null);
+              }}
+            >
+              Deactivate
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

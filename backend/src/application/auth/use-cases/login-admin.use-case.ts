@@ -22,12 +22,12 @@ export class LoginAdminUseCase {
     const user = await this.platformUserRepo.findByEmail(data.email);
     if (!user) throw new UnauthorizedError('Invalid email or password');
 
-    if (user.status === 'invited') {
-      throw new UnauthorizedError('Please accept your invite before logging in');
-    }
-    if (user.status === 'suspended') {
-      throw new UnauthorizedError('This account has been suspended. Contact an administrator.');
-    }
+    // if (user.status === 'invited') {
+    //   throw new UnauthorizedError('Please accept your invite before logging in');
+    // }
+    // if (user.status === 'suspended') {
+    //   throw new UnauthorizedError('This account has been suspended. Contact an administrator.');
+    // }
     if (user.status === 'inactive') {
       throw new UnauthorizedError('This account has been deactivated');
     }

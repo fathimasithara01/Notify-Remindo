@@ -1,4 +1,4 @@
-export type PlatformUserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
+export type PlatformUserStatus =  'active' | 'inactive' ;
 
 export interface UserRoleSummary {
   id: string;

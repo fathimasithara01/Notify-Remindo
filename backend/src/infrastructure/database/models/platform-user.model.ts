@@ -31,8 +31,8 @@ const platformUserSchema = new Schema<PlatformUserDocument>(
         phone: { type: String, default: null },
         status: {
             type: String,
-            enum: ['invited', 'active', 'inactive', 'suspended'],
-            default: 'invited',
+            enum: [ 'active' , 'inactive' ],
+            default: 'active',
             index: true,
         },
         tokenVersion: { type: Number, default: 0 },

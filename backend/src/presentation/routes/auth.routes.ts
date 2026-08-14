@@ -14,12 +14,12 @@ const controller = container.resolve<AuthController>(TOKENS.AuthController);
 router.post('/login', authRateLimiter, validateRequest(loginSchema), asyncHandler(controller.login));
 router.post('/refresh-token', authRateLimiter, asyncHandler(controller.refreshToken));
 
-router.post(
-  '/accept-invite',
-  authRateLimiter,
-  validateRequest(acceptInviteSchema),
-  asyncHandler(controller.acceptInvite)
-);
+// router.post(
+//   '/accept-invite',
+//   authRateLimiter,
+//   validateRequest(acceptInviteSchema),
+//   asyncHandler(controller.acceptInvite)
+// );
 
 router.post(
   '/reset-password',

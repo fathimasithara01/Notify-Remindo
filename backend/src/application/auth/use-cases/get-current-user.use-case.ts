@@ -24,7 +24,7 @@ export class GetCurrentUserUseCase {
   async execute(userId: string): Promise<CurrentUserResult> {
     const user = await this.platformUserRepo.findById(userId);
     if (!user) throw new UnauthorizedError('User no longer exists');
-    if (user.status === 'suspended' || user.status === 'inactive') {
+    if (user.status === 'inactive') {
       throw new UnauthorizedError('This account is no longer active');
     }
     const role = await this.platformRoleRepo.findById(user.roleId);

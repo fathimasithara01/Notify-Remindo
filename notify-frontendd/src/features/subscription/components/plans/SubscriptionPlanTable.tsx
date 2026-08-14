@@ -17,7 +17,7 @@ interface SubscriptionPlanTableProps {
   isLoading: boolean;
   actionPendingId: string | null;
   onEdit: (plan: SubscriptionPlan) => void;
-  onDelete: (plan: SubscriptionPlan) => void;
+//   onDelete: (plan: SubscriptionPlan) => void;
   onToggleStatus: (plan: SubscriptionPlan) => void;
 }
 
@@ -26,7 +26,7 @@ export function SubscriptionPlanTable({
   isLoading,
   actionPendingId,
   onEdit,
-  onDelete,
+//   onDelete,
   onToggleStatus,
 }: SubscriptionPlanTableProps) {
   if (isLoading && plans.length === 0) {
@@ -86,7 +86,7 @@ export function SubscriptionPlanTable({
                     >
                       {isPending ? "..." : isActive ? "Block" : "Unblock"}
                     </Button>
-                    <Button
+                    {/* <Button
                       size="sm"
                       variant="ghost"
                       className="text-destructive"
@@ -94,7 +94,7 @@ export function SubscriptionPlanTable({
                       onClick={() => onDelete(plan)}
                     >
                       Delete
-                    </Button>
+                    </Button> */}
                   </div>
                 </TableCell>
               </TableRow>
