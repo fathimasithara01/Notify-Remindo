@@ -10,7 +10,6 @@ declare module "axios" {
   }
 }
 
-// ---- Main instance ---------------------------------------------------------
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 10000,
@@ -20,7 +19,6 @@ const axiosInstance: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
-// ---- Refresh client (no interceptors) --------------------------------------
 const refreshClient: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 10000,
@@ -49,8 +47,33 @@ const processQueue = (error?: unknown) => {
   failedQueue = [];
 };
 
+const redirectToLogin = () => {
+  if (
+    typeof window !== "undefined" &&
+    window.location.pathname !== "/login"
+  ) {
+    window.location.replace("/login");
+  }
+};
+
+let refreshPromise: Promise<void> | null = null;
+
+const refreshAccessToken = async (): Promise<void> => {
+  if (!refreshPromise) {
+    refreshPromise = refreshClient
+      .post('/auth/refresh-token')
+      .then(() => undefined)
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+};
+
 axiosInstance.interceptors.response.use(
   (response) => response,
+
   async (error: AxiosError) => {
     const originalRequest =
       error.config as InternalAxiosRequestConfig | undefined;
@@ -62,59 +85,38 @@ axiosInstance.interceptors.response.use(
     const status = error.response?.status;
     const url = originalRequest.url ?? "";
 
-    // Ignore non-401 responses
+
     if (status !== 401) {
       return Promise.reject(error);
     }
 
-    // Never refresh these endpoints
     if (
-      url.includes("/auth/login") ||
-      url.includes("/auth/refresh-token") ||
-      url.includes("/auth/logout")
+      url.includes('/auth/login') ||
+      url.includes('/auth/refresh-token') ||
+      url.includes('/auth/logout')
     ) {
       return Promise.reject(error);
     }
 
-    // Already retried once
     if (originalRequest._retry) {
       return Promise.reject(error);
     }
 
     originalRequest._retry = true;
 
-    // Wait if another refresh request is already running
-    if (isRefreshing) {
-      return new Promise((resolve, reject) => {
-        failedQueue.push({
-          resolve,
-          reject,
-          config: originalRequest,
-        });
-      });
-    }
-
-    isRefreshing = true;
-
     try {
-      await refreshClient.post("/auth/refresh-token");
-
-      processQueue();
+      await refreshAccessToken();
 
       return axiosInstance(originalRequest);
     } catch (refreshError) {
-      processQueue(refreshError);
+      const refreshStatus =
+        (refreshError as AxiosError).response?.status;
 
-      if (
-        typeof window !== "undefined" &&
-        window.location.pathname !== "/login"
-      ) {
-        window.location.href = "/login";
+      if (refreshStatus === 401 || refreshStatus === 429) {
+        redirectToLogin();
       }
 
       return Promise.reject(refreshError);
-    } finally {
-      isRefreshing = false;
     }
   }
 );

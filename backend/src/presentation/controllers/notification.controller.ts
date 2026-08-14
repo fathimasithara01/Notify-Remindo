@@ -3,7 +3,6 @@ import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../infrastructure/di/tokens';
 import { INotificationRepository } from '../../domain/repositories/notification.repository.interface';
 import { ScheduleNotificationUseCase } from '../../application/notification/use-cases/schedule-notification.use-case';
-import { SendReminderUseCase } from '../../application/notification/use-cases/send-reminder.use-case';
 import { ApiResponse } from '../../shared/utils/api-response';
 import { NotFoundError } from '../../domain/errors/domain.error';
 import {  paginationMeta, parsePaginationParams } from '../../shared/utils/pagination';
@@ -13,7 +12,7 @@ export class NotificationController {
   constructor(
     @inject(TOKENS.NotificationRepository) private notificationRepo: INotificationRepository,
     @inject(TOKENS.ScheduleNotificationUseCase) private scheduleUseCase: ScheduleNotificationUseCase,
-    @inject(TOKENS.SendReminderUseCase) private sendReminderUseCase: SendReminderUseCase
+    // @inject(TOKENS.SendReminderUseCase) private sendReminderUseCase: SendReminderUseCase
   ) {}
 
   schedule = async (req: Request, res: Response): Promise<void> => {
@@ -52,10 +51,10 @@ export class NotificationController {
     ApiResponse.success(res, notification, 200, 'Notification updated');
   };
 
-  sendNow = async (req: Request, res: Response): Promise<void> => {
-    await this.sendReminderUseCase.execute(req.params.id);
-    ApiResponse.success(res, null, 200, 'Notification sent');
-  };
+  // sendNow = async (req: Request, res: Response): Promise<void> => {
+  //   await this.sendReminderUseCase.execute(req.params.id);
+  //   ApiResponse.success(res, null, 200, 'Notification sent');
+  // };
 
   delete = async (req: Request, res: Response): Promise<void> => {
     const deleted = await this.notificationRepo.delete(req.params.id);

@@ -1,7 +1,7 @@
 import app from './app';
 import { connectDB } from './config/db';
 import { env } from './config/env';
-import { startReminderScheduler } from './infrastructure/jobs/reminder-scheduler.job';
+// import { startReminderScheduler } from './infrastructure/jobs/reminder-scheduler.job';
 
 async function bootstrap(): Promise<void> {
   await connectDB();
@@ -10,7 +10,7 @@ async function bootstrap(): Promise<void> {
     console.log(`Notify backend running on port ${env.PORT} [${env.NODE_ENV}]`);
   });
 
-  startReminderScheduler();
+  // startReminderScheduler();
 }
 
 bootstrap().catch((error) => {

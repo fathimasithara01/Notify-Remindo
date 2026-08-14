@@ -60,12 +60,8 @@ export interface AssignRoleDto {
   roleId: string;
 }
 
-export interface ResendInviteResponse {
-  inviteUrl: string;
-  emailSent: boolean;
+export interface ResetPlatfromUserPassword {
+  password: string;
+  confirmPassword: string;
 }
 
-export interface RequestPasswordResetResponse {
-  resetUrl: string;
-  emailSent: boolean;
-}

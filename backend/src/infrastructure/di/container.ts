@@ -13,7 +13,6 @@ import { AuditLogRepository } from '../database/repositories/audit-log.repositor
 // Services
 import { BcryptHashService } from '../services/bcrypt-hash.service';
 import { JwtTokenService } from '../services/jwt-token.service';
-import { WhatsAppNotifierService } from '../services/whatsapp-notifier.service';
 import { EmailNotifierService } from '../services/email-notifier.service';
 import { TokenRevocationRegistry } from '../cache/token-revocation-registry';
 
@@ -48,7 +47,6 @@ import { NotificationController } from '../../presentation/controllers/notificat
 import { DashboardController } from '../../presentation/controllers/dashboard.controller';
 import { UserController } from '../../presentation/controllers/user.controller';
 import { AuditLogController } from '../../presentation/controllers/audit-log.controller';
-import { S3FileStorageService } from '../storage/s3-file-storage.service';
 import { UpdateFeatureUseCase } from '../../application/subscription/use-cases/feature/update-feature.use-case';
 import { DeleteFeatureUseCase } from '../../application/subscription/use-cases/feature/delete-feature.use-case';
 import { CreateSubscriptionPlanUseCase } from '../../application/subscription/use-cases/subscription-plan/create-subscription-plan.use-case';
@@ -91,11 +89,8 @@ export function registerDependencies(): void {
   // Services
   container.registerSingleton(TOKENS.HashService, BcryptHashService);
   container.registerSingleton(TOKENS.TokenService, JwtTokenService);
-  container.registerSingleton(TOKENS.WhatsAppNotifierService, WhatsAppNotifierService);
   container.registerSingleton(TOKENS.EmailNotifierService, EmailNotifierService);
   container.registerSingleton(TOKENS.TokenRevocationRegistry, TokenRevocationRegistry);
-  container.registerSingleton(TOKENS.FileStorageService, S3FileStorageService);
-
   container.registerSingleton(TOKENS.RequestPasswordResetUseCase, RequestPasswordResetUseCase);
   container.registerSingleton(TOKENS.ResetPasswordUseCase, ResetPasswordUseCase);
   container.registerSingleton(TOKENS.ChangePasswordUseCase, ChangePasswordUseCase);
@@ -124,7 +119,6 @@ export function registerDependencies(): void {
   container.register(TOKENS.AssignSalesmanUseCase, { useClass: AssignSalesmanUseCase });
   container.register(TOKENS.CreateFeatureUseCase, { useClass: CreateFeatureUseCase });
   container.register(TOKENS.ScheduleNotificationUseCase, { useClass: ScheduleNotificationUseCase });
-  container.register(TOKENS.SendReminderUseCase, { useClass: SendReminderUseCase });
   container.register(TOKENS.GetBusinessReportUseCase, { useClass: GetBusinessReportUseCase });
   container.register(TOKENS.UpdateFeatureUseCase, UpdateFeatureUseCase);
   container.register(TOKENS.DeleteFeatureUseCase, DeleteFeatureUseCase);

@@ -6,7 +6,7 @@ import type {
     UpdateUserDto,
     User,
     UserFilters,
-    RequestPasswordResetResponse,
+    ResetPlatfromUserPassword,
 } from '../types/user.types';
 import { apiClient } from '@/lib/api/client';
 
@@ -25,8 +25,8 @@ export const usersApi = {
     update: (id: string, payload: UpdateUserDto): Promise<User> =>
         apiClient.patch<User>(`${BASE_URL}/${id}`, payload),
 
-    requestPasswordReset: (id: string): Promise<RequestPasswordResetResponse> =>
-        apiClient.post<RequestPasswordResetResponse>(`${BASE_URL}/${id}/request-password-reset`),
+    requestPasswordReset: (id: string,payload: ResetPlatfromUserPassword) =>
+        apiClient.post<null>(`${BASE_URL}/${id}/request-password-reset`, payload),
 
     delete: (id: string): Promise<null> =>
         apiClient.delete<null>(`${BASE_URL}/${id}`),

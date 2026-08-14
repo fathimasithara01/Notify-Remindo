@@ -18,7 +18,7 @@ router.post('/', authorize(PERMISSIONS.NOTIFICATION_CREATE), validateRequest(sch
 router.get('/', authorize(PERMISSIONS.NOTIFICATION_VIEW), asyncHandler(controller.list));
 router.get('/:id', authorize(PERMISSIONS.NOTIFICATION_VIEW), asyncHandler(controller.getOne));
 router.patch('/:id', authorize(PERMISSIONS.NOTIFICATION_UPDATE), validateRequest(editNotificationSchema), asyncHandler(controller.update));
-router.post('/:id/send-now', authorize(PERMISSIONS.NOTIFICATION_SEND), asyncHandler(controller.sendNow));
+// router.post('/:id/send-now', authorize(PERMISSIONS.NOTIFICATION_SEND), asyncHandler(controller.sendNow));
 router.delete('/:id', authorize(PERMISSIONS.NOTIFICATION_DELETE), asyncHandler(controller.delete));
 
 export default router;

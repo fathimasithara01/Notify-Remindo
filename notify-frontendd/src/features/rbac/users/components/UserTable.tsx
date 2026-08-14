@@ -141,6 +141,26 @@ export function UserTable({
                       >
                         <KeyRound className="h-4 w-4" />
                       </Button>
+
+                        // {canResetPassword && (
+                        //     <Tooltip>
+                        //       <TooltipTrigger asChild>
+                        //         <Button
+                        //           type="button"
+                        //           variant="ghost"
+                        //           size="icon"
+                        //           aria-label={`Reset password for ${org.admin?.firstName ?? org.name}`}
+                        //           disabled={isUpdating}
+                        //           onClick={() => setResetPasswordOrg(org)}
+                        //         >
+                        //           <KeyRound className="h-4 w-4" />
+                        //         </Button>
+                        //       </TooltipTrigger>
+                        //       <TooltipContent>
+                        //         Reset password
+                        //       </TooltipContent>
+                        //     </Tooltip>
+                        //   )}
                     )}
                     {isSuspended ? (
                       <Button

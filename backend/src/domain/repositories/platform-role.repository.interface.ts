@@ -12,6 +12,6 @@ export interface IPlatformRoleRepository {
     organizationId?: string;
     status?: RoleStatus;
     search?: string;
-  }, pagination?: PaginationParams): Promise<PaginatedResult<createdRoleDto>> ;
+  }, pagination?: PaginationParams): Promise<PaginatedResult<createdRoleDto>>;
   findByName(name: string): Promise<Role | null>
 }

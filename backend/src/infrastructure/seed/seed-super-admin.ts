@@ -1,9 +1,12 @@
+import { Types } from 'mongoose';
 import { connectDB, disconnectDB } from '../../config/db';
 import { RoleModel } from '../database/models/role.model';
 import { PlatformUserModel } from '../database/models/platform-user.model';
 import { BcryptHashService } from '../services/bcrypt-hash.service';
 import { env } from '../../config/env';
 import { ALL_PERMISSIONS } from '../../shared/constants/permissions.constant';
+
+const SYSTEM_USER_ID = new Types.ObjectId('000000000000000000000000');
 
 export async function seedSuperAdmin(): Promise<void> {
   const superAdminRole = await RoleModel.findOneAndUpdate(
@@ -17,7 +20,7 @@ export async function seedSuperAdmin(): Promise<void> {
       },
       $setOnInsert: {
         name: 'Super Admin',
-        createdBy: 'system',
+        createdBy: SYSTEM_USER_ID,
         deletion: { isDeleted: false },
       },
     },
@@ -33,7 +36,7 @@ export async function seedSuperAdmin(): Promise<void> {
         isSystem: true,
         status: 'active',
         permissionIds: [],
-        createdBy: 'system',
+        createdBy: SYSTEM_USER_ID,
         deletion: { isDeleted: false },
       },
     },
