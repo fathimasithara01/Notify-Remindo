@@ -26,7 +26,7 @@ export class OrganizationController {
     @inject(TOKENS.BlockCustomerUseCase) private blockCustomerUseCase: BlockCustomerUseCase,
     @inject(TOKENS.AssignSalesmanUseCase) private assignSalesmanUseCase: AssignSalesmanUseCase,
     @inject(TOKENS.SetOrganizationAdminPasswordUseCase) private setOrganizationAdminPasswordUseCase: SetOrganizationAdminPasswordUseCase,
-        @inject(TOKENS.UpdateOrganizationAdminUseCase) private updateOrganizationAdminUseCase: UpdateOrganizationAdminUseCase,
+    @inject(TOKENS.UpdateOrganizationAdminUseCase) private updateOrganizationAdminUseCase: UpdateOrganizationAdminUseCase,
 
     // @inject(TOKENS.ResendInviteUseCase) private resendInviteUseCase: ResendInviteUseCase,
     // @inject(TOKENS.CancelInviteUseCase) private cancelInviteUseCase: CancelInviteUseCase
@@ -35,7 +35,13 @@ export class OrganizationController {
   create = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) throw new UnauthorizedError();
     const result = await this.createOrgUseCase.execute({ data: req.body, adminId: req.user.id });
-    ApiResponse.created(res, result);
+
+    const { passwordHash, ...adminSafe } = result.admin;
+
+    ApiResponse.created(res, {
+      organization: result.organization,
+      admin: adminSafe,
+    });
   };
 
   list = async (req: Request, res: Response): Promise<void> => {

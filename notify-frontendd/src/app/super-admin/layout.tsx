@@ -26,13 +26,15 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   }
 
   if (isError || !user) {
-    return null; 
+    return null;
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto bg-muted/20 p-8">{children}</main>
+    <div className="flex min-h-screen items-start">
+      <div className="sticky top-0 h-screen shrink-0">
+        <Sidebar />
+      </div>
+      <main className="min-w-0 flex-1 bg-muted/20 p-8">{children}</main>
     </div>
   );
 }

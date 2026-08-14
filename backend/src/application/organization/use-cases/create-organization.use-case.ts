@@ -7,16 +7,12 @@ import { ISubscriptionPlanRepository } from '../../../domain/repositories/subscr
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
 import { IHashService } from '../../../domain/services/hash.service.interface';
-import { INotifierService } from '../../../domain/services/notifier.service.interface';
 
 import { Organization } from '../../../domain/entities/organization.entity';
 import { User } from '../../../domain/entities/user.entity';
 import { Role } from '../../../domain/entities/role.entity';
 import { DomainError } from '../../../domain/errors/domain.error';
-
 import { CreateOrganizationDto } from '../../dtos/organization/create-organization.dto';
-
-import { env } from '../../../config/env';
 import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
 const ORG_ADMIN_ROLE_NAME = 'Org Admin';
@@ -39,7 +35,6 @@ export class CreateOrganizationUseCase {
     @inject(TOKENS.UserRepository) private userRepo: IUserRepository,
     @inject(TOKENS.PlatformRoleRepository) private platformRoleRepo: IPlatformRoleRepository,
     @inject(TOKENS.AuditLogRepository) private auditLogRepo: IAuditLogRepository,
-    @inject(TOKENS.EmailNotifierService) private emailNotifier: INotifierService,
     @inject(TOKENS.HashService) private hashService: IHashService,
   ) { }
 

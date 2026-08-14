@@ -9,7 +9,8 @@ import {
   Ban,
   CheckCircle2,
   KeyRound,
-  Send
+  Send,
+  Eye
 } from "lucide-react";
 
 import {
@@ -201,9 +202,9 @@ export function OrganizationTable() {
 
                   const isUpdating =
                     isBlocking ||
-                    isUnblocking ;
-                    // isDeleting ||
-                    // isResending;
+                    isUnblocking;
+                  // isDeleting ||
+                  // isResending;
 
                   const canResetPassword = Boolean(org.admin?.email);
 
@@ -254,6 +255,20 @@ export function OrganizationTable() {
 
                       <TableCell>
                         <div className="flex justify-end gap-1">
+
+                          <Tooltip>
+                            <TooltipTrigger>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-8 w-8"
+                                  title="View"
+                                  onClick={() => setViewingRole(role)}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                          </Tooltip>
 
                           {/* EDIT */}
                           <Tooltip>
@@ -315,7 +330,7 @@ export function OrganizationTable() {
                           )}
 
                           {/* BLOCK / UNBLOCK */}
-                          {org.status === "active" ||org.status=== "pending" ||org.status=== "expired" ? (
+                          {org.status === "active" || org.status === "pending" || org.status === "expired" ? (
                             <ConfirmDialog
                               tooltip="Block organization"
                               trigger={

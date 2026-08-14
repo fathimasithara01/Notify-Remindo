@@ -175,7 +175,7 @@ export function OrganizationForm() {
       )}
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 ">
           {/* BUSINESS INFO */}
           <Card>
             <CardHeader>

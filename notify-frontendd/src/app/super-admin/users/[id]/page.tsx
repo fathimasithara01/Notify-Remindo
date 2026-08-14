@@ -152,7 +152,7 @@ export default function UserDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete user?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove <strong>{user.name}</strong> and
+              This will permanently remove <strong>{user.firstName} {user.lastName}</strong> and
               revoke their access. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

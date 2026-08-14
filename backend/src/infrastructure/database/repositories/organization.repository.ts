@@ -179,6 +179,7 @@ export class OrganizationRepository implements IOrganizationRepository {
     };
   }
 
+
   async update(id: string, data: Partial<NewOrganization>): Promise<Organization | null> {
     const doc = await OrganizationModel.findOneAndUpdate(
       {

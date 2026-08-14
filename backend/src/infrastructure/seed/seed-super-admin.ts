@@ -5,6 +5,7 @@ import { PlatformUserModel } from '../database/models/platform-user.model';
 import { BcryptHashService } from '../services/bcrypt-hash.service';
 import { env } from '../../config/env';
 import { ALL_PERMISSIONS } from '../../shared/constants/permissions.constant';
+import { ALL_ORG_ADMIN_PERMISSIONS } from '../../shared/constants/org_admin.permission.constant';
 
 const SYSTEM_USER_ID = new Types.ObjectId('000000000000000000000000');
 
@@ -30,12 +31,14 @@ export async function seedSuperAdmin(): Promise<void> {
   await RoleModel.findOneAndUpdate(
     { name: 'Org Admin' },
     {
-      $setOnInsert: {
-        name: 'Org Admin',
+      $set: {
         description: 'Administrator for a subscribing organization',
         isSystem: true,
         status: 'active',
-        permissionIds: [],
+        permissionIds: ALL_ORG_ADMIN_PERMISSIONS,
+      },
+      $setOnInsert: {
+        name: 'Org Admin',
         createdBy: SYSTEM_USER_ID,
         deletion: { isDeleted: false },
       },
