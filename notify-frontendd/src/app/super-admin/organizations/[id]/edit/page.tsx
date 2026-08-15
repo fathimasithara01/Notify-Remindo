@@ -8,7 +8,7 @@ export default async function EditOrganizationPage({
   const { id } = await params;
 
   return (
-    <div className="p-6">
+    <div className="p-6">      
       <OrganizationEditForm id={id} />
     </div>
   );

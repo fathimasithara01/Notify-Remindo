@@ -63,12 +63,12 @@ export function useUpdateOrganization(organizationId: string) {
       });
 
       // Refresh organization detail
-      queryClient.invalidateQueries({
-        queryKey:
-          queryKeys.organizations.detail(
-            organizationId
-          ),
-      });
+      // queryClient.invalidateQueries({
+      //   queryKey:
+      //     queryKeys.organizations.detail(
+      //       organizationId
+      //     ),
+      // });
 
       toast.success(
         'Organization updated successfully'

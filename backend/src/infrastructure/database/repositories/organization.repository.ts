@@ -125,7 +125,7 @@ export class OrganizationRepository implements IOrganizationRepository {
     });
     return doc ? this.toDomain(doc) : null;
   }
-  
+
   async update(id: string, data: Partial<NewOrganization>): Promise<Organization | null> {
     const doc = await OrganizationModel.findOneAndUpdate(
       { _id: id, deletedAt: null },
@@ -153,16 +153,10 @@ export class OrganizationRepository implements IOrganizationRepository {
     if (filters.status) match.status = filters.status;
     if (filters.planId) match.currentPlanId = filters.planId;
     if (filters.salesmanId) match.salesmanId = filters.salesmanId;
-    if (filters.search) match.name = { $regex: filters.search, $options: 'i' };
+    // happens after admin/plan are joined, so it can match across fields
 
     const [result] = await OrganizationModel.aggregate([
       { $match: match },
-
-      // NOTE: removed the "must have at least one user" filter that used to
-      // sit here — it was silently hiding valid, non-deleted organizations
-      // (e.g. pending orgs whose admin hasn't been created/activated yet)
-      // from the platform admin's list. A list endpoint should never
-      // require related data to exist just to show the parent record.
 
       {
         $lookup: {
@@ -188,8 +182,6 @@ export class OrganizationRepository implements IOrganizationRepository {
                 'role.name': { $regex: '^org\\s*admin$', $options: 'i' },
               },
             },
-            // Fix: this filter existed in findById() but was missing here,
-            // so list() could surface a soft-deleted / rejected admin.
             {
               $match: {
                 $or: [
@@ -218,6 +210,22 @@ export class OrganizationRepository implements IOrganizationRepository {
         },
       },
       { $unwind: { path: '$plan', preserveNullAndEmptyArrays: true } },
+
+      // ✅ Search across org name, business email, admin email, and plan name
+      ...(filters.search
+        ? [
+            {
+              $match: {
+                $or: [
+                  { name: { $regex: filters.search, $options: 'i' } },
+                  { businessEmail: { $regex: filters.search, $options: 'i' } },
+                  { 'admin.email': { $regex: filters.search, $options: 'i' } },
+                  { 'plan.title': { $regex: filters.search, $options: 'i' } },
+                ],
+              },
+            },
+          ]
+        : []),
 
       { $sort: { createdAt: -1 } },
 
