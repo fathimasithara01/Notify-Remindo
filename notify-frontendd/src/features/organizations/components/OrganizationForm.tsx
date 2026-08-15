@@ -105,7 +105,7 @@ export function OrganizationForm() {
       },
     },
 
-    mode: "onBlur",
+    // mode: "onBlur",
   });
 
   const selectedPlanId = form.watch("planId");

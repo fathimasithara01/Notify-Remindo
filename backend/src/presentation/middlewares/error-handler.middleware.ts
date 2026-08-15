@@ -18,8 +18,18 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
     return;
   }
 
+  if ((err as any).code === 11000) {
+    const field = Object.keys((err as any).keyPattern || {})[0] || 'field';
+    res.status(409).json({
+      success: false,
+      message: `This ${field} is already in use. Please use a different one.`,
+    });
+    return;
+  }
+
+
   console.error(err);
-  
+
   res.status(500).json({
     success: false,
     message: 'Internal server error',

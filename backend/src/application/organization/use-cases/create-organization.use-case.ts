@@ -11,7 +11,7 @@ import { IHashService } from '../../../domain/services/hash.service.interface';
 import { Organization } from '../../../domain/entities/organization.entity';
 import { User } from '../../../domain/entities/user.entity';
 import { Role } from '../../../domain/entities/role.entity';
-import { DomainError } from '../../../domain/errors/domain.error';
+import { ConflictError, DomainError } from '../../../domain/errors/domain.error';
 import { CreateOrganizationDto } from '../../dtos/organization/create-organization.dto';
 import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
 
@@ -49,6 +49,16 @@ export class CreateOrganizationUseCase {
     const orgAdminRole = await this.platformRoleRepo.findByName(ORG_ADMIN_ROLE_NAME);
     if (!orgAdminRole) {
       throw new DomainError('Org Admin role not found — ensure roles are seeded');
+    }
+
+    const existingAdmin = await this.userRepo.findByEmail(data.admin.email);
+    if (existingAdmin) {
+      throw new ConflictError('This email is already registered. Please use a different email.');
+    }
+
+    const existingOrg = await this.orgRepo.findByBusinessEmail(data.businessEmail);
+    if (existingOrg) {
+      throw new ConflictError('An organization with this business email already exists.');
     }
 
     const organization = await this.orgRepo.create({

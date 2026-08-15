@@ -17,11 +17,16 @@ export class UserRepository implements IUserRepository {
     return doc ? this.toEntity(doc) : null;
   }
 
-  async findByEmail(email: string, organizationId: string): Promise<User | null> {
-    const doc = await UserModel.findOne({
+  async findByEmail(email: string, organizationId?: string): Promise<User | null> {
+    const query: Record<string, unknown> = {
       email: email.toLowerCase().trim(),
-      organizationId,
-    });
+    };
+
+    if (organizationId) {
+      query.organizationId = organizationId;
+    }
+
+    const doc = await UserModel.findOne(query);
     return doc ? this.toEntity(doc) : null;
   }
 
@@ -76,8 +81,8 @@ export class UserRepository implements IUserRepository {
     return {
       id: doc._id.toString(),
       // name: `${doc.firstName} ${doc.lastName}`,
-      firstName:doc.firstName,
-      lastName:doc.lastName,
+      firstName: doc.firstName,
+      lastName: doc.lastName,
       email: doc.email,
       phone: null,
     };
@@ -106,7 +111,7 @@ export class UserRepository implements IUserRepository {
       firstName: doc.firstName,
       lastName: doc.lastName,
       roleId: doc.roleId.toString(),
-      phone:doc.phone,
+      phone: doc.phone,
       tokenVersion: doc.tokenVersion,
       lastLoginAt: doc.lastLoginAt,
       // inviteToken: doc.inviteToken,

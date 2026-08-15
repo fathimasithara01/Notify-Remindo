@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 
 import { organizationApi } from '../api/organization.api';
 import { queryKeys } from '@/lib/query/query-keys';
@@ -11,5 +11,6 @@ export function useOrganizations(filters: OrganizationListFilters) {
     queryKey: queryKeys.organizations.list(filters),
     queryFn: () => organizationApi.list(filters),
     staleTime: 30 * 1000,
+    placeholderData: keepPreviousData,
   });
 }

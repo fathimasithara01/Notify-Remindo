@@ -4,6 +4,8 @@ import { ApiError } from '../../shared/utils/api-error';
 
 export function validateRequest(schema: ZodSchema) {
   return (req: Request, _res: Response, next: NextFunction): void => {
+        console.log('BODY:', req.body, 'TYPE:', typeof req.body);
+
     const result = schema.safeParse({
       body: req.body,
       params: req.params,

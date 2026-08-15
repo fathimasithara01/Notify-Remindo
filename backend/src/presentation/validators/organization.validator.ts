@@ -1,35 +1,72 @@
 import { z } from 'zod';
 
-const organizationFileSchema = z.object({
-  fileName: z.string().min(1, 'File name is required'),
-  fileUrl: z.string().url('Invalid file URL'),
-  fileKey: z.string().optional(),
-  mimeType: z.string().min(1, 'MIME type is required'),
-  fileSize: z.number().positive('File size must be greater than 0'),
-  uploadedAt: z.coerce.date().optional(),
-});
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+  .regex(/[0-9]/, 'Password must contain at least one number')
+  .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character');
+
+const emailSchema = (message: string) =>
+  z
+    .string()
+    .trim()
+    .min(1, message)
+    .email('Enter a valid email address')
+    .toLowerCase();
+
+const phoneSchema = (message: string) =>
+  z
+    .string()
+    .trim()
+    .min(1, message)
+    .regex(/^[0-9+\-\s()]{10,15}$/, 'Enter a valid phone number');
 
 export const createOrganizationSchema = z.object({
   body: z.object({
-    name: z.string().min(1, 'Name is required'),
-    businessEmail: z.string().email('Invalid business email'),
-    businessPhone: z.string().min(1, 'Business phone is required'),
-    address: z.string().min(1, 'Address is required'),
-    planId: z.string().optional(),
-    salesmanId: z.string().optional(),
+    name: z
+      .string()
+      .trim()
+      .min(1, 'Organization name is required'),
+
+    businessEmail: emailSchema('Business email is required'),
+
+    businessPhone: phoneSchema('Business phone is required'),
+
+    address: z
+      .string()
+      .trim()
+      .min(1, 'Address is required'),
+
+    planId: z
+      .string()
+      .trim()
+      .optional(),
+
+    salesmanId: z
+      .string()
+      .trim()
+      .optional(),
+
     admin: z.object({
-      firstName: z.string().min(1, 'Admin first name is required'),
-      lastName: z.string().min(1, 'Admin last name is required'),
-      email: z.string().email('Invalid admin email'),
-      phone: z.string().optional(),
-      password: z
+      firstName: z
         .string()
-        .min(8, 'Password must contain minimum 8 characters')
-        .regex(/[A-Z]/, 'Password must contain uppercase letter')
-        .regex(/[a-z]/, 'Password must contain lowercase letter')
-        .regex(/[0-9]/, 'Password must contain number'),
+        .trim()
+        .min(1, 'Admin first name is required'),
+
+      lastName: z
+        .string()
+        .trim()
+        .min(1, 'Admin last name is required'),
+
+      email: emailSchema('Admin email is required'),
+
+      phone: phoneSchema('Admin phone is required'),
+
+      password: passwordSchema,
     }),
-  }),
+  })
 });
 
 export const editOrganizationSchema = z.object({
@@ -38,10 +75,9 @@ export const editOrganizationSchema = z.object({
   }),
   body: z.object({
     name: z.string().min(1).optional(),
-    businessEmail: z.string().email().optional(),
+    businessEmail: emailSchema('Business email is required').optional(),
     businessPhone: z.string().min(1).optional(),
     address: z.string().optional(),
-    documents: z.array(organizationFileSchema).optional(),
   }),
 });
 
@@ -49,12 +85,8 @@ export const editOrganizationAdminSchema = z.object({
   body: z.object({
     firstName: z.string().trim().min(1, 'First name is required'),
     lastName: z.string().trim().min(1, 'Last name is required'),
-    email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
-    phone: z
-      .string()
-      .trim()
-      .regex(/^[0-9+\-\s()]{10,15}$/, 'Enter a valid phone number')
-      .optional(),
+    email: emailSchema('Email is required'),
+    phone: phoneSchema('Phone is required').optional(),
   }),
 });
 
@@ -94,7 +126,7 @@ export const addContactPersonSchema = z.object({
     lastName: z.string().min(1, 'Admin last name is required'),
     designation: z.string().optional(),
     phone: z.string().optional(),
-    email: z.string().email().optional(),
+    email: emailSchema('Email is required').optional(),
   }),
 });
 
@@ -108,7 +140,7 @@ export const editContactPersonSchema = z.object({
     lastName: z.string().min(1, 'Admin last name is required'),
     designation: z.string().optional(),
     phone: z.string().optional(),
-    email: z.string().email().optional(),
+    email: emailSchema('Email is required').optional(),
   }),
 });
 
@@ -117,12 +149,6 @@ export const resetOrganizationAdminPasswordSchema = z.object({
     id: z.string().min(1),
   }),
   body: z.object({
-    password: z
-      .string()
-      .min(8, 'Password must contain minimum 8 characters')
-      .regex(/[A-Z]/, 'Password must contain uppercase letter')
-      .regex(/[a-z]/, 'Password must contain lowercase letter')
-      .regex(/[0-9]/, 'Password must contain number')
-      .regex(/[^A-Za-z0-9]/, 'Password must contain special character'),
+    password: passwordSchema,
   }),
 });

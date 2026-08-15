@@ -25,7 +25,7 @@ export function LoginForm() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema), // Zod validation React Hook Form-umayi connect cheyyunnu.
     defaultValues: { email: '', password: '' },
-    mode: 'onBlur', // field-il ninnu focus poyaal validate cheyyum, ovv keystroke-ilum alla
+    // mode: 'onBlur', // field-il ninnu focus poyaal validate cheyyum, ovv keystroke-ilum alla
   });
 
   const onSubmit = (values: LoginFormValues) => {
