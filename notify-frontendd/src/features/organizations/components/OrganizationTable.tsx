@@ -48,6 +48,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+
 import { LoadingState } from "@/components/common/LoadingState";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
@@ -61,6 +62,7 @@ export function OrganizationTable() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "pending" | "active" | "blocked" | "expired">("all");
+
   // const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
   const [resetPasswordOrg, setResetPasswordOrg] = useState<Organization | null>(null);
   // const resendInviteMutation = useResendInvite();
@@ -257,17 +259,19 @@ export function OrganizationTable() {
                         <div className="flex justify-end gap-1">
 
                           <Tooltip>
-                            <TooltipTrigger>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-8 w-8"
-                                  title="View"
-                                  onClick={() => setViewingRole(role)}
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </Button>
+
+                            <TooltipTrigger asChild>
+                              <Link
+                                href={ROUTES.organizations.detail(org.id)}
+                                className="font-medium hover:text-primary hover:underline inline-flex items-center gap-1"
+                              >
+
+                                <Eye className="h-4 w-4" />
+                              </Link>
                             </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View organization details</p>
+                            </TooltipContent>
                           </Tooltip>
 
                           {/* EDIT */}
@@ -408,6 +412,9 @@ export function OrganizationTable() {
 
             </Table>
 
+
+
+
           </div>
 
           {data?.meta && (
@@ -420,7 +427,8 @@ export function OrganizationTable() {
           )}
 
         </div>
-      )}
+      )
+      }
 
       {/* <EditOrganizationDialog
         organization={editingOrg}
@@ -432,6 +440,8 @@ export function OrganizationTable() {
         }}
       /> */}
 
+
+
       <ResetAdminPasswordDialog
         organization={resetPasswordOrg}
         open={Boolean(resetPasswordOrg)}
@@ -442,6 +452,8 @@ export function OrganizationTable() {
         }}
       />
 
-    </div>
+
+
+    </div >
   );
 }

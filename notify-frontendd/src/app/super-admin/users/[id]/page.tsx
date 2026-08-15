@@ -25,7 +25,7 @@ import { useCurrentUser } from '@/features/auth/hooks/useCurrentUser';
 import { UserDetails } from '@/features/rbac/users/components/UserDetails';
 import { UserForm } from '@/features/rbac/users/components/UserForm';
 import { UserRoleDialog } from '@/features/rbac/users/components/UserRoleDialog';
-import { RevokeSessionDialog } from '@/features/rbac/users/components/RevokeSessionDialog';
+// import { RevokeSessionDialog } from '@/features/rbac/users/components/RevokeSessionDialog';
 import type {
   CreateUserFormValues,
   EditUserFormValues,
@@ -141,11 +141,11 @@ export default function UserDetailPage() {
         onOpenChange={(o) => !o && setActiveDialog('none')}
       />
 
-      <RevokeSessionDialog
+      {/* <RevokeSessionDialog
         user={activeDialog === 'revoke' ? user : null}
         open={activeDialog === 'revoke'}
         onOpenChange={(o) => !o && setActiveDialog('none')}
-      />
+      /> */}
 
       <AlertDialog open={activeDialog === 'delete'} onOpenChange={(o) => !o && setActiveDialog('none')}>
         <AlertDialogContent>

@@ -24,7 +24,7 @@ import { UserTable } from './components/UserTable';
 import { UserFilters } from './components/UserFilters';
 import { UserForm } from './components/UserForm';
 import { UserRoleDialog } from './components/UserRoleDialog';
-import { RevokeSessionDialog } from './components/RevokeSessionDialog';
+// import { RevokeSessionDialog } from './components/RevokeSessionDialog';
 import { InviteSuccessDialog } from './components/InviteSuccessDialog';
 
 import { useUsers } from './hooks/useUsers';
@@ -226,11 +226,11 @@ export default function UsersPage() {
       />
 
       {/* Revoke sessions */}
-      <RevokeSessionDialog
+      {/* <RevokeSessionDialog
         user={dialog.type === 'revoke' ? dialog.user : null}
         open={dialog.type === 'revoke'}
         onOpenChange={(o) => !o && closeDialog()}
-      />
+      /> */}
 
       {/* Reset password — admin sets a new password directly */}
       <Dialog open={dialog.type === 'resetPassword'} onOpenChange={(o) => !o && closeDialog()}>
