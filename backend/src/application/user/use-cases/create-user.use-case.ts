@@ -2,7 +2,6 @@ import { injectable, inject } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IAuditLogRepository } from '../../../domain/repositories/audit-log.repository.interface';
-import { INotifierService } from '../../../domain/services/notifier.service.interface';
 import { User } from '../../../domain/entities/user.entity';
 import { ConflictError, DomainError, NotFoundError } from '../../../domain/errors/domain.error';
 import { CreateUserDto } from '../../dtos/create-user.dto';
@@ -27,7 +26,6 @@ export class CreateUserUseCase {
     @inject(TOKENS.UserRepository) private readonly userRepo: IUserRepository,
     @inject(TOKENS.PlatformRoleRepository) private readonly roleRepo: IPlatformRoleRepository,
     @inject(TOKENS.AuditLogRepository) private readonly auditLogRepo: IAuditLogRepository,
-    @inject(TOKENS.EmailNotifierService) private readonly notifierService: INotifierService
   ) {}
 
   async execute(input: CreateUserInput): Promise<CreateUserResult> {
@@ -79,17 +77,17 @@ export class CreateUserUseCase {
     const inviteUrl = `${env.FRONTEND_URL}/accept-invite?token=${inviteToken}`;
 
     let emailSent = true;
-    try {
-      await this.notifierService.send({
-        to: user.email,
-        subject: "You've been invited to Notify",
-        message: `Hi ${user.firstName}, you've been invited. Click the link to set your password: ${inviteUrl}`,
-        html: `<p>Hi ${user.firstName},</p><p>You've been invited to Notify. Click below to set your password:</p><p><a href="${inviteUrl}">${inviteUrl}</a></p><p>This link expires in 7 days.</p>`,
-      });
-    } catch (error) {
-      emailSent = false;
-      console.error(`Failed to send invite email to ${user.email}:`, error);
-    }
+    // try {
+    //   await this.notifierService.send({
+    //     to: user.email,
+    //     subject: "You've been invited to Notify",
+    //     message: `Hi ${user.firstName}, you've been invited. Click the link to set your password: ${inviteUrl}`,
+    //     html: `<p>Hi ${user.firstName},</p><p>You've been invited to Notify. Click below to set your password:</p><p><a href="${inviteUrl}">${inviteUrl}</a></p><p>This link expires in 7 days.</p>`,
+    //   });
+    // } catch (error) {
+    //   emailSent = false;
+    //   console.error(`Failed to send invite email to ${user.email}:`, error);
+    // }
 
     return { user, inviteUrl, emailSent };
   }
