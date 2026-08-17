@@ -44,9 +44,15 @@ import { SubscriptionPlanTable } from "./SubscriptionPlanTable";
 import { SubscriptionPlanForm } from "./SubscriptionPlanForm";
 import { useDebouncedValue } from "../../hooks/features/use-debounced-value";
 
+
+import { useAuth } from "@/providers/AuthProvider";
+import { PERMISSIONS } from "@/config/permissions";
+
 const PAGE_LIMIT = 10;
 
 export function SubscriptionPlansPage() {
+  const { hasPermission } = useAuth();
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<SubscriptionPlanStatus | undefined>();
@@ -137,7 +143,9 @@ export function SubscriptionPlansPage() {
     <div className="flex flex-col gap-4 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Subscription Plans</h1>
-        <Button onClick={openCreateForm}>New plan</Button>
+        {hasPermission(PERMISSIONS.PLAN_CREATE) && (
+          <Button onClick={openCreateForm}>New plan</Button>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -179,7 +187,7 @@ export function SubscriptionPlansPage() {
         isLoading={isLoading}
         actionPendingId={actionPendingId}
         onEdit={openEditForm}
-        onDelete={handleDelete}
+        // onDelete={handleDelete}
         onToggleStatus={handleToggleStatus}
       />
 

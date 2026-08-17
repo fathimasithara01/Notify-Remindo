@@ -36,6 +36,9 @@ import { DEFAULT_PAGE_SIZE } from '../shared/constants';
 import type { Role, RoleFilters as RoleFiltersType } from './types/role.types';
 import { RoleDetails } from './components/RoleDetails';
 
+import { useAuth } from '@/providers/AuthProvider';
+import { PERMISSIONS } from '@/config/permissions';
+
 type DialogState =
   | { type: 'none' }
   | { type: 'create' }
@@ -44,6 +47,7 @@ type DialogState =
   | { type: 'delete'; role: Role };
 
 export default function RolesPage() {
+    const { hasPermission } = useAuth();
   const [filters, setFilters] = useState<RoleFiltersType>({
     page: 1,
     limit: DEFAULT_PAGE_SIZE,
@@ -97,10 +101,12 @@ export default function RolesPage() {
             Define roles and control what each one can access.
           </p>
         </div>
-        <Button onClick={() => setDialog({ type: 'create' })}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create role
-        </Button>
+        {hasPermission(PERMISSIONS.ROLE_CREATE) && (
+          <Button onClick={() => setDialog({ type: 'create' })}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create role
+          </Button>
+        )}
       </div>
 
       <RoleFilters filters={filters} onChange={setFilters} />

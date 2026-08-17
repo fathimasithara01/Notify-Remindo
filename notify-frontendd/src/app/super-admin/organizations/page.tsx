@@ -1,10 +1,17 @@
+'use client';
+
 import Link from 'next/link';
 import { OrganizationTable } from '@/features/organizations/components/OrganizationTable';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { ROUTES } from '@/config/routes';
 
+import { useAuth } from '@/providers/AuthProvider';
+import { PERMISSIONS } from '@/config/permissions';
+
 export default function OrganizationsPage() {
+  const { hasPermission } = useAuth();
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -14,12 +21,14 @@ export default function OrganizationsPage() {
             Manage subscribing organizations (customers).
           </p>
         </div>
-        <Button asChild>
-          <Link href={ROUTES.organizations.new}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Organization
-          </Link>
-        </Button>
+        {hasPermission(PERMISSIONS.ORG_CREATE) && (
+          <Button asChild>
+            <Link href={ROUTES.organizations.new}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Organization
+            </Link>
+          </Button>
+        )}
       </div>
 
       <OrganizationTable />

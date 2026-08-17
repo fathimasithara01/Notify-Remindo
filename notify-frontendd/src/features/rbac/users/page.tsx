@@ -9,16 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 
 import { UserTable } from './components/UserTable';
 import { UserFilters } from './components/UserFilters';
@@ -41,6 +31,9 @@ import { ROUTES } from '@/config/routes';
 import { ResetPlatfromUserPasswordSchema, type ResetPlatfromUserPassword } from './schemas/user.schema';
 import type { User, UserFilters as UserFiltersType } from './types/user.types';
 import type { CreateUserFormValues, EditUserFormValues } from './schemas/user.schema';
+
+import { useAuth } from '@/providers/AuthProvider';
+import { PERMISSIONS } from '@/config/permissions';
 
 type DialogState =
   | { type: 'none' }
@@ -70,9 +63,8 @@ function PasswordRulesList({ password }: { password: string }) {
         return (
           <li
             key={rule.label}
-            className={`flex items-center gap-1.5 text-xs ${
-              passed ? 'text-green-600' : 'text-muted-foreground'
-            }`}
+            className={`flex items-center gap-1.5 text-xs ${passed ? 'text-green-600' : 'text-muted-foreground'
+              }`}
           >
             {passed ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
             {rule.label}
@@ -85,6 +77,8 @@ function PasswordRulesList({ password }: { password: string }) {
 
 export default function UsersPage() {
   const router = useRouter();
+  const { hasPermission } = useAuth();
+
   const [filters, setFilters] = useState<UserFiltersType>({});
   const [dialog, setDialog] = useState<DialogState>({ type: 'none' });
   const [inviteResult, setInviteResult] = useState<InviteResult | null>(null);
@@ -163,10 +157,12 @@ export default function UsersPage() {
             Create, edit, and manage access for your organization&apos;s users.
           </p>
         </div>
-        <Button onClick={() => setDialog({ type: 'create' })}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create user
-        </Button>
+        {hasPermission(PERMISSIONS.USER_CREATE) && (
+          <Button onClick={() => setDialog({ type: 'create' })}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create user
+          </Button>
+        )}
       </div>
 
       <UserFilters filters={filters} onChange={setFilters} />
@@ -347,13 +343,13 @@ export default function UsersPage() {
               )}
             </AlertDialogDescription>
           </AlertDialogHeader> */}
-          {/* <AlertDialogFooter>
+      {/* <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteUser.isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm} disabled={deleteUser.isPending}>
               {deleteUser.isPending ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter> */}
-        {/* </AlertDialogContent>
+      {/* </AlertDialogContent>
       </AlertDialog> */}
     </div>
   );
