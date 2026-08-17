@@ -7,12 +7,12 @@ import { PaginatedResult, buildPaginatedResult, getOffset } from '../../../share
 import { PlatformUserWithRole } from '../../../application/dtos/platform-user.dto';
 
 interface PopulatedRole {
-  _id: Types.ObjectId;
-  name: string;
+    _id: Types.ObjectId;
+    name: string;
 }
 
 type PlatformUserDocMaybePopulated = Omit<PlatformUserDocument, 'roleId'> & {
-  roleId: Types.ObjectId | PopulatedRole;
+    roleId: Types.ObjectId | PopulatedRole;
 };
 
 @injectable()
@@ -88,7 +88,16 @@ export class PlatformUserRepository implements IPlatformUserRepository {
 
         const query: Record<string, unknown> = {};
         if (filter?.status) query.status = filter.status;
-        if (filter?.search) query.$text = { $search: filter.search };
+
+        if (filter?.search) {
+            const escaped = filter.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const searchRegex = new RegExp(escaped, 'i');
+            query.$or = [
+                { firstName: searchRegex },
+                { lastName: searchRegex },
+                { email: searchRegex },
+            ];
+        }
 
         const [docs, total] = await Promise.all([
             PlatformUserModel.find(query)
@@ -132,15 +141,26 @@ export class PlatformUserRepository implements IPlatformUserRepository {
     }
     private toDtoWithRole(doc: PlatformUserDocMaybePopulated): PlatformUserWithRole {
         const roleIdRaw = doc.roleId;
-        const isPopulated = !(roleIdRaw instanceof Types.ObjectId);
 
-        const roleId = isPopulated
-            ? (roleIdRaw as PopulatedRole)._id.toString()
-            : (roleIdRaw as Types.ObjectId).toString();
+        let roleId: string;
+        let role: { id: string; name: string } | null;
 
-        const role = isPopulated
-            ? { id: (roleIdRaw as PopulatedRole)._id.toString(), name: (roleIdRaw as PopulatedRole).name }
-            : null;
+        if (!roleIdRaw) {
+            // roleId reference points to a role that no longer exists (or is unset)
+            roleId = '';
+            role = null;
+        } else if (roleIdRaw instanceof Types.ObjectId) {
+            // not populated, just the raw ObjectId
+            roleId = roleIdRaw.toString();
+            role = null;
+        } else {
+            // populated role document
+            roleId = (roleIdRaw as PopulatedRole)._id.toString();
+            role = {
+                id: (roleIdRaw as PopulatedRole)._id.toString(),
+                name: (roleIdRaw as PopulatedRole).name,
+            };
+        }
 
         return {
             id: doc._id.toString(),

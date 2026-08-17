@@ -75,7 +75,18 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+        autoComplete="off"
+      >
+        {/* Hidden dummy fields to absorb Chrome's autofill heuristics.
+            Chrome sometimes ignores autoComplete="off" on real email/password
+            fields and fills them anyway; giving it decoy fields first
+            reduces that. */}
+        <input type="text" name="fake-username" autoComplete="username" className="hidden" />
+        <input type="password" name="fake-password" autoComplete="new-password" className="hidden" />
+
         <FormField
           control={form.control}
           name="firstName"
@@ -83,7 +94,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
             <FormItem>
               <FormLabel>First name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Fathima" {...field} />
+                <Input placeholder="e.g. Fathima" autoComplete="off" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -97,7 +108,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
             <FormItem>
               <FormLabel>Last name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Rahman" {...field} />
+                <Input placeholder="e.g. Rahman" autoComplete="off" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -115,7 +126,12 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="name@company.com" {...field} />
+                  <Input
+                    type="email"
+                    placeholder="name@company.com"
+                    autoComplete="off"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -130,7 +146,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
             <FormItem>
               <FormLabel>Phone (optional)</FormLabel>
               <FormControl>
-                <Input placeholder="+91XXXXXXXXXX" {...field} />
+                <Input placeholder="+91XXXXXXXXXX" autoComplete="off" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -213,6 +229,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Min 8 characters"
                         className="pr-10"
+                        autoComplete="new-password"
                       />
                       <button
                         type="button"
@@ -242,6 +259,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting, onCancel }: UserF
                         type={showConfirmPassword ? 'text' : 'password'}
                         placeholder="Re-enter password"
                         className="pr-10"
+                        autoComplete="new-password"
                       />
                       <button
                         type="button"
