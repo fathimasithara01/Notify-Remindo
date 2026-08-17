@@ -58,6 +58,9 @@ import { ROUTES } from "@/config/routes";
 import { DEFAULT_PAGE_SIZE } from "@/constants/app";
 import { ResetAdminPasswordDialog } from "./ResetAdminPasswordDialog";
 
+import { useAuth } from "@/providers/AuthProvider";
+import { PERMISSIONS } from "@/config/permissions";
+
 export function OrganizationTable() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -66,6 +69,7 @@ export function OrganizationTable() {
   // const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
   const [resetPasswordOrg, setResetPasswordOrg] = useState<Organization | null>(null);
   // const resendInviteMutation = useResendInvite();
+  const { hasPermission } = useAuth();
 
   const router = useRouter();
 
@@ -258,38 +262,42 @@ export function OrganizationTable() {
                       <TableCell>
                         <div className="flex justify-end gap-1">
 
-                          <Tooltip>
+                          {hasPermission(PERMISSIONS.ORG_VIEW) && (
 
-                            <TooltipTrigger asChild>
-                              <Link
-                                href={ROUTES.organizations.detail(org.id)}
-                                className="font-medium hover:text-primary hover:underline inline-flex items-center gap-1"
-                              >
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Link
+                                  href={ROUTES.organizations.detail(org.id)}
+                                  className="font-medium hover:text-primary hover:underline inline-flex items-center gap-1"
+                                >
 
-                                <Eye className="h-4 w-4" />
-                              </Link>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>View organization details</p>
-                            </TooltipContent>
-                          </Tooltip>
+                                  <Eye className="h-4 w-4" />
+                                </Link>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>View organization details</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
 
                           {/* EDIT */}
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                aria-label={`Edit ${org.name}`}
-                                disabled={isUpdating}
-                                onClick={() => router.push(ROUTES.organizations.edit(org.id))}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Edit</TooltipContent>
-                          </Tooltip>
+                          {hasPermission(PERMISSIONS.ORG_UPDATE) && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label={`Edit ${org.name}`}
+                                  disabled={isUpdating}
+                                  onClick={() => router.push(ROUTES.organizations.edit(org.id))}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Edit</TooltipContent>
+                            </Tooltip>
+                          )}
 
                           {/* RESEND INVITE */}
                           {/* <ConfirmDialog
@@ -313,7 +321,9 @@ export function OrganizationTable() {
                           /> */}
 
                           {/* RESET PASSWORD */}
-                          {canResetPassword && (
+
+                          {canResetPassword && hasPermission(PERMISSIONS.ORG_RESET_ADMIN_PASSWORD) && (
+
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
@@ -331,51 +341,54 @@ export function OrganizationTable() {
                                 Reset password
                               </TooltipContent>
                             </Tooltip>
+
                           )}
 
                           {/* BLOCK / UNBLOCK */}
-                          {org.status === "active" || org.status === "pending" || org.status === "expired" ? (
-                            <ConfirmDialog
-                              tooltip="Block organization"
-                              trigger={
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  aria-label={`Block ${org.name}`}
-                                  disabled={isUpdating}
-                                  className="text-orange-600 hover:text-orange-600"
-                                >
-                                  <Ban className="h-4 w-4" />
-                                </Button>
-                              }
-                              title="Block organization?"
-                              description={`"${org.name}" will no longer be able to access the platform.`}
-                              confirmLabel="Block"
-                              onConfirm={() => blockMutation.mutate({ id: org.id })}
-                              isPending={isBlocking}
-                            />
-                          ) : (
-                            <ConfirmDialog
-                              tooltip="Unblock organization"
-                              trigger={
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  aria-label={`Unblock ${org.name}`}
-                                  disabled={isUpdating}
-                                  className="text-green-600 hover:text-green-600"
-                                >
-                                  <CheckCircle2 className="h-4 w-4" />
-                                </Button>
-                              }
-                              title="Unblock organization?"
-                              description={`"${org.name}" will regain access to the platform.`}
-                              confirmLabel="Unblock"
-                              onConfirm={() => unblockMutation.mutate(org.id)}
-                              isPending={isUnblocking}
-                            />
+                          {hasPermission(PERMISSIONS.ORG_BLOCK) && (
+                            org.status === "active" || org.status === "pending" || org.status === "expired" ? (
+                              <ConfirmDialog
+                                tooltip="Block organization"
+                                trigger={
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label={`Block ${org.name}`}
+                                    disabled={isUpdating}
+                                    className="text-orange-600 hover:text-orange-600"
+                                  >
+                                    <Ban className="h-4 w-4" />
+                                  </Button>
+                                }
+                                title="Block organization?"
+                                description={`"${org.name}" will no longer be able to access the platform.`}
+                                confirmLabel="Block"
+                                onConfirm={() => blockMutation.mutate({ id: org.id })}
+                                isPending={isBlocking}
+                              />
+                            ) : (
+                              <ConfirmDialog
+                                tooltip="Unblock organization"
+                                trigger={
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label={`Unblock ${org.name}`}
+                                    disabled={isUpdating}
+                                    className="text-green-600 hover:text-green-600"
+                                  >
+                                    <CheckCircle2 className="h-4 w-4" />
+                                  </Button>
+                                }
+                                title="Unblock organization?"
+                                description={`"${org.name}" will regain access to the platform.`}
+                                confirmLabel="Unblock"
+                                onConfirm={() => unblockMutation.mutate(org.id)}
+                                isPending={isUnblocking}
+                              />
+                            )
                           )}
 
                           {/* DELETE */}
