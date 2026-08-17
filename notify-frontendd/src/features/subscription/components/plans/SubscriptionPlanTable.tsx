@@ -19,6 +19,7 @@ interface SubscriptionPlanTableProps {
   plans: SubscriptionPlan[];
   isLoading: boolean;
   actionPendingId: string | null;
+  onView: (plan: SubscriptionPlan) => void;
   onEdit: (plan: SubscriptionPlan) => void;
   onToggleStatus: (plan: SubscriptionPlan) => void;
 }
@@ -27,6 +28,7 @@ export function SubscriptionPlanTable({
   plans,
   isLoading,
   actionPendingId,
+  onView,
   onEdit,
   onToggleStatus,
 }: SubscriptionPlanTableProps) {
@@ -74,6 +76,14 @@ export function SubscriptionPlanTable({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={isPending}
+                      onClick={() => onView(plan)}
+                    >
+                      View
+                    </Button>
                     {canUpdate && (
                       <Button
                         size="sm"

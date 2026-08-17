@@ -42,11 +42,12 @@ import {
 import { CreateSubscriptionPlanFormValues } from "../../schemas/subscription-plan.schema";
 import { SubscriptionPlanTable } from "./SubscriptionPlanTable";
 import { SubscriptionPlanForm } from "./SubscriptionPlanForm";
+import { SubscriptionPlanStatusBadge } from "./SubscriptionPlanStatusBadge";
 import { useDebouncedValue } from "../../hooks/features/use-debounced-value";
-
 
 import { useAuth } from "@/providers/AuthProvider";
 import { PERMISSIONS } from "@/config/permissions";
+import { useFeatures } from "../../hooks/features/useFeature";
 
 const PAGE_LIMIT = 10;
 
@@ -77,9 +78,28 @@ export function SubscriptionPlansPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
   const [actionPendingId, setActionPendingId] = useState<string | null>(null);
+
+
+  const { data: featuresData } = useFeatures({ page: 1, limit: 100 });
+  const allFeatures = featuresData?.items ?? [];
+
+  const getFeatureNames = (featureIds: string[]) =>
+    featureIds
+      .map((id) => allFeatures.find((f) => f.id === id)?.title)
+      .filter(Boolean) as string[];
+
+
   const [confirmAction, setConfirmAction] = useState<
     { type: "delete" | "block" | "unblock"; plan: SubscriptionPlan } | null
   >(null);
+
+  const [viewingPlan, setViewingPlan] = useState<SubscriptionPlan | null>(null);
+
+  const openViewModal = (plan: SubscriptionPlan) => {
+    setViewingPlan(plan);
+  };
+
+  const closeViewModal = () => setViewingPlan(null);
 
   const plans = data?.items ?? [];
   const total = data?.total ?? 0;
@@ -186,6 +206,7 @@ export function SubscriptionPlansPage() {
         plans={plans}
         isLoading={isLoading}
         actionPendingId={actionPendingId}
+        onView={openViewModal}
         onEdit={openEditForm}
         // onDelete={handleDelete}
         onToggleStatus={handleToggleStatus}
@@ -213,6 +234,7 @@ export function SubscriptionPlansPage() {
         </div>
       </div>
 
+      {/* Create / Edit form dialog */}
       <Dialog open={isFormOpen} onOpenChange={(open) => !open && closeForm()}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -224,6 +246,54 @@ export function SubscriptionPlansPage() {
             onSubmit={handleSubmit}
             onCancel={closeForm}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Read-only view dialog */}
+      <Dialog open={!!viewingPlan} onOpenChange={(open) => !open && closeViewModal()}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{viewingPlan?.title}</DialogTitle>
+          </DialogHeader>
+          {viewingPlan && (
+            <div className="flex flex-col gap-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Status</span>
+                <SubscriptionPlanStatusBadge status={viewingPlan.status} />
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Price</span>
+                <span>
+                  {viewingPlan.amountValue} {viewingPlan.currency}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">User Limit</span>
+                <span>{viewingPlan.userLimit}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Storage</span>
+                <span>{viewingPlan.storageLimit} GB</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-muted-foreground">Features</span>
+                {viewingPlan.featureIds.length === 0 ? (
+                  <span className="text-muted-foreground">No features</span>
+                ) : (
+                  <ul className="flex flex-col gap-1">
+                    {getFeatureNames(viewingPlan.featureIds).map((name, idx) => (
+                      <li
+                        key={idx}
+                        className="rounded-md bg-muted px-2 py-1 text-sm"
+                      >
+                        {name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
