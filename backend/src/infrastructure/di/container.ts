@@ -7,7 +7,6 @@ import { UserRepository } from '../database/repositories/user.repository';
 import { PLatformRoleRepository } from '../database/repositories/platform-role.repository';
 import { SubscriptionPlanRepository } from '../database/repositories/subscription-plan.repository';
 import { FeatureRepository } from '../database/repositories/feature.repository';
-import { NotificationRepository } from '../database/repositories/notification.repository';
 import { AuditLogRepository } from '../database/repositories/audit-log.repository';
 
 // Services
@@ -34,15 +33,12 @@ import { UpgradePlanUseCase } from '../../application/organization/use-cases/upg
 import { BlockCustomerUseCase } from '../../application/organization/use-cases/block-customer.use-case';
 import { AssignSalesmanUseCase } from '../../application/organization/use-cases/assign-salesman.use-case';
 import { CreateFeatureUseCase } from '../../application/subscription/use-cases/feature/create-feature.use-case';
-import { ScheduleNotificationUseCase } from '../../application/notification/use-cases/schedule-notification.use-case';
-import { SendReminderUseCase } from '../../application/notification/use-cases/send-reminder.use-case';
 import { GetBusinessReportUseCase } from '../../application/dashboard/use-cases/get-business-report.use-case';
 
 // Controllers
 import { AuthController } from '../../presentation/controllers/auth.controller';
 import { RoleController } from '../../presentation/controllers/role.controller';
 import { OrganizationController } from '../../presentation/controllers/organization.controller';
-import { NotificationController } from '../../presentation/controllers/notification.controller';
 import { DashboardController } from '../../presentation/controllers/dashboard.controller';
 import { UserController } from '../../presentation/controllers/user.controller';
 import { AuditLogController } from '../../presentation/controllers/audit-log.controller';
@@ -78,7 +74,6 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.OrganizationRepository, OrganizationRepository);
   container.registerSingleton(TOKENS.SubscriptionPlanRepository, SubscriptionPlanRepository);
   container.registerSingleton(TOKENS.FeatureRepository, FeatureRepository);
-  container.registerSingleton(TOKENS.NotificationRepository, NotificationRepository);
   container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
   container.registerSingleton(TOKENS.RevokeUserSessionsUseCase, RevokeUserSessionsUseCase),
     container.registerSingleton(TOKENS.UpdateOrganizationAdminUseCase, UpdateOrganizationAdminUseCase),
@@ -116,7 +111,6 @@ export function registerDependencies(): void {
   container.register(TOKENS.BlockCustomerUseCase, { useClass: BlockCustomerUseCase });
   container.register(TOKENS.AssignSalesmanUseCase, { useClass: AssignSalesmanUseCase });
   container.register(TOKENS.CreateFeatureUseCase, { useClass: CreateFeatureUseCase });
-  container.register(TOKENS.ScheduleNotificationUseCase, { useClass: ScheduleNotificationUseCase });
   container.register(TOKENS.GetBusinessReportUseCase, { useClass: GetBusinessReportUseCase });
   container.register(TOKENS.UpdateFeatureUseCase, UpdateFeatureUseCase);
   container.register(TOKENS.DeleteFeatureUseCase, DeleteFeatureUseCase);
@@ -133,7 +127,6 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.AuthController, AuthController);
   container.registerSingleton(TOKENS.RoleController, RoleController);
   container.registerSingleton(TOKENS.OrganizationController, OrganizationController);
-  container.registerSingleton(TOKENS.NotificationController, NotificationController);
   container.registerSingleton(TOKENS.DashboardController, DashboardController);
   container.registerSingleton(TOKENS.UserController, UserController);
   container.registerSingleton(TOKENS.AuditLogController, AuditLogController);

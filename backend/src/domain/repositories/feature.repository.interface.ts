@@ -29,4 +29,5 @@ export interface IFeatureRepository {
   update(id: string, data: UpdateFeatureInput): Promise<Feature | null>;
   softDelete(id: string): Promise<boolean>;
   list(filters?: FeatureListFilters): Promise<FeatureListResult>;
+  getCategories(): Promise<string[]>;  
 }

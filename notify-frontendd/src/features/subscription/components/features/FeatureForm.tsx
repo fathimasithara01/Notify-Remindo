@@ -8,6 +8,7 @@ import {
   CreateFeatureFormValues,
 } from "../../schemas/feature.schema";
 import { Feature } from "../../types/feature.types";
+import { useFeatureCategories } from "../../hooks/features/useFeature";
 
 interface FeatureFormProps {
   feature?: Feature | null;
@@ -22,6 +23,8 @@ export function FeatureForm({
   onSubmit,
   onCancel,
 }: FeatureFormProps) {
+  const { data: categories, isLoading: categoriesLoading } = useFeatureCategories();
+
   const {
     register,
     handleSubmit,
@@ -72,12 +75,27 @@ export function FeatureForm({
         >
           Category
         </label>
-        <input
-          id="category"
-          type="text"
-          {...register("category")}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none"
-        />
+
+        {categoriesLoading ? (
+          <div className="h-9 w-full animate-pulse rounded-md bg-gray-100" />
+        ) : (
+          <select
+            id="category"
+            {...register("category")}
+            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-gray-500 focus:outline-none"
+          >
+            <option value="">Select a category</option>
+            {categories?.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+            {feature?.category && !categories?.includes(feature.category) && (
+              <option value={feature.category}>{feature.category}</option>
+            )}
+          </select>
+        )}
+
         {errors.category && (
           <span className="text-xs text-red-600">
             {errors.category.message}
@@ -90,7 +108,7 @@ export function FeatureForm({
           htmlFor="description"
           className="text-sm font-medium text-gray-700"
         >
-          Description
+          Description (Optional)
         </label>
         <textarea
           id="description"

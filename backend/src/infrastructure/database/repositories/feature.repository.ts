@@ -104,6 +104,15 @@ export class FeatureRepository implements IFeatureRepository {
     };
   }
 
+  async getCategories(): Promise<string[]> {
+  const categories = await FeatureModel.distinct("category", {
+    deletedAt: null,
+    category: { $nin: [null, ""] },
+  });
+
+  return (categories as string[]).sort((a, b) => a.localeCompare(b));
+}
+
   private toDomain(doc: FeatureDocument): Feature {
     return {
       id: doc._id.toString(),

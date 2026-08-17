@@ -19,6 +19,9 @@ export const featureApi = {
   getOne: (id: string) =>
     apiClient.get<Feature>(`/features/${id}`),
 
+  getCategories: () =>
+    apiClient.get<string[]>('/features/categories'),
+
   create: (payload: CreateFeatureInput) =>
     apiClient.post<Feature>('/features', payload),
 

@@ -52,6 +52,14 @@ export function useCreateFeature() {
   });
 }
 
+export function useFeatureCategories() {
+  return useQuery({
+    queryKey: [...FEATURE_KEYS.all, 'categories'] as const,
+    queryFn: () => featureApi.getCategories(),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export function useUpdateFeature() {
   const queryClient = useQueryClient();
 
@@ -114,4 +122,6 @@ export function useUnblockFeature() {
       toast.error(getErrorMessage(error, 'Failed to unblock feature'));
     },
   });
+
+  
 }

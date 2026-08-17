@@ -111,4 +111,10 @@ export class FeatureController {
 
     ApiResponse.success(res, updatedFeature, 200, "Feature unblocked successfully");
   });
+
+  getFeatureCategories = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const categories = await this.featureRepository.getCategories();
+    ApiResponse.success(res, categories, 200, "Categories fetched successfully");
+  });
+
 }
