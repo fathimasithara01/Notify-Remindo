@@ -25,11 +25,22 @@ const refreshClient: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
-const redirectToLogin = () => {
-  if (
-    typeof window !== "undefined" &&
-    window.location.pathname !== "/login"
-  ) {
+let hasRedirected = false;
+
+const clearSessionAndRedirect = async () => {
+  if (hasRedirected) return;
+  hasRedirected = true;
+
+  // Best-effort: ask the backend to expire the httpOnly cookies so the
+  // middleware doesn't see a (corrupt/invalid) refreshToken and bounce
+  // us straight back to the dashboard, causing a redirect loop.
+  try {
+    await refreshClient.post("/auth/logout");
+  } catch {
+    // ignore — we're redirecting to login regardless
+  }
+
+  if (typeof window !== "undefined" && window.location.pathname !== "/login") {
     window.location.replace("/login");
   }
 };
@@ -50,7 +61,11 @@ const refreshAccessToken = async (): Promise<void> => {
 };
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // a successful call means the session is good again
+    hasRedirected = false;
+    return response;
+  },
 
   async (error: AxiosError) => {
     const originalRequest =
@@ -76,7 +91,7 @@ axiosInstance.interceptors.response.use(
     }
 
     if (originalRequest._retry) {
-      redirectToLogin();
+      await clearSessionAndRedirect();
       return Promise.reject(error);
     }
 
@@ -86,7 +101,7 @@ axiosInstance.interceptors.response.use(
       await refreshAccessToken();
       return axiosInstance(originalRequest);
     } catch (refreshError) {
-      redirectToLogin();
+      await clearSessionAndRedirect();
       return Promise.reject(refreshError);
     }
   }
