@@ -98,7 +98,7 @@ export function SubscriptionPlanForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Description (Optional)</FormLabel>
               <FormControl>
                 <Textarea rows={3} {...field} />
               </FormControl>

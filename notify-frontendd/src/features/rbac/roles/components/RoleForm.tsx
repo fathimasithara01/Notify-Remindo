@@ -53,7 +53,10 @@ export function RoleForm({ mode, role, onSubmit, isSubmitting, onCancel }: RoleF
     const togglePermission = (id: string, checked: boolean) => {
         const current = new Set(form.getValues('permissionIds') ?? []);
         checked ? current.add(id) : current.delete(id);
-        form.setValue('permissionIds', Array.from(current));
+        form.setValue('permissionIds', Array.from(current), {
+            shouldValidate: true,
+            shouldDirty: true,
+        });
     };
 
     return (
@@ -109,29 +112,40 @@ export function RoleForm({ mode, role, onSubmit, isSubmitting, onCancel }: RoleF
                     )}
                 />
 
-                <div>
-                    <label className="text-sm font-medium leading-none">Permissions</label>
-                    <div className="mt-2 max-h-64 space-y-4 overflow-y-auto rounded-md border p-3">
-                        {Object.entries(grouped).map(([moduleName, perms]) => (
-                            <div key={moduleName}>
-                                <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">
-                                    {moduleName}
-                                </p>
-                                <div className="space-y-1">
-                                    {perms.map((p) => (
-                                        <label key={p.id} className="flex items-center gap-2 text-sm">
-                                            <Checkbox
-                                                checked={selected.has(p.id)}
-                                                onCheckedChange={(checked) => togglePermission(p.id, checked === true)}
-                                            />
-                                            {p.label}
-                                        </label>
+                {/* ✅ Permissions now wrapped in FormField so validation errors
+                    (e.g. "Select at least one feature") actually render */}
+                <FormField
+                    control={form.control}
+                    name="permissionIds"
+                    render={() => (
+                        <FormItem>
+                            <FormLabel>Permissions</FormLabel>
+                            <FormControl>
+                                <div className="mt-2 max-h-64 space-y-4 overflow-y-auto rounded-md border p-3">
+                                    {Object.entries(grouped).map(([moduleName, perms]) => (
+                                        <div key={moduleName}>
+                                            <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">
+                                                {moduleName}
+                                            </p>
+                                            <div className="space-y-1">
+                                                {perms.map((p) => (
+                                                    <label key={p.id} className="flex items-center gap-2 text-sm">
+                                                        <Checkbox
+                                                            checked={selected.has(p.id)}
+                                                            onCheckedChange={(checked) => togglePermission(p.id, checked === true)}
+                                                        />
+                                                        {p.label}
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
                 <div className="flex justify-end gap-2 pt-2">
                     <Button type="button" variant="outline" onClick={onCancel}>
