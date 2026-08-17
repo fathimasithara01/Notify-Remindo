@@ -47,7 +47,7 @@ interface SidebarItemProps {
 }
 
 function SidebarItem({ href, label, icon: Icon, pathname, collapsed }: SidebarItemProps) {
-  const isActive = pathname === href || pathname.startsWith(`${href}/`);
+  const isActive = pathname === href;
 
   const link = (
     <Link
@@ -246,7 +246,7 @@ export function Sidebar() {
           )}
 
           {subscriptionRoutes.length > 0 && (
-            <div className="mt-7">
+            <div className="mb-7">
               {collapsed ? (
                 <Tooltip delayDuration={200}>
                   <TooltipTrigger asChild>
@@ -290,7 +290,7 @@ export function Sidebar() {
                   </button>
 
                   {subscriptionOpen && (
-                    <div className="ml-3 mt-1 space-y-1 border-l pl-3">
+                    <div className="ml-3 mt-1 space-y-1 border-l border-border pl-3">
                       {subscriptionRoutes.map((href) => {
                         const item = byHref(href)!;
                         return (
