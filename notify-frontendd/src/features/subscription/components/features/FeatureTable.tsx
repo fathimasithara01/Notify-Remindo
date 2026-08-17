@@ -6,6 +6,7 @@ import { FeatureStatusBadge } from "./FeatureStatusBadge";
 import { useAuth } from "@/providers/AuthProvider";
 import { PERMISSIONS } from "@/config/permissions";
 
+
 interface FeatureTableProps {
   features: Feature[];
   isLoading: boolean;

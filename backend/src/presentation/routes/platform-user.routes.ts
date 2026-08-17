@@ -16,34 +16,34 @@ router.use(authenticate);
 
 router.post(
   '/',
-  requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
+  requirePermission(PERMISSIONS.PLATFORM_USER_CREATE),
   validateRequest(createPlatformUserSchema),
   asyncHandler(controller.create)
 );
-router.get('/', requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), asyncHandler(controller.list));
-router.get('/:id', requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), asyncHandler(controller.getOne));
-router.patch('/:id', requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), asyncHandler(controller.update));
-router.delete('/:id', requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE), asyncHandler(controller.delete));
+router.get('/', requirePermission(PERMISSIONS.PLATFORM_USER_VIEW), asyncHandler(controller.list));
+router.get('/:id', requirePermission(PERMISSIONS.PLATFORM_USER_VIEW), asyncHandler(controller.getOne));
+router.patch('/:id', requirePermission(PERMISSIONS.PLATFORM_USER_UPDATE), asyncHandler(controller.update));
+router.delete('/:id', requirePermission(PERMISSIONS.PLATFORM_USER_DELETE), asyncHandler(controller.delete));
 
-router.post(
-  '/:id/revoke-sessions',
-  requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
-  asyncHandler(controller.revokeSessions)
-);
+// router.post(
+//   '/:id/revoke-sessions',
+//   requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
+//   asyncHandler(controller.revokeSessions)
+// );
 router.post(
   '/:id/request-password-reset',
-  requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
+  requirePermission(PERMISSIONS.PLATFORM_RESET_ADMIN_PASSWORD),
   asyncHandler(controller.requestPasswordReset)
 );
 
 router.post(
   '/:id/block',
-  requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
+  requirePermission(PERMISSIONS.PLATFORM_BLOCK),
   asyncHandler(controller.block)
 );
 router.post(
   '/:id/unblock',
-  requirePermission(PERMISSIONS.PLATFORM_USER_MANAGE),
+  requirePermission(PERMISSIONS.PLATFORM_BLOCK),
   asyncHandler(controller.unblock)
 );
 

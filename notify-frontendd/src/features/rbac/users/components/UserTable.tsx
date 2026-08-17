@@ -64,7 +64,7 @@ export function UserTable({
   const [confirmDeactivate, setConfirmDeactivate] = useState<User | null>(null);
   const { hasPermission } = useAuth();
 
-  const canUpdate = hasPermission(PERMISSIONS.USER_UPDATE);
+  const canUpdate = hasPermission(PERMISSIONS.PLATFORM_USER_UPDATE);
   const canAssignRole = hasPermission(PERMISSIONS.ROLE_ASSIGN);
 
   if (isLoading) {

@@ -11,15 +11,23 @@ export const PERMISSIONS = {
   ORG_UPGRADE_PLAN: 'org.upgrade_plan',
   ORG_ASSIGN_SALESMAN: 'org.assign_salesman',
 
+  PLATFORM_USER_CREATE: 'user.create',
+  PLATFORM_USER_VIEW: 'user.view',
+  PLATFORM_USER_UPDATE: 'user.update',
+  PLATFORM_USER_DELETE: 'user.delete',
+  PLATFORM_USER_INVITE: 'user.invite',
+  PLATFORM_RESET_ADMIN_PASSWORD: 'user.reset_admin_password',
+  PLATFORM_BLOCK: 'user.block',
+
   DASHBOARD_VIEW: 'dashboard.view',
   AUDITLOG_VIEW: 'auditlog.view',
 
   // User (org-level)
-  USER_CREATE: 'user.create',
-  USER_VIEW: 'user.view',
-  USER_UPDATE: 'user.update',
-  USER_DELETE: 'user.delete',
-  USER_INVITE: 'user.invite',
+  // USER_CREATE: 'user.create',
+  // USER_VIEW: 'user.view',
+  // USER_UPDATE: 'user.update',
+  // USER_DELETE: 'user.delete',
+  // USER_INVITE: 'user.invite',
 
   // Role
   ROLE_CREATE: 'role.create',
@@ -27,10 +35,6 @@ export const PERMISSIONS = {
   ROLE_UPDATE: 'role.update',
   ROLE_DELETE: 'role.delete',
   ROLE_ASSIGN: 'role.assign',
-
-  // Platform (super-admin scope)
-  PLATFORM_USER_MANAGE: 'platform.user.manage',
-  PLATFORM_ORG_MANAGE: 'platform.org.manage',
 
   // Subscription Plan (catalog CRUD)
   PLAN_CREATE: 'plan.create',
@@ -43,6 +47,7 @@ export const PERMISSIONS = {
   FEATURE_CREATE: 'feature.create',
   FEATURE_UPDATE: 'feature.update',
   FEATURE_DELETE: 'feature.delete',
+  FEATURE_BLOCK: 'feature.block',
 
   // Notification
   NOTIFICATION_CREATE: 'notification.create',

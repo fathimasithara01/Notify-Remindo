@@ -14,12 +14,20 @@ export const PERMISSIONS = {
   DASHBOARD_VIEW: 'dashboard.view',
   AUDITLOG_VIEW: 'auditlog.view',
 
+  PLATFORM_USER_CREATE: 'user.create',
+  PLATFORM_USER_VIEW: 'user.view',
+  PLATFORM_USER_UPDATE: 'user.update',
+  PLATFORM_USER_DELETE: 'user.delete',
+  PLATFORM_USER_INVITE: 'user.invite',
+  PLATFORM_RESET_ADMIN_PASSWORD: 'user.reset_admin_password',
+  PLATFORM_BLOCK: 'user.block',
+
   // User (org-level)
-  USER_CREATE: 'user.create',
-  USER_VIEW: 'user.view',
-  USER_UPDATE: 'user.update',
-  USER_DELETE: 'user.delete',
-  USER_INVITE: 'user.invite',
+  // USER_CREATE: 'user.create',
+  // USER_VIEW: 'user.view',
+  // USER_UPDATE: 'user.update',
+  // USER_DELETE: 'user.delete',
+  // USER_INVITE: 'user.invite',
 
   // Rolea
   ROLE_CREATE: 'role.create',
@@ -27,20 +35,17 @@ export const PERMISSIONS = {
   ROLE_UPDATE: 'role.update',
   ROLE_DELETE: 'role.delete',
   ROLE_ASSIGN: 'role.assign',
-
-  // Platform (super-admin scope)
-  PLATFORM_USER_MANAGE: 'platform.user.manage',
-  PLATFORM_ORG_MANAGE: 'platform.org.manage',
-
+  
   PLAN_CREATE: 'plan.create',
   PLAN_VIEW: 'plan.view',
   PLAN_UPDATE: 'plan.update',
   PLAN_DELETE: 'plan.delete',
 
-  SUBSCRIPTION_CREATE: 'subscription.create',
-  SUBSCRIPTION_VIEW: 'subscription.view',
-  SUBSCRIPTION_UPDATE: 'subscription.update',
-  SUBSCRIPTION_CANCEL: 'subscription.cancel',
+ FEATURE_VIEW: 'feature.view',
+  FEATURE_CREATE: 'feature.create',
+  FEATURE_UPDATE: 'feature.update',
+  FEATURE_DELETE: 'feature.delete',
+  FEATURE_BLOCK: 'feature.block',
 
   NOTIFICATION_CREATE: 'notification.create',
   NOTIFICATION_VIEW: 'notification.view',

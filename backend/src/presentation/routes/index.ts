@@ -4,7 +4,7 @@ import roleRoutes from './role.routes';
 import organizationRoutes from './organization.routes';
 import subscriptionRoutes from './subscription.routes';
 import dashboardRoutes from './dashboard.routes';
-import userRoutes from './user.routes';
+// import userRoutes from './user.routes';
 import auditLogRoutes from './audit-log.routes';
 import adminRoutes from './platform-user.routes';
 import features from './feature.routes';
@@ -21,7 +21,7 @@ router.use('/organizations', organizationRoutes);
 // router.use('/organizations',organizationDocuments)
 router.use('/subscription-plans', subscriptionRoutes);
 router.use('/dashboard', dashboardRoutes);
-router.use('/users', userRoutes);
+// router.use('/users', userRoutes);
 router.use('/audit-logs', auditLogRoutes);
 router.use('/admin', adminRoutes);
 router.use('/features', features);

@@ -157,7 +157,7 @@ export default function UsersPage() {
             Create, edit, and manage access for your organization&apos;s users.
           </p>
         </div>
-        {hasPermission(PERMISSIONS.USER_CREATE) && (
+        {hasPermission(PERMISSIONS.PLATFORM_USER_CREATE) && (
           <Button onClick={() => setDialog({ type: 'create' })}>
             <Plus className="mr-2 h-4 w-4" />
             Create user
