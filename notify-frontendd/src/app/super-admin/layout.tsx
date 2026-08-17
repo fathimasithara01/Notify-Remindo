@@ -1,21 +1,36 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/providers/AuthProvider';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Loader2 } from 'lucide-react';
 import { ROUTES } from '@/config/routes';
+import { NAV_ITEMS } from '@/config/nav-config';
 
 function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, isLoading, isError } = useAuth();
+  const pathname = usePathname();
+  const { user, isLoading, isError, hasPermission } = useAuth();
 
   useEffect(() => {
     if (isError) {
       router.replace(ROUTES.login);
     }
   }, [isError, router]);
+
+  useEffect(() => {
+    if (isLoading || isError || !user) return;
+
+    const matchedItem = NAV_ITEMS.find(
+      (item) => pathname === item.href || pathname.startsWith(`${item.href}/`)
+    );
+
+    // if this route is guarded by a permission and the user doesn't have it, kick them out
+    if (matchedItem?.permission && !hasPermission(matchedItem.permission)) {
+      router.replace(ROUTES.dashboard); // or a dedicated /unauthorized page
+    }
+  }, [pathname, isLoading, isError, user, hasPermission, router]);
 
   if (isLoading) {
     return (
