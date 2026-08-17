@@ -1,11 +1,12 @@
 export const ROUTES = {
+  unauthorized: '/super-admin/unauthorized',
   login: '/login',
   dashboard: '/super-admin/dashboard',
   organizations: {
     list: '/super-admin/organizations',
     new: '/super-admin/organizations/new',
     detail: (id: string) => `/super-admin/organizations/${id}`,
-    edit: (id:string) => `/super-admin/organizations/${id}/edit`
+    edit: (id: string) => `/super-admin/organizations/${id}/edit`
   },
 
   roles: {
