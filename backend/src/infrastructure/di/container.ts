@@ -12,7 +12,6 @@ import { AuditLogRepository } from '../database/repositories/audit-log.repositor
 // Services
 import { BcryptHashService } from '../services/bcrypt-hash.service';
 import { JwtTokenService } from '../services/jwt-token.service';
-import { EmailNotifierService } from '../services/email-notifier.service';
 import { TokenRevocationRegistry } from '../cache/token-revocation-registry';
 
 // Use-cases
@@ -83,7 +82,6 @@ export function registerDependencies(): void {
   // Services
   container.registerSingleton(TOKENS.HashService, BcryptHashService);
   container.registerSingleton(TOKENS.TokenService, JwtTokenService);
-  container.registerSingleton(TOKENS.EmailNotifierService, EmailNotifierService);
   container.registerSingleton(TOKENS.TokenRevocationRegistry, TokenRevocationRegistry);
   container.registerSingleton(TOKENS.RequestPasswordResetUseCase, RequestPasswordResetUseCase);
   container.registerSingleton(TOKENS.ResetPasswordUseCase, ResetPasswordUseCase);
