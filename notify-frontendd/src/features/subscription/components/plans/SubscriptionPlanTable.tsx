@@ -12,12 +12,14 @@ import { Button } from "@/components/ui/button";
 import { SubscriptionPlan, SubscriptionPlanStatus } from "../../types/subscription-plan.types";
 import { SubscriptionPlanStatusBadge } from "./SubscriptionPlanStatusBadge";
 
+import { useAuth } from "@/providers/AuthProvider";
+import { PERMISSIONS } from "@/config/permissions";
+
 interface SubscriptionPlanTableProps {
   plans: SubscriptionPlan[];
   isLoading: boolean;
   actionPendingId: string | null;
   onEdit: (plan: SubscriptionPlan) => void;
-//   onDelete: (plan: SubscriptionPlan) => void;
   onToggleStatus: (plan: SubscriptionPlan) => void;
 }
 
@@ -26,9 +28,11 @@ export function SubscriptionPlanTable({
   isLoading,
   actionPendingId,
   onEdit,
-//   onDelete,
   onToggleStatus,
 }: SubscriptionPlanTableProps) {
+  const { hasPermission } = useAuth();
+  const canUpdate = hasPermission(PERMISSIONS.PLAN_UPDATE);
+
   if (isLoading && plans.length === 0) {
     return <div className="py-16 text-center text-sm text-muted-foreground">Loading plans...</div>;
   }
@@ -70,31 +74,26 @@ export function SubscriptionPlanTable({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={isPending}
-                      onClick={() => onEdit(plan)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={isPending}
-                      onClick={() => onToggleStatus(plan)}
-                    >
-                      {isPending ? "..." : isActive ? "Block" : "Unblock"}
-                    </Button>
-                    {/* <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive"
-                      disabled={isPending}
-                      onClick={() => onDelete(plan)}
-                    >
-                      Delete
-                    </Button> */}
+                    {canUpdate && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={isPending}
+                        onClick={() => onEdit(plan)}
+                      >
+                        Edit
+                      </Button>
+                    )}
+                    {canUpdate && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={isPending}
+                        onClick={() => onToggleStatus(plan)}
+                      >
+                        {isPending ? "..." : isActive ? "Block" : "Unblock"}
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

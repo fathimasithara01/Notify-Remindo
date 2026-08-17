@@ -20,12 +20,14 @@ import {
 } from "@/components/ui/dialog";
 import { Role } from "../types/role.types";
 
+import { useAuth } from "@/providers/AuthProvider";
+import { PERMISSIONS } from "@/config/permissions";
+
 interface RoleTableProps {
   roles: Role[];
   isLoading: boolean;
   actionPendingId: string | null;
   onEdit: (role: Role) => void;
-//   onDelete: (role: Role) => void;
   onToggleStatus: (role: Role) => void;
 }
 
@@ -34,10 +36,13 @@ export function RoleTable({
   isLoading,
   actionPendingId,
   onEdit,
-//   onDelete,
   onToggleStatus,
 }: RoleTableProps) {
   const [viewingRole, setViewingRole] = useState<Role | null>(null);
+  const { hasPermission } = useAuth();
+
+  const canUpdate = hasPermission(PERMISSIONS.ROLE_UPDATE);
+  const canView = hasPermission(PERMISSIONS.ROLE_VIEW);
 
   if (isLoading && roles.length === 0) {
     return <div className="py-16 text-center text-sm text-muted-foreground">Loading roles...</div>;
@@ -65,6 +70,7 @@ export function RoleTable({
           {roles.map((role) => {
             const isPending = actionPendingId === role.id;
             const isActive = role.status === "active";
+            const canToggleStatus = canUpdate && !role.isSystem;
 
             return (
               <TableRow key={role.id}>
@@ -86,44 +92,36 @@ export function RoleTable({
                 <TableCell>
                   <Badge
                     variant={isActive ? "default" : "secondary"}
-                    className={role.isSystem ? "" : "cursor-pointer select-none gap-1"}
-                    onClick={() => !isPending && !role.isSystem && onToggleStatus(role)}
+                    className={canToggleStatus ? "cursor-pointer select-none gap-1" : ""}
+                    onClick={() => canToggleStatus && !isPending && onToggleStatus(role)}
                   >
                     {isPending ? "..." : isActive ? "Active" : "Inactive"}
-                    {!role.isSystem && !isPending && <ChevronDown className="h-3 w-3" />}
+                    {canToggleStatus && !isPending && <ChevronDown className="h-3 w-3" />}
                   </Badge>
                 </TableCell>
-                {/* <TableCell className="text-muted-foreground">
-                  {new Date(role.updatedAt).toLocaleDateString()}
-                </TableCell> */}
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8"
-                      title="View"
-                      onClick={() => setViewingRole(role)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={isPending || role.isSystem}
-                      onClick={() => onEdit(role)}
-                    >
-                      Edit
-                    </Button>
-                    {/* <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive"
-                      disabled={isPending || role.isSystem}
-                      onClick={() => onDelete(role)}
-                    >
-                      Delete
-                    </Button> */}
+                    {canView && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        title="View"
+                        onClick={() => setViewingRole(role)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {canUpdate && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={isPending || role.isSystem}
+                        onClick={() => onEdit(role)}
+                      >
+                        Edit
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

@@ -3,12 +3,14 @@
 import { Feature, FeatureStatus } from "../../types/feature.types";
 import { FeatureStatusBadge } from "./FeatureStatusBadge";
 
+import { useAuth } from "@/providers/AuthProvider";
+import { PERMISSIONS } from "@/config/permissions";
+
 interface FeatureTableProps {
   features: Feature[];
   isLoading: boolean;
   actionPendingId: string | null;
   onEdit: (feature: Feature) => void;
-//   onDelete: (feature: Feature) => void;
   onToggleStatus: (feature: Feature) => void;
 }
 
@@ -17,9 +19,11 @@ export function FeatureTable({
   isLoading,
   actionPendingId,
   onEdit,
-//   onDelete,
   onToggleStatus,
 }: FeatureTableProps) {
+  const { hasPermission } = useAuth();
+  const canUpdate = hasPermission(PERMISSIONS.PLAN_UPDATE);
+
   if (isLoading && features.length === 0) {
     return (
       <div className="flex items-center justify-center py-16 text-sm text-gray-500">
@@ -71,27 +75,24 @@ export function FeatureTable({
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => onEdit(feature)}
-                      disabled={isPending}
-                      className="rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onToggleStatus(feature)}
-                      disabled={isPending}
-                      className="rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-                    >
-                      {isPending ? "..." : isActive ? "Block" : "Unblock"}
-                    </button>
-                    {/* <button
-                      onClick={() => onDelete(feature)}
-                      disabled={isPending}
-                      className="rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
-                    >
-                      Delete
-                    </button> */}
+                    {canUpdate && (
+                      <button
+                        onClick={() => onEdit(feature)}
+                        disabled={isPending}
+                        className="rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {canUpdate && (
+                      <button
+                        onClick={() => onToggleStatus(feature)}
+                        disabled={isPending}
+                        className="rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                      >
+                        {isPending ? "..." : isActive ? "Block" : "Unblock"}
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

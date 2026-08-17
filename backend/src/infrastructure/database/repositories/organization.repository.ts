@@ -153,7 +153,6 @@ export class OrganizationRepository implements IOrganizationRepository {
     if (filters.status) match.status = filters.status;
     if (filters.planId) match.currentPlanId = filters.planId;
     if (filters.salesmanId) match.salesmanId = filters.salesmanId;
-    // happens after admin/plan are joined, so it can match across fields
 
     const [result] = await OrganizationModel.aggregate([
       { $match: match },
@@ -166,6 +165,7 @@ export class OrganizationRepository implements IOrganizationRepository {
             {
               $match: {
                 $expr: { $eq: ['$organizationId', '$$organizationId'] },
+                deletedAt: null,
               },
             },
             {
@@ -176,23 +176,18 @@ export class OrganizationRepository implements IOrganizationRepository {
                 as: 'role',
               },
             },
-            { $unwind: { path: '$role', preserveNullAndEmptyArrays: false } },
+            { $unwind: { path: '$role', preserveNullAndEmptyArrays: true } },
             {
+              // relaxed: matches "org admin", "orgadmin", "Organization Admin", "Admin" etc.
               $match: {
-                'role.name': { $regex: '^org\\s*admin$', $options: 'i' },
+                'role.name': { $regex: 'admin', $options: 'i' },
               },
             },
+            { $sort: { createdAt: 1 } }, // pick earliest-created admin deterministically
             {
-              $match: {
-                $or: [
-                  { status: { $in: ['active', 'invited'] } },
-                  { status: { $exists: false } },
-                ],
-                deletedAt: null,
+              $project: {
+                _id: 1, firstName: 1, lastName: 1, email: 1, phone: 1, status: 1,
               },
-            },
-            {
-              $project: { _id: 1, firstName: 1, lastName: 1, email: 1, phone: 1 },
             },
             { $limit: 1 },
           ],
@@ -211,7 +206,6 @@ export class OrganizationRepository implements IOrganizationRepository {
       },
       { $unwind: { path: '$plan', preserveNullAndEmptyArrays: true } },
 
-      // ✅ Search across org name, business email, admin email, and plan name
       ...(filters.search
         ? [
             {
@@ -282,7 +276,7 @@ export class OrganizationRepository implements IOrganizationRepository {
       items,
       meta: { total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) },
     };
-  }
+}
 
   async block(id: string): Promise<Organization | null> {
     const doc = await OrganizationModel.findOneAndUpdate(

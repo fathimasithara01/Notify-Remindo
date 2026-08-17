@@ -33,6 +33,9 @@ import {
 import { USER_STATUS_META } from '../../shared/constants';
 import type { User } from '../types/user.types';
 
+import { useAuth } from '@/providers/AuthProvider';
+import { PERMISSIONS } from '@/config/permissions';
+
 interface UserTableProps {
   users: User[];
   isLoading: boolean;
@@ -43,7 +46,6 @@ interface UserTableProps {
   onRequestPasswordReset: (user: User) => void;
   onBlock: (user: User) => void;
   onUnblock: (user: User) => void;
-  /** id of the user currently being blocked/unblocked, so only that row shows a spinner */
   pendingStatusUserId?: string | null;
 }
 
@@ -60,6 +62,10 @@ export function UserTable({
   pendingStatusUserId,
 }: UserTableProps) {
   const [confirmDeactivate, setConfirmDeactivate] = useState<User | null>(null);
+  const { hasPermission } = useAuth();
+
+  const canUpdate = hasPermission(PERMISSIONS.USER_UPDATE);
+  const canAssignRole = hasPermission(PERMISSIONS.ROLE_ASSIGN);
 
   if (isLoading) {
     return (
@@ -109,13 +115,11 @@ export function UserTable({
                 ) : (
                   <Switch
                     checked={isActive}
-                    disabled={isSelf}
+                    disabled={isSelf || !canUpdate}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        // reactivating is non-destructive — no confirmation needed
                         onUnblock(user);
                       } else {
-                        // deactivating removes access — confirm before acting
                         setConfirmDeactivate(user);
                       }
                     }}
@@ -167,25 +171,29 @@ export function UserTable({
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      title="Edit"
-                      onClick={() => onEdit(user)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      title="Manage roles"
-                      onClick={() => onManageRoles(user)}
-                    >
-                      <ShieldCheck className="h-4 w-4" />
-                    </Button>
-                    {isActive && (
+                    {canUpdate && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        title="Edit"
+                        onClick={() => onEdit(user)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {canAssignRole && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        title="Manage roles"
+                        onClick={() => onManageRoles(user)}
+                      >
+                        <ShieldCheck className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {isActive && canUpdate && (
                       <Button
                         variant="ghost"
                         size="icon"
@@ -204,7 +212,6 @@ export function UserTable({
         </TableBody>
       </Table>
 
-      {/* Deactivation is access-affecting, so confirm before acting */}
       <AlertDialog
         open={!!confirmDeactivate}
         onOpenChange={(open) => !open && setConfirmDeactivate(null)}
