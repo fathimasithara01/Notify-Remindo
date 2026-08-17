@@ -6,16 +6,21 @@ const PROTECTED_PREFIX = '/super-admin';
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
   const accessToken = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value;
+
   const isProtectedRoute = pathname.startsWith(PROTECTED_PREFIX);
   const isLoginPage = pathname === ROUTES.login;
 
-  if (isProtectedRoute && !accessToken) {
+  const isAuthenticated = Boolean(accessToken) || Boolean(refreshToken);
+
+  if (isProtectedRoute && !isAuthenticated) {
     const loginUrl = createLoginRedirectUrl(request.url, pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isLoginPage && accessToken) {
+  if (isLoginPage && isAuthenticated) {
     return NextResponse.redirect(new URL(ROUTES.dashboard, request.url));
   }
 

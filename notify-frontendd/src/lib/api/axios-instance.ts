@@ -25,28 +25,6 @@ const refreshClient: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
-let isRefreshing = false;
-
-type QueuedRequest = {
-  resolve: (value: unknown) => void;
-  reject: (reason?: unknown) => void;
-  config: InternalAxiosRequestConfig;
-};
-
-let failedQueue: QueuedRequest[] = [];
-
-const processQueue = (error?: unknown) => {
-  failedQueue.forEach(({ resolve, reject, config }) => {
-    if (error) {
-      reject(error);
-    } else {
-      resolve(axiosInstance(config));
-    }
-  });
-
-  failedQueue = [];
-};
-
 const redirectToLogin = () => {
   if (
     typeof window !== "undefined" &&
@@ -61,7 +39,7 @@ let refreshPromise: Promise<void> | null = null;
 const refreshAccessToken = async (): Promise<void> => {
   if (!refreshPromise) {
     refreshPromise = refreshClient
-      .post('/auth/refresh-token')
+      .post("/auth/refresh-token")
       .then(() => undefined)
       .finally(() => {
         refreshPromise = null;
@@ -85,20 +63,20 @@ axiosInstance.interceptors.response.use(
     const status = error.response?.status;
     const url = originalRequest.url ?? "";
 
-
     if (status !== 401) {
       return Promise.reject(error);
     }
 
     if (
-      url.includes('/auth/login') ||
-      url.includes('/auth/refresh-token') ||
-      url.includes('/auth/logout')
+      url.includes("/auth/login") ||
+      url.includes("/auth/refresh-token") ||
+      url.includes("/auth/logout")
     ) {
       return Promise.reject(error);
     }
 
     if (originalRequest._retry) {
+      redirectToLogin();
       return Promise.reject(error);
     }
 
@@ -106,16 +84,9 @@ axiosInstance.interceptors.response.use(
 
     try {
       await refreshAccessToken();
-
       return axiosInstance(originalRequest);
     } catch (refreshError) {
-      const refreshStatus =
-        (refreshError as AxiosError).response?.status;
-
-      if (refreshStatus === 401 || refreshStatus === 429) {
-        redirectToLogin();
-      }
-
+      redirectToLogin();
       return Promise.reject(refreshError);
     }
   }
