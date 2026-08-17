@@ -14,6 +14,8 @@ export interface OrganizationDocument extends Document {
 
   salesmanId?: Types.ObjectId | null;
 
+  preBlockStatus?: OrganizationStatus | null;  
+
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -32,8 +34,14 @@ const organizationSchema = new Schema<OrganizationDocument>(
       ref: 'SubscriptionPlan',
       default: null,
     },
-    currentPlanName: { type: String , default: null},
+    currentPlanName: { type: String, default: null },
     salesmanId: { type: Schema.Types.ObjectId, ref: 'Salesman', default: null },
+
+    preBlockStatus: {                                                 // ← add this
+      type: String,
+      enum: ['pending', 'active', 'blocked', 'expired'],
+      default: null,
+    },
 
     deletedAt: { type: Date, default: null },
   },
@@ -42,11 +50,3 @@ const organizationSchema = new Schema<OrganizationDocument>(
 
 organizationSchema.index({ businessEmail: 1 }, { unique: true });
 export const OrganizationModel = model<OrganizationDocument>('Organization', organizationSchema);
-
-
-// fileName → file name kaanikkaan
-// fileUrl → file view/download cheyyan
-// fileKey → S3/Cloudinary-il file delete/manage cheyyan useful
-// mimeType → PDF, JPG, PNG enn identify cheyyan
-// fileSize → file size kaanikkaan / validation
-// uploadedAt → eppol upload cheythu enn ariyaan

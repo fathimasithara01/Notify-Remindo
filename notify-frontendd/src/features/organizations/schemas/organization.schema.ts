@@ -17,7 +17,7 @@ export const createOrganizationSchema = z.object({
         .trim()
         .min(1, 'Business phone is required')
         .regex(
-            /^[0-9+\-\s()]{10,15}$/,
+            /^[0-9+\-\s()]{10,12}$/,
             'Enter a valid phone number'
         ),
 
@@ -59,7 +59,7 @@ export const createOrganizationSchema = z.object({
                 .trim()
                 .min(1, 'Admin phone is required')
                 .regex(
-                    /^[0-9+\-\s()]{10,15}$/,
+                    /^[0-9+\-\s()]{10,12}$/,
                     'Enter a valid phone number'
                 ),
 
@@ -105,7 +105,7 @@ export const editOrganizationFormSchema = z.object({
     .string()
     .trim()
     .min(1, "Business phone is required")
-    .regex(/^[0-9+\-\s()]{10,15}$/, "Enter a valid phone number"),
+    .regex(/^[0-9+\-\s()]{10,12}$/, "Enter a valid phone number"),
   address: z.string().trim().min(1, "Address is required"),
 
   adminFirstName: z.string().trim().min(1, "First name is required"),
@@ -115,7 +115,7 @@ export const editOrganizationFormSchema = z.object({
     .string()
     .trim()
     .min(1, "Admin phone is required")
-    .regex(/^[0-9+\-\s()]{10,15}$/, "Enter a valid phone number"),
+    .regex(/^[0-9+\-\s()]{10,12}$/, "Enter a valid phone number"),
 })
 
 

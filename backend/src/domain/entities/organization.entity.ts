@@ -12,6 +12,8 @@ export interface Organization {
 
   currentPlanId?: string | null;
   salesmanId?: string | null;
+  
+  preBlockStatus?: OrganizationStatus | null;  
 
   deletedAt?: Date | null;
   createdAt: Date;

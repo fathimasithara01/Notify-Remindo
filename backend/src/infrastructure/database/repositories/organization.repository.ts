@@ -208,17 +208,17 @@ export class OrganizationRepository implements IOrganizationRepository {
 
       ...(filters.search
         ? [
-            {
-              $match: {
-                $or: [
-                  { name: { $regex: filters.search, $options: 'i' } },
-                  { businessEmail: { $regex: filters.search, $options: 'i' } },
-                  { 'admin.email': { $regex: filters.search, $options: 'i' } },
-                  { 'plan.title': { $regex: filters.search, $options: 'i' } },
-                ],
-              },
+          {
+            $match: {
+              $or: [
+                { name: { $regex: filters.search, $options: 'i' } },
+                { businessEmail: { $regex: filters.search, $options: 'i' } },
+                { 'admin.email': { $regex: filters.search, $options: 'i' } },
+                { 'plan.title': { $regex: filters.search, $options: 'i' } },
+              ],
             },
-          ]
+          },
+        ]
         : []),
 
       { $sort: { createdAt: -1 } },
@@ -276,21 +276,34 @@ export class OrganizationRepository implements IOrganizationRepository {
       items,
       meta: { total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) },
     };
-}
+  }
 
   async block(id: string): Promise<Organization | null> {
+    const org = await OrganizationModel.findOne({ _id: id, deletedAt: null });
+    if (!org) return null;
+
+    const update: any = { status: 'blocked' };
+    if (org.status !== 'blocked') {
+      update.preBlockStatus = org.status;
+    }
+
     const doc = await OrganizationModel.findOneAndUpdate(
       { _id: id, deletedAt: null },
-      { status: 'blocked' },
+      update,
       { new: true },
     );
     return doc ? this.toDomain(doc) : null;
   }
 
   async unblock(id: string): Promise<Organization | null> {
+    const org = await OrganizationModel.findOne({ _id: id, deletedAt: null });
+    if (!org) return null;
+
+    const restoredStatus = org.preBlockStatus ?? (org.currentPlanId ? 'active' : 'pending');
+
     const doc = await OrganizationModel.findOneAndUpdate(
       { _id: id, deletedAt: null },
-      { status: 'active' },
+      { status: restoredStatus, $unset: { preBlockStatus: 1 } },
       { new: true },
     );
     return doc ? this.toDomain(doc) : null;
