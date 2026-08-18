@@ -102,8 +102,8 @@ export function SubscriptionPlansPage() {
   const closeViewModal = () => setViewingPlan(null);
 
   const plans = data?.items ?? [];
-  const total = data?.total ?? 0;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
+  // const total = data?.total ?? 0;
+  // const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
 
   const openCreateForm = () => {
     setEditingPlan(null);
@@ -212,7 +212,7 @@ export function SubscriptionPlansPage() {
         onToggleStatus={handleToggleStatus}
       />
 
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
+      {/* <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>Page {page} of {totalPages} &middot; {total} total</span>
         <div className="flex gap-2">
           <Button
@@ -232,7 +232,7 @@ export function SubscriptionPlansPage() {
             Next
           </Button>
         </div>
-      </div>
+      </div> */}
 
       {/* Create / Edit form dialog */}
       <Dialog open={isFormOpen} onOpenChange={(open) => !open && closeForm()}>

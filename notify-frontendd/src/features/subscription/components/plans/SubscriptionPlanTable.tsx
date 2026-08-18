@@ -8,6 +8,15 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+
+
+import {
+  Pencil,
+  Trash2,
+  Ban,
+  Eye
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { SubscriptionPlan, SubscriptionPlanStatus } from "../../types/subscription-plan.types";
 import { SubscriptionPlanStatusBadge } from "./SubscriptionPlanStatusBadge";
@@ -48,13 +57,13 @@ export function SubscriptionPlanTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>User Limit</TableHead>
-            <TableHead>Storage (GB)</TableHead>
-            <TableHead>Features</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="font-semibold">Title</TableHead>
+            <TableHead className="font-semibold">Price</TableHead>
+            <TableHead className="font-semibold">User Limit</TableHead>
+            <TableHead className="font-semibold">Storage (GB)</TableHead>
+            <TableHead className="font-semibold">Features</TableHead>
+            <TableHead className="font-semibold">Status</TableHead>
+            <TableHead className="text-right font-semibold">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -82,7 +91,8 @@ export function SubscriptionPlanTable({
                       disabled={isPending}
                       onClick={() => onView(plan)}
                     >
-                      View
+                      <Eye className="h-4 w-4" />
+
                     </Button>
                     {canUpdate && (
                       <Button
@@ -91,7 +101,7 @@ export function SubscriptionPlanTable({
                         disabled={isPending}
                         onClick={() => onEdit(plan)}
                       >
-                        Edit
+                        <Pencil className="h-4 w-4" />
                       </Button>
                     )}
                     {canUpdate && (

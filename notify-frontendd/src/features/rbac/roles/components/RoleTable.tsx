@@ -57,13 +57,13 @@ export function RoleTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Permissions</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Created By</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="font-semibold">Name</TableHead>
+            <TableHead className="font-semibold">Description</TableHead>
+            <TableHead className="font-semibold">Permissions</TableHead>
+            <TableHead className="font-semibold">Type</TableHead>
+            <TableHead className="font-semibold">Created By</TableHead>
+            <TableHead className="font-semibold">Status</TableHead>
+            <TableHead className="text-right font-semibold">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

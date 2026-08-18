@@ -48,7 +48,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-
 import { LoadingState } from "@/components/common/LoadingState";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
@@ -222,12 +221,12 @@ export function OrganizationTable() {
                     >
 
                       <TableCell>
-                        <Link
+                        {/* <Link
                           href={ROUTES.organizations.detail(org.id)}
                           className="font-medium hover:text-primary hover:underline"
-                        >
+                        > */}
                           {org.name}
-                        </Link>
+                        {/* </Link> */}
                       </TableCell>
 
                       <TableCell className="text-muted-foreground">

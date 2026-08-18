@@ -93,12 +93,12 @@ export function UserTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="font-semibold">Name</TableHead>
+            <TableHead className="font-semibold">Email</TableHead>
+            <TableHead className="font-semibold">Phone</TableHead>
+            <TableHead className="font-semibold">Role</TableHead>
+            <TableHead className="font-semibold">Status</TableHead>
+            <TableHead className="text-right font-semibold">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

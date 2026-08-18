@@ -46,12 +46,12 @@ export function FeatureTable({
       <table className="min-w-full divide-y divide-gray-200 text-sm">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-4 py-3 text-left font-medium text-gray-600">Title</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-600">Description</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-600">Category</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-600">Updated</th>
-            <th className="px-4 py-3 text-right font-medium text-gray-600">Actions</th>
+            <th className="px-4 py-3 text-left font-medium font-semibold">Title</th>
+            <th className="px-4 py-3 text-left  ">Description</th>
+            <th className="px-4 py-3 text-left font-semibold ">Category</th>
+            <th className="px-4 py-3 text-left font-semibold ">Status</th>
+            <th className="px-4 py-3 text-left font-semibold ">Updated</th>
+            <th className="px-4 py-3 text-right font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100 bg-white">

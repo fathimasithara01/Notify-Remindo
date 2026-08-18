@@ -47,8 +47,8 @@ export function FeaturesPage() {
   >(null);
 
   const features = data?.items ?? [];
-  const total = data?.total ?? 0;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
+  // const total = data?.total ?? 0;
+  // const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -180,11 +180,11 @@ export function FeaturesPage() {
         isLoading={isLoading}
         actionPendingId={actionPendingId}
         onEdit={openEditForm}
-        onDelete={handleDelete}
+        // onDelete={handleDelete}
         onToggleStatus={handleToggleStatus}
       />
 
-      <div className="flex items-center justify-between text-sm text-gray-600">
+      {/* <div className="flex items-center justify-between text-sm text-gray-600">
         <span>
           Page {page} of {totalPages} &middot; {total} total
         </span>
@@ -204,7 +204,7 @@ export function FeaturesPage() {
             Next
           </button>
         </div>
-      </div>
+      </div> */}
 
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
