@@ -8,7 +8,6 @@ export interface UserDocument extends Document {
   lastName: string;
   roleId: Types.ObjectId;
   phone: string;
-  tokenVersion: number;
   lastLoginAt?: Date;
   // inviteToken?: string;
   // inviteTokenExpiresAt?: Date;
@@ -32,7 +31,6 @@ const userSchema = new Schema<UserDocument>(
     // inviteTokenExpiresAt: { type: Date },
     resetPasswordToken: { type: String, index: true, sparse: true },
     resetPasswordTokenExpiresAt: { type: Date },
-    tokenVersion: { type: Number, default: 0 },
     lastLoginAt: { type: Date },
     // mustChangePassword: { type: Boolean, default: false },
   },

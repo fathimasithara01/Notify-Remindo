@@ -18,19 +18,6 @@ export interface IUserRepository {
   resetPassword(userId: string, passwordHash: string): Promise<boolean>;
   delete(id: string): Promise<boolean>;
 
-  list(filter?: {
-    organizationId?: string;
-    internalOnly?: boolean;
-    search?: string;
-    page: number;
-    limit: number;
-  }): Promise<PaginatedResult<User>>;
-
-  assignRole(userId: string, roleId: string): Promise<void>;
-
   findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null>;
-  findOneByOrganizationAndStatus(organizationId: string, status: OrganizationStatus): Promise<User | null>;
 
-  cancelInvite(userId: string): Promise<boolean>;
-  countByRoleId(roleId: string): Promise<number>;
 }

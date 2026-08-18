@@ -8,9 +8,8 @@ export interface User {
     firstName: string;
     lastName: string;
     roleId: string;
-    // status:UserStatus;
     phone: string,
-    tokenVersion: number;
+    
     lastLoginAt?: Date;
     resetPasswordToken?: string;
     resetPasswordTokenExpiresAt?: Date;

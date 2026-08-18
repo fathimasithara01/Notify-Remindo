@@ -48,33 +48,6 @@ export class UserRepository implements IUserRepository {
     return res.deletedCount > 0;
   }
 
-  async list(filter: {
-    organizationId?: string;
-    internalOnly?: boolean;
-    search?: string;
-    page: number;
-    limit: number;
-  }): Promise<PaginatedResult<User>> {
-    const params = { page: filter.page, limit: filter.limit };
-    const skip = getOffset(params);
-
-    const query: Record<string, unknown> = {};
-    // if (filter.status) query.status = filter.status;
-    if (filter.organizationId) query.organizationId = filter.organizationId;
-    if (filter.search) query.$text = { $search: filter.search };
-
-    const [docs, total] = await Promise.all([
-      UserModel.find(query).skip(skip).limit(params.limit).sort({ createdAt: -1 }),
-      UserModel.countDocuments(query),
-    ]);
-
-    return buildPaginatedResult(docs.map(this.toEntity), total, params);
-  }
-
-  async assignRole(userId: string, roleId: string): Promise<void> {
-    await UserModel.updateOne({ _id: userId }, { $set: { roleId } });
-  }
-
   async findOrganizationAdmin(organizationId: string): Promise<OrganizationAdminSummary | null> {
     const doc = await UserModel.findOne({ organizationId }).sort({ createdAt: 1 });
     if (!doc) return null;
@@ -88,20 +61,6 @@ export class UserRepository implements IUserRepository {
     };
   }
 
-  async cancelInvite(userId: string): Promise<boolean> {
-    const res = await UserModel.deleteOne({ _id: userId, status: 'invited' });
-    return res.deletedCount > 0;
-  }
-
-  async countByRoleId(roleId: string): Promise<number> {
-    return UserModel.countDocuments({ roleId });
-  }
-
-  async findOneByOrganizationAndStatus(organizationId: string, status: OrganizationStatus): Promise<User | null> {
-    const doc = await UserModel.findOne({ organizationId, status });
-    return doc ? this.toEntity(doc) : null;
-  }
-
   private toEntity(doc: UserDocument): User {
     return {
       id: doc._id.toString(),
@@ -112,7 +71,6 @@ export class UserRepository implements IUserRepository {
       lastName: doc.lastName,
       roleId: doc.roleId.toString(),
       phone: doc.phone,
-      tokenVersion: doc.tokenVersion,
       lastLoginAt: doc.lastLoginAt,
       // inviteToken: doc.inviteToken,
       // inviteTokenExpiresAt: doc.inviteTokenExpiresAt,

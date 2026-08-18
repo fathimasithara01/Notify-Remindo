@@ -39,7 +39,7 @@ import { AuthController } from '../../presentation/controllers/auth.controller';
 import { RoleController } from '../../presentation/controllers/role.controller';
 import { OrganizationController } from '../../presentation/controllers/organization.controller';
 import { DashboardController } from '../../presentation/controllers/dashboard.controller';
-import { UserController } from '../../presentation/controllers/user.controller';
+// import { UserController } from '../../presentation/controllers/user.controller';
 import { AuditLogController } from '../../presentation/controllers/audit-log.controller';
 import { UpdateFeatureUseCase } from '../../application/subscription/use-cases/feature/update-feature.use-case';
 import { DeleteFeatureUseCase } from '../../application/subscription/use-cases/feature/delete-feature.use-case';
@@ -60,7 +60,6 @@ import { ListPlatformUsersUseCase } from '../../application/platform-user/use-ca
 import { DeletePlatformUserUseCase } from '../../application/platform-user/use-cases/delete-platform-user.use-case';
 import { PlatformUserController } from '../../presentation/controllers/platform-user.controller';
 import { OrganizationRepository } from '../database/repositories/organization.repository';
-import { RevokeUserSessionsUseCase } from '../../application/user/use-cases/revoke-sessions.use-case';
 import { GetPlatformUserUseCase } from '../../application/platform-user/use-cases/get-platform-user.use-case';
 import { BlockPlatformUserUseCase } from '../../application/platform-user/use-cases/block-platform-user.use-case';
 import { UnblockPlatformUserUseCase } from '../../application/platform-user/use-cases/unblock-platform-user.use-cas';
@@ -74,7 +73,6 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.SubscriptionPlanRepository, SubscriptionPlanRepository);
   container.registerSingleton(TOKENS.FeatureRepository, FeatureRepository);
   container.registerSingleton(TOKENS.AuditLogRepository, AuditLogRepository);
-  container.registerSingleton(TOKENS.RevokeUserSessionsUseCase, RevokeUserSessionsUseCase),
     container.registerSingleton(TOKENS.UpdateOrganizationAdminUseCase, UpdateOrganizationAdminUseCase),
 
     container.register(TOKENS.BlockPlatformUserUseCase, { useClass: BlockPlatformUserUseCase });
@@ -126,7 +124,7 @@ export function registerDependencies(): void {
   container.registerSingleton(TOKENS.RoleController, RoleController);
   container.registerSingleton(TOKENS.OrganizationController, OrganizationController);
   container.registerSingleton(TOKENS.DashboardController, DashboardController);
-  container.registerSingleton(TOKENS.UserController, UserController);
+  // container.registerSingleton(TOKENS.UserController, UserController);
   container.registerSingleton(TOKENS.AuditLogController, AuditLogController);
 
   container.registerSingleton(TOKENS.PermissionResolver, PermissionResolver);

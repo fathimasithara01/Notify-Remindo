@@ -3,6 +3,7 @@ import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IPermissionResolver } from '../../../domain/services/IPermissionResolver';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
 import { IPlatformRoleRepository } from '../../../domain/repositories/platform-role.repository.interface';
+import { IPlatformUserRepository } from '../../../domain/repositories/platform-user.repository.interface';
 
 interface DeleteRoleInput {
   id: string;
@@ -13,7 +14,7 @@ interface DeleteRoleInput {
 export class DeleteRoleUseCase {
   constructor(
     @inject(TOKENS.PlatformRoleRepository) private roleRepository: IPlatformRoleRepository,
-    @inject(TOKENS.UserRepository) private userRepository: IUserRepository,
+        @inject(TOKENS.PlatformUserRepository) private platformUserRepo: IPlatformUserRepository,
     @inject(TOKENS.PermissionResolver) private permissionResolver: IPermissionResolver
   ) {}
 
@@ -25,7 +26,7 @@ export class DeleteRoleUseCase {
       throw new Error('System roles cannot be deleted');
     }
 
-    const usersWithRole = await this.userRepository.countByRoleId(input.id);
+    const usersWithRole = await this.platformUserRepo.countByRoleId(input.id);
     if (usersWithRole > 0) {
       throw new Error(`Cannot delete role: ${usersWithRole} user(s) still assigned`);
     }
